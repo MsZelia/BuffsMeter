@@ -120,7 +120,7 @@ package
          {
             if(this.lastPipboyChangeData == null)
             {
-               GlobalFunc.ShowHUDMessage("[BuffsMeter] No effects data");
+               GlobalFunc.ShowHUDMessage("[BuffsMeter] ERROR: No effects data");
             }
             else
             {
