@@ -11,14 +11,13 @@ package
    import Shared.AS3.IMenu;
    import Shared.GlobalFunc;
    import com.adobe.serialization.json.*;
+   import flash.display.Loader;
    import flash.display.MovieClip;
-   import flash.events.Event;
-   import flash.events.TimerEvent;
-   import flash.net.URLRequest;
+   import flash.events.*;
+   import flash.net.*;
    import flash.system.ApplicationDomain;
    import flash.system.LoaderContext;
-   import flash.utils.Timer;
-   import flash.utils.getDefinitionByName;
+   import flash.utils.*;
    
    [Embed(source="/_assets/assets.swf", symbol="symbol75")]
    public class PipboyMenu extends IMenu
@@ -31,6 +30,8 @@ package
       public static const PIPBOY_PAGE_DATA:uint = 2;
       
       public static const PIPBOY_PAGE_RADIO:uint = 3;
+      
+      public static const CONFIG_FILE:String = "../BuffsMeter.json";
        
       
       public var Header_mc:Pipboy_Header;
@@ -69,11 +70,15 @@ package
       
       public var READ_ONLY_WARNING_DEMO:* = 3;
       
-      private var lastPipboyChangeData:Object;
+      public var lastPipboyChangeData:Object;
       
-      private var isPipboySaveInit:Boolean = false;
+      public var isPipboySaveInit:Boolean = false;
+      
+      public var enableWidget:Boolean = false;
       
       public var __SFCodeObj:Object;
+      
+      public var modLoader:Loader;
       
       public function PipboyMenu()
       {
@@ -96,7 +101,7 @@ package
          addEventListener(PipboyPage.BOTTOM_BAR_UPDATE,this.onRequestBottomBarUpdate);
          this.controlsBlockTimer.addEventListener(TimerEvent.TIMER,this.HandleControlsBlockTimer);
          this.controlsBlockTimer.stop();
-         stage.addEventListener(PipboyChangeEvent.PIPBOY_CHANGE_EVENT,this.pipboyChangeEvent);
+         this.initBuffsMeter();
       }
       
       private static function toString(param1:Object) : String
@@ -104,17 +109,100 @@ package
          return new JSONEncoder(param1).getString();
       }
       
-      private function pipboyChangeEvent(param1:PipboyChangeEvent) : void
+      public function initBuffsMeter() : void
       {
-         this.lastPipboyChangeData = param1;
-         if(!isPipboySaveInit)
+         var loaderComplete:Function;
+         var url:URLRequest = null;
+         var loader:URLLoader = null;
+         try
          {
-            savePipboy("init");
-            isPipboySaveInit = true;
+            stage.addEventListener(PipboyChangeEvent.PIPBOY_CHANGE_EVENT,this.pipboyChangeEvent);
+            loaderComplete = function(param1:Event):void
+            {
+               var jsonData:Object;
+               try
+               {
+                  enableWidget = /"enableWidgetInPipboy":\s*true/i.test(loader.data);
+                  loadBuffsMeter();
+               }
+               catch(e:Error)
+               {
+                  GlobalFunc.ShowHUDMessage("error parsing config");
+               }
+            };
+            url = new URLRequest(CONFIG_FILE);
+            loader = new URLLoader();
+            loader.load(url);
+            loader.addEventListener(Event.COMPLETE,loaderComplete);
+         }
+         catch(e:Error)
+         {
+            GlobalFunc.ShowHUDMessage("Error loading config: " + e);
          }
       }
       
-      private function savePipboy(message:String = "none") : void
+      public function loadBuffsMeter() : *
+      {
+         try
+         {
+            if(enableWidget)
+            {
+               this.modLoader = new Loader();
+               this.modLoader.load(new URLRequest("BuffsMeter.swf"),new LoaderContext(false,ApplicationDomain.currentDomain));
+               this.modLoader.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR,this.uncaughtErrorHandler);
+               this.modLoader.contentLoaderInfo.addEventListener(Event.COMPLETE,this.onBuffsMeterLoaded);
+               addChild(this.modLoader);
+            }
+         }
+         catch(e:Error)
+         {
+            GlobalFunc.ShowHUDMessage("Error loading BuffsMeter.swf: " + e.toString());
+         }
+      }
+      
+      public function uncaughtErrorHandler(param1:UncaughtErrorEvent) : *
+      {
+         GlobalFunc.ShowHUDMessage(param1.toString());
+      }
+      
+      public function onBuffsMeterLoaded(event:*) : void
+      {
+         try
+         {
+            if(!this.lastPipboyChangeData || !this.lastPipboyChangeData.DataObj)
+            {
+               setTimeout(this.onBuffsMeterLoaded,500);
+               return;
+            }
+            updateWidgetData("onBuffsMeterLoaded");
+         }
+         catch(e:Error)
+         {
+            GlobalFunc.ShowHUDMessage("onBuffsMeterLoaded error: " + e.toString());
+         }
+      }
+      
+      public function updateWidgetData(message:String = "updateWidgetData") : void
+      {
+         if(this.modLoader != null && this.modLoader.content != null)
+         {
+            this.modLoader.content.BuffData = getBuffsData(message);
+            this.modLoader.content.processEvents();
+         }
+      }
+      
+      private function pipboyChangeEvent(param1:PipboyChangeEvent) : void
+      {
+         this.lastPipboyChangeData = {};
+         this.lastPipboyChangeData.DataObj = param1.DataObj;
+         if(!isPipboySaveInit)
+         {
+            savePipboy();
+            this.isPipboySaveInit = true;
+         }
+      }
+      
+      private function savePipboy(message:String = "savePipboy") : void
       {
          if(this.__SFCodeObj != null && this.__SFCodeObj.call != null)
          {
@@ -124,15 +212,23 @@ package
             }
             else
             {
-               var data:Object = {};
-               data.time = new Date().time;
-               data.serverTime = this.lastPipboyChangeData.DataObj.TimeHour;
-               data.saveFrom = message;
-               data.activeEffects = this.lastPipboyChangeData.DataObj.ActiveEffects;
-               var sData:String = toString(data);
-               this.__SFCodeObj.call("writeBuffDataFile",sData);
+               this.__SFCodeObj.call("writeBuffDataFile",toString(getBuffsData(message)));
             }
          }
+      }
+      
+      public function getBuffsData(message:String = "default") : *
+      {
+         if(!lastPipboyChangeData || !lastPipboyChangeData.DataObj)
+         {
+            return null;
+         }
+         var data:Object = {};
+         data.saveFrom = message;
+         data.time = new Date().time;
+         data.serverTime = lastPipboyChangeData.DataObj.TimeHour;
+         data.activeEffects = lastPipboyChangeData.DataObj.ActiveEffects.concat();
+         return data;
       }
       
       private function HandleControlsBlockTimer() : void

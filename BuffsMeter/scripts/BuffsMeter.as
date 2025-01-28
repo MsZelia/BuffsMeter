@@ -24,7 +24,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.1.5";
+      public static const MOD_VERSION:String = "1.1.6";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -119,6 +119,8 @@ package
       
       private var _lastProcessEventsTime:Number = 0;
       
+      private var _isProcessEvents:Boolean = false;
+      
       private var _serverTime:Number = 0;
       
       private var _daysElapsed:int = 0;
@@ -159,7 +161,7 @@ package
       
       public var BuffData:Object;
       
-      private var lastBuffData:String;
+      private var lastBuffData:String = null;
       
       private var expiredBuffs:Vector.<Object>;
       
@@ -175,9 +177,11 @@ package
       
       private var isSortReversed:Boolean = false;
       
-      private var isHudMenu:Boolean = true;
+      private var isHudMenu:Boolean = false;
       
       private var isInMainMenu:Boolean = true;
+      
+      private var isPipboyMenu:Boolean = false;
       
       private var toggleVisibility:Boolean = false;
       
@@ -205,6 +209,7 @@ package
          this.buffsTimer = new Timer(BUFFS_RELOAD_TIME);
          this.buffsTimer.addEventListener(TimerEvent.TIMER,this.loadEffects);
          this.buffsTimer.start();
+         this.loadConfig();
       }
       
       public static function toString(param1:Object) : String
@@ -224,6 +229,8 @@ package
          {
             if(getQualifiedClassName(this.topLevel) == "HUDMenu")
             {
+               this.isHudMenu = true;
+               this.isPipboyMenu = false;
                this.isInMainMenu = false;
                if(this.topLevel.LeftMeters_mc != null && this.topLevel.LeftMeters_mc.HPMeter_mc != null)
                {
@@ -234,10 +241,26 @@ package
                   this.XPMeter = this.topLevel.HUDNotificationsGroup_mc.XPMeter_mc;
                }
             }
-            else
+            else if(this.topLevel.numChildren > 0)
             {
-               this.isHudMenu = false;
-               BSUIDataManager.Subscribe("MenuStackData",this.updateIsMainMenu);
+               if(getQualifiedClassName(this.topLevel.getChildAt(0)) == "PipboyMenu")
+               {
+                  this.topLevel = this.topLevel.getChildAt(0);
+                  this.isHudMenu = false;
+                  this.isPipboyMenu = true;
+                  this.isInMainMenu = false;
+                  stage.addEventListener(KeyboardEvent.KEY_DOWN,this.keyDownHandler);
+               }
+               else if(getQualifiedClassName(this.topLevel.getChildAt(0)) == "OverlayMenu")
+               {
+                  this.topLevel = this.topLevel.getChildAt(0);
+                  this.isHudMenu = false;
+                  this.isPipboyMenu = false;
+                  this.isInMainMenu = true;
+                  BSUIDataManager.Subscribe("MenuStackData",this.updateIsMainMenu);
+                  var comment:String = "Only key down (and not key up) registers in overlay menu. Why? I do not know.";
+                  stage.addEventListener(KeyboardEvent.KEY_DOWN,this.keyDownHandler);
+               }
             }
             trace(MOD_NAME + " added to stage: " + getQualifiedClassName(this.topLevel));
          }
@@ -246,8 +269,6 @@ package
             trace(MOD_NAME + " not added to stage: " + getQualifiedClassName(this.topLevel));
             ShowHUDMessage("Not added to stage: " + getQualifiedClassName(this.topLevel));
          }
-         var comment:String = "Only key down (and not key up) registers in overlay menu. Why? I do not know.";
-         stage.addEventListener(KeyboardEvent.KEY_DOWN,this.keyDownHandler);
       }
       
       public function keyDownHandler(event:Event) : void
@@ -337,6 +358,13 @@ package
                   {
                      jsonData = new JSONDecoder(loader.data,true).getValue();
                      BuffsMeterConfig.init(jsonData);
+                     if(isPipboyMenu && config.pipboyConfig)
+                     {
+                        for(p in config.pipboyConfig)
+                        {
+                           config[p] = config.pipboyConfig[p];
+                        }
+                     }
                      initTextField();
                      initTimers();
                      _lastConfigUpdateTime = getTimer();
@@ -370,6 +398,10 @@ package
          var loader:URLLoader = null;
          try
          {
+            if(this.isPipboyMenu)
+            {
+               return;
+            }
             loaderComplete = function(param1:Event):void
             {
                var jsonData:Object;
@@ -385,7 +417,7 @@ package
                         return;
                      }
                      jsonData = decoder.result;
-                     if(jsonData.time && jsonData.serverTime && jsonData.activeEffects)
+                     if(jsonData && jsonData.time && jsonData.serverTime && jsonData.activeEffects)
                      {
                         if(lastBuffData == null && jsonData.time + 15000 < new Date().time)
                         {
@@ -1099,6 +1131,28 @@ package
             i++;
          }
          this._lastProcessEventsTime = getTimer() - t1;
+         this._isProcessEvents = true;
+      }
+      
+      public function showHUDChildren() : void
+      {
+         if(!this.topLevel)
+         {
+            return;
+         }
+         var i:int = 0;
+         while(i < this.topLevel.numChildren)
+         {
+            if(this.topLevel.getChildAt(i) is Loader)
+            {
+               displayMessage(i + ":" + getQualifiedClassName(this.topLevel.getChildAt(i).content));
+            }
+            else
+            {
+               displayMessage(i + ":" + getQualifiedClassName(this.topLevel.getChildAt(i)));
+            }
+            i++;
+         }
       }
       
       public function display() : void
@@ -1134,9 +1188,26 @@ package
                return;
             }
             this.resetMessages();
+            if(config.displayData.indexOf("debug") != -1)
+            {
+               displayMessage("topLevel: " + getQualifiedClassName(this.topLevel));
+               displayMessage("isHudMenu: " + this.isHudMenu);
+               displayMessage("isPipboyMenu: " + this.isPipboyMenu);
+               displayMessage("isInMainMenu: " + this.isInMainMenu);
+               displayMessage("isProcessEvents: " + this._isProcessEvents);
+               displayMessage("BuffData: " + this.BuffData);
+               if(this.BuffData != null)
+               {
+                  displayMessage("BuffData.activeEffects: " + this.BuffData.activeEffects);
+                  if(this.BuffData.activeEffects != null)
+                  {
+                     displayMessage("BuffData.activeEffects.l: " + this.BuffData.activeEffects.length);
+                  }
+               }
+            }
             if(this.isHudMenu && !this.isSFEDefined())
             {
-               displayMessage(FULL_MOD_NAME + (this.isHudMenu ? "" : " (non-HUD)"));
+               displayMessage(FULL_MOD_NAME);
                displayMessage("SFE not found");
                LastDisplayEffect.textColor = 16711680;
                if(!config.hideSFEMessage)
@@ -1159,7 +1230,7 @@ package
             }
             if(this.BuffData == null || this.BuffData.activeEffects == null)
             {
-               displayMessage(FULL_MOD_NAME + (this.isHudMenu ? "" : " (non-HUD)"));
+               displayMessage(FULL_MOD_NAME + (this.isHudMenu ? "" : (this.isPipboyMenu ? " (pipMenu)" : " (overlay)")));
                displayMessage("Effects not found, open your pipboy");
                LastDisplayEffect.textColor = 16711680;
                drawBackground();
@@ -1173,8 +1244,11 @@ package
                {
                   switch(add)
                   {
+                     case "showHUDChildren":
+                        showHUDChildren();
+                        break;
                      case "showVersion":
-                        displayMessage(FULL_MOD_NAME + (this.isHudMenu ? "" : " (non-HUD)"));
+                        displayMessage(FULL_MOD_NAME + (this.isHudMenu ? "" : (this.isPipboyMenu ? " (pipMenu)" : " (overlay)")));
                         applyColor(add);
                         break;
                      case "showLastUpdate":
