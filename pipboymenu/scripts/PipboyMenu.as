@@ -145,7 +145,7 @@ package
       {
          try
          {
-            if(enableWidget)
+            if(this.enableWidget || this.__SFCodeObj == null || this.__SFCodeObj.call == null)
             {
                this.modLoader = new Loader();
                this.modLoader.load(new URLRequest("BuffsMeter.swf"),new LoaderContext(false,ApplicationDomain.currentDomain));
