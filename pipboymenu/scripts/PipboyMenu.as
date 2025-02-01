@@ -123,7 +123,7 @@ package
                try
                {
                   enableWidget = /"enableWidgetInPipboy":\s*true/i.test(loader.data);
-                  loadBuffsMeter();
+                  setTimeout(loadBuffsMeter,100);
                }
                catch(e:Error)
                {
@@ -169,9 +169,9 @@ package
       {
          try
          {
-            if(!this.lastPipboyChangeData || !this.lastPipboyChangeData.DataObj)
+            if(!lastPipboyChangeData || !lastPipboyChangeData.DataObj)
             {
-               setTimeout(this.onBuffsMeterLoaded,500);
+               setTimeout(onBuffsMeterLoaded,500);
                return;
             }
             updateWidgetData("onBuffsMeterLoaded");
@@ -195,7 +195,7 @@ package
       {
          this.lastPipboyChangeData = {};
          this.lastPipboyChangeData.DataObj = param1.DataObj;
-         if(!isPipboySaveInit)
+         if(!this.isPipboySaveInit)
          {
             savePipboy();
             this.isPipboySaveInit = true;
