@@ -24,7 +24,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.1.6";
+      public static const MOD_VERSION:String = "1.1.7";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -880,126 +880,6 @@ package
          }
       }
       
-      public function drawSeparators() : void
-      {
-         var t1:Number = Number(getTimer());
-         for(s in separators)
-         {
-            this.graphics.beginFill(separators[s].color);
-            this.graphics.drawRect(config.x,separators[s].y,config.width,separators[s].height);
-            this.graphics.endFill();
-         }
-         if(config.tdisplayGroup)
-         {
-            displayMessage("drawSeparators:" + separators.length + ": " + (getTimer() - t1) + "ms");
-         }
-      }
-      
-      public function displayGroup(data:String) : void
-      {
-         var groupName:String;
-         var effectText:String;
-         var filteredEffects:Array;
-         var parts:Array;
-         try
-         {
-            parts = data.split(":");
-            if(parts.length < 2)
-            {
-               return;
-            }
-            groupName = parts[1];
-            if(config.customGroups[groupName] != null)
-            {
-               filteredEffects = _effects.filter(function(effect:Object):Boolean
-               {
-                  effectText = effect.text.toLowerCase();
-                  return config.customGroups[groupName].some(function(item:*):Boolean
-                  {
-                     return effectText.indexOf(item) != -1;
-                  });
-               });
-               for each(fe in filteredEffects)
-               {
-                  _effects.splice(_effects.indexOf(fe),1);
-               }
-            }
-            else
-            {
-               filteredEffects = _effects;
-            }
-            displayEffects(filteredEffects,groupName);
-         }
-         catch(error:Error)
-         {
-            displayMessage("Error displaying group: " + error);
-         }
-      }
-      
-      public function displayData() : void
-      {
-         var t1:Number = Number(getTimer());
-         if(config.displayData && config.displayData.length > 0)
-         {
-            for(d in config.displayData)
-            {
-               switch(config.displayData[d])
-               {
-                  case "showVersion":
-                     displayMessage(FULL_MOD_NAME);
-                     applyColor(config.displayData[d]);
-                     break;
-                  case "showLastUpdate":
-                     displayMessage("LastUpdate: " + GlobalFunc.FormatTimeString(this.timeSinceLastUpdate) + " ago");
-                     applyColor(config.displayData[d]);
-                     break;
-                  case "showLastConfigUpdate":
-                     displayMessage("ConfigUpdate: " + GlobalFunc.FormatTimeString(this.timeSinceLastConfigUpdate) + " ago");
-                     applyColor(config.displayData[d]);
-                     break;
-                  case "showElapsedTime":
-                     displayMessage("ElapsedTime: " + GlobalFunc.FormatTimeString(this.elapsedTime));
-                     applyColor(config.displayData[d]);
-                     break;
-                  case "showServerTick":
-                     displayMessage("ServerTick: " + this.ServerTime.toFixed(0));
-                     applyColor(config.displayData[d]);
-                     break;
-                  case "showServerTime":
-                     displayMessage("ServerTime: " + GlobalFunc.FormatTimeString(this.ServerTime));
-                     applyColor(config.displayData[d]);
-                     break;
-                  case "showLastExpiredBuff":
-                     displayMessage("LastExpired: null");
-                     applyColor(config.displayData[d]);
-                     break;
-                  case "showHUDMode":
-                     displayMessage("HUDMode: " + this.HUDModeData.data.hudMode);
-                     applyColor(config.displayData[d]);
-                     break;
-                  default:
-                     if(config.displayData[d].indexOf(DATA_SEPARATOR) == 0)
-                     {
-                        addSeparator(config.displayData[d]);
-                     }
-                     else if(config.displayData[d].indexOf(DATA_EMPTY_SPACE) == 0)
-                     {
-                        addEmptySpace(config.displayData[d]);
-                     }
-                     else if(config.displayData[d].indexOf(DATA_TEXT) == 0)
-                     {
-                        addCustomText(config.displayData[d]);
-                     }
-                     break;
-               }
-            }
-         }
-         if(config.tdisplayData)
-         {
-            displayMessage("displayData: " + (getTimer() - t1) + "ms");
-         }
-      }
-      
       public function sortEffects(effects:Array) : Array
       {
          var defaultSort:Boolean = false;
@@ -1034,67 +914,6 @@ package
             isSortReversed = !isSortReversed;
          }
          return effects;
-      }
-      
-      public function displayEffects(effects:Array, groupName:String) : void
-      {
-         var t1:Number = Number(getTimer());
-         var colorApplied:Boolean = false;
-         for(i in effects)
-         {
-            var e:Object = effects[i];
-            if(this.isValidEffectType(e.type) && this.isValidEffectText(e.text))
-            {
-               displayMessage("valid:" + e);
-               colorApplied = false;
-               var textToDisplay:String = config.format.replace(STRING_TEXT,e.text).replace(STRING_TYPE,e.type).replace(STRING_DURATION,e.duration);
-               displayMessage("ttd:" + textToDisplay);
-               displayMessage(textToDisplay);
-               if(e.textColor != null)
-               {
-                  colorApplied = applyColor(e.textColor);
-               }
-               else
-               {
-                  colorApplied = applyColor(groupName);
-               }
-               displayMessage("ac:" + colorApplied);
-               if(!e.isPermanentEffect && e.durationBar != null)
-               {
-                  drawEffectDurationBar(e.durationBar);
-               }
-               displayMessage("edb:");
-               if(config.showSubEffects && !isHiddenSubEffectFor(e.type,e.text))
-               {
-                  for each(sub in e.SubEffects)
-                  {
-                     if(sub.duration > 0)
-                     {
-                        if(sub.durationRemaining >= config.hideEffectsBelowDuration)
-                        {
-                           displayMessage(sub.text);
-                           if(sub.durationRemaining < 0)
-                           {
-                              LastDisplayEffect.textColor = getCustomColor(DATA_EXPIRED);
-                           }
-                           else if(sub.durationRemaining < config.warningBelowDuration)
-                           {
-                              LastDisplayEffect.textColor = getCustomColor(DATA_WARNING);
-                           }
-                        }
-                     }
-                     else
-                     {
-                        displayMessage(sub.text);
-                     }
-                  }
-               }
-            }
-         }
-         if(config.tdisplayEffects)
-         {
-            displayMessage("displayEffects: " + (getTimer() - t1) + "ms");
-         }
       }
       
       public function processEvents() : void
@@ -1484,9 +1303,8 @@ package
                   }
                   if(config.showSubEffects && !isHiddenSubEffectFor(this.BuffData.activeEffects[i].type,this.BuffData.activeEffects[i].effectText))
                   {
-                     for(s in this.BuffData.activeEffects[i].SubEffects)
+                     for each(sub in this.BuffData.activeEffects[i].SubEffects)
                      {
-                        sub = this.BuffData.activeEffects[i].SubEffects[s];
                         if(!isHiddenSubEffect(sub.text))
                         {
                            if(!this.BuffData.activeEffects[i].isPermanentEffect)
@@ -1736,13 +1554,8 @@ package
       
       public function isHiddenSubEffectFor(type:String, name:String) : Boolean
       {
-         var index:int = int(ArrayUtils.indexOfCaseInsensitiveString(config.hideSubEffects,name));
-         if(index != -1)
-         {
-            return true;
-         }
-         var indexFor:int = int(ArrayUtils.indexOfCaseInsensitiveString(config.hideSubEffectsFor,type));
-         return indexFor != -1;
+         var index:int = int(ArrayUtils.indexOfCaseInsensitiveString(config.hideSubEffectsFor,name + "|" + type));
+         return index != -1;
       }
       
       public function getSubEffectDescription(effect:Object) : String
