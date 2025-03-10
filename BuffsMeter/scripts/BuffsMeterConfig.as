@@ -51,6 +51,7 @@ package
          config.sortBy = Boolean(config.sortBy) ? config.sortBy.toLowerCase() : "default";
          config.reverseSort = Parser.parseBoolean(config.reverseSort,false);
          config.toggleVisibilityHotkey = Parser.parsePositiveNumber(config.toggleVisibilityHotkey,0);
+         config.forceHideHotkey = Parser.parsePositiveNumber(config.forceHideHotkey,0);
          if(!config.formats)
          {
             config.formats = {};

@@ -185,6 +185,8 @@ package
       
       private var toggleVisibility:Boolean = false;
       
+      private var forceHide:Boolean = false;
+      
       public function BuffsMeter()
       {
          this.effects_tf = [];
@@ -284,6 +286,10 @@ package
          if(event.keyCode == config.toggleVisibilityHotkey)
          {
             this.toggleVisibility = !this.toggleVisibility;
+         }
+         if(event.keyCode == config.forceHideHotkey)
+         {
+            this.forceHide = !this.forceHide;
          }
       }
       
@@ -1001,7 +1007,7 @@ package
             {
                this.BuffData = null;
             }
-            this.visible = this.isValidHUDMode() ^ this.toggleVisibility;
+            this.visible = this.forceHide && this.isValidHUDMode() ^ this.toggleVisibility;
             if(!this.visible)
             {
                return;
