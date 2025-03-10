@@ -1007,7 +1007,7 @@ package
             {
                this.BuffData = null;
             }
-            this.visible = this.forceHide && this.isValidHUDMode() ^ this.toggleVisibility;
+            this.visible = !this.forceHide && this.isValidHUDMode() ^ this.toggleVisibility;
             if(!this.visible)
             {
                return;
