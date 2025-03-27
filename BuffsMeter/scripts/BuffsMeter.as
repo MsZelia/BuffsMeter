@@ -568,6 +568,10 @@ package
                   effect_tf.filters = Boolean(config.textShadow) ? this.dummy_tf.filters : [];
                   effect_tf.blendMode = config.textBlendMode;
                }
+               else
+               {
+                  effect_tf.textColor = config.textColor;
+               }
             }
          }
       }
