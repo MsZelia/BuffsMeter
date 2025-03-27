@@ -24,7 +24,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.1.7";
+      public static const MOD_VERSION:String = "1.1.8";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -547,9 +547,10 @@ package
          this.dummy_tf.filters = [new DropShadowFilter(2,45,0,1,1,1,1,BitmapFilterQuality.HIGH)];
          this.alpha = config.alpha;
          this.blendMode = config.blendMode;
+         resetMessages(true);
       }
       
-      public function resetMessages() : void
+      public function resetMessages(setFormat:Boolean = false) : void
       {
          this.separators = [];
          this.effects_index = 0;
@@ -560,8 +561,13 @@ package
             if(effect_tf != null)
             {
                effect_tf.visible = false;
-               effect_tf.defaultTextFormat = this.textFormat;
-               effect_tf.setTextFormat(this.textFormat);
+               if(setFormat)
+               {
+                  effect_tf.defaultTextFormat = this.textFormat;
+                  effect_tf.setTextFormat(this.textFormat);
+                  effect_tf.filters = Boolean(config.textShadow) ? this.dummy_tf.filters : [];
+                  effect_tf.blendMode = config.textBlendMode;
+               }
             }
          }
       }
@@ -580,7 +586,6 @@ package
       
       public function applyConfig(tf:TextField) : void
       {
-         tf.visible = true;
          tf.x = config.x;
          tf.background = false;
          tf.width = config.width;
@@ -594,8 +599,7 @@ package
             tf.y = LastDisplayEffect.y + LastDisplayEffect.height + config.ySpacing + yOffset;
             yOffset = 0;
          }
-         tf.blendMode = config.textBlendMode;
-         tf.filters = Boolean(config.textShadow) ? this.dummy_tf.filters : [];
+         tf.visible = true;
       }
       
       public function displayMessage(text:String) : void
@@ -924,39 +928,63 @@ package
       
       public function processEvents() : void
       {
-         var i:int = 0;
-         var t1:* = getTimer();
-         while(i < this.BuffData.activeEffects.length)
+         var i:int;
+         var t1:*;
+         var errorCode:String = "processEvents";
+         try
          {
-            this.BuffData.activeEffects[i].type = String(this.BuffData.activeEffects[i].type.toLowerCase().replace("icon",""));
-            this.BuffData.activeEffects[i].isDebuff = this.isTextInList(this.BuffData.activeEffects[i].text,config.debuffs);
-            this.BuffData.activeEffects[i].textDuration = getTimeFromName(this.BuffData.activeEffects[i].text);
-            if(this.BuffData.activeEffects[i].effects[0].duration == null)
+            if(this.BuffData && this.BuffData.activeEffects)
             {
-               this.BuffData.activeEffects[i].effects[0].duration = 0;
+               i = 0;
+               t1 = getTimer();
+               while(i < this.BuffData.activeEffects.length)
+               {
+                  errorCode = "type";
+                  this.BuffData.activeEffects[i].type = String(this.BuffData.activeEffects[i].type.toLowerCase().replace("icon",""));
+                  errorCode = "isDebuff";
+                  this.BuffData.activeEffects[i].isDebuff = this.isTextInList(this.BuffData.activeEffects[i].text,!!config ? config.debuffs : []);
+                  errorCode = "textDuration";
+                  this.BuffData.activeEffects[i].textDuration = getTimeFromName(this.BuffData.activeEffects[i].text);
+                  errorCode = "duration";
+                  if(this.BuffData.activeEffects[i].effects[0].duration == null)
+                  {
+                     this.BuffData.activeEffects[i].effects[0].duration = 0;
+                  }
+                  errorCode = "isPermanentEffect";
+                  this.BuffData.activeEffects[i].isPermanentEffect = this.BuffData.activeEffects[i].effects[0].duration == 0;
+                  errorCode = "isPermanentEffect2";
+                  if(!this.BuffData.activeEffects[i].isPermanentEffect && this.BuffData.activeEffects[i].text.lastIndexOf("(") != -1)
+                  {
+                     this.BuffData.activeEffects[i].effectText = String(this.BuffData.activeEffects[i].text.slice(0,this.BuffData.activeEffects[i].text.lastIndexOf("(") - 1));
+                  }
+                  else
+                  {
+                     this.BuffData.activeEffects[i].effectText = this.BuffData.activeEffects[i].text;
+                  }
+                  errorCode = "isValid";
+                  this.BuffData.activeEffects[i].isValid = this.isValidEffectType(this.BuffData.activeEffects[i].type) && this.isValidEffectText(this.BuffData.activeEffects[i].effectText);
+                  errorCode = "SubEffects";
+                  this.BuffData.activeEffects[i].SubEffects = [];
+                  errorCode = "effects";
+                  for each(effect in this.BuffData.activeEffects[i].effects)
+                  {
+                     this.BuffData.activeEffects[i].SubEffects.push({
+                        "text":(Boolean(effect.usesCustomDesc) ? effect.text : effect.text + (effect.value > 0 ? " +" : " ") + (effect.value % 1 == 0 ? effect.value : effect.value.toFixed(2)) + (Boolean(effect.showAsPercent) ? "%" : "")),
+                        "durationRemaining":-1
+                     });
+                  }
+                  i++;
+               }
+               errorCode = "lastProcessEventsTime";
+               this._lastProcessEventsTime = getTimer() - t1;
+               errorCode = "isProcessEvents";
+               this._isProcessEvents = true;
             }
-            this.BuffData.activeEffects[i].isPermanentEffect = this.BuffData.activeEffects[i].effects[0].duration == 0;
-            if(!this.BuffData.activeEffects[i].isPermanentEffect && this.BuffData.activeEffects[i].text.lastIndexOf("(") != -1)
-            {
-               this.BuffData.activeEffects[i].effectText = String(this.BuffData.activeEffects[i].text.slice(0,this.BuffData.activeEffects[i].text.lastIndexOf("(") - 1));
-            }
-            else
-            {
-               this.BuffData.activeEffects[i].effectText = this.BuffData.activeEffects[i].text;
-            }
-            this.BuffData.activeEffects[i].isValid = this.isValidEffectType(this.BuffData.activeEffects[i].type) && this.isValidEffectText(this.BuffData.activeEffects[i].effectText);
-            this.BuffData.activeEffects[i].SubEffects = [];
-            for each(effect in this.BuffData.activeEffects[i].effects)
-            {
-               this.BuffData.activeEffects[i].SubEffects.push({
-                  "text":(Boolean(effect.usesCustomDesc) ? effect.text : effect.text + (effect.value > 0 ? " +" : " ") + (effect.value % 1 == 0 ? effect.value : effect.value.toFixed(2)) + (Boolean(effect.showAsPercent) ? "%" : "")),
-                  "durationRemaining":-1
-               });
-            }
-            i++;
          }
-         this._lastProcessEventsTime = getTimer() - t1;
-         this._isProcessEvents = true;
+         catch(e:Error)
+         {
+            throw new Error(errorCode + ": " + e);
+         }
       }
       
       public function showHUDChildren() : void
@@ -1520,6 +1548,10 @@ package
       
       public function isValidEffectType(type:String) : Boolean
       {
+         if(!config)
+         {
+            return true;
+         }
          var isStateHidden:Boolean = config.hideTypesState == BuffsMeterConfig.STATE_HIDDEN;
          if(config.hideTypes.length > 0)
          {
@@ -1535,6 +1567,10 @@ package
       
       public function isValidEffectText(text:String) : Boolean
       {
+         if(!config)
+         {
+            return true;
+         }
          var isStateHidden:Boolean = config.hideEffectsState == BuffsMeterConfig.STATE_HIDDEN;
          if(config.hideEffects.length > 0)
          {
