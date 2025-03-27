@@ -580,6 +580,11 @@ package
          tf.defaultTextFormat = this.textFormat;
          TextFieldEx.setTextAutoSize(tf,TextFieldEx.TEXTAUTOSZ_SHRINK);
          tf.setTextFormat(this.textFormat);
+         if(config)
+         {
+            tf.filters = Boolean(config.textShadow) ? this.dummy_tf.filters : [];
+            tf.blendMode = config.textBlendMode;
+         }
          addChild(tf);
          return tf;
       }
