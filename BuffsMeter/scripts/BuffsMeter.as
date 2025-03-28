@@ -24,7 +24,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.1.8";
+      public static const MOD_VERSION:String = "1.1.9";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -899,13 +899,16 @@ package
          }
       }
       
-      public function sortEffects(effects:Array) : Array
+      public function sortEffects(effects:Array, isInit:Boolean = false) : Array
       {
          var defaultSort:Boolean = false;
          switch(config.sortBy)
          {
             case SORT_BY_CUSTOM:
-               effects.sort(customSort);
+               if(isInit)
+               {
+                  effects.sort(customSort);
+               }
                break;
             case SORT_BY_PROPERTY:
                var sortOptions:Array = new Array(config.sortOrder.length);
@@ -971,7 +974,7 @@ package
                      this.BuffData.activeEffects[i].effectText = this.BuffData.activeEffects[i].text;
                   }
                   errorCode = "isValid";
-                  this.BuffData.activeEffects[i].isValid = this.isValidEffectType(this.BuffData.activeEffects[i].type) && this.isValidEffectText(this.BuffData.activeEffects[i].effectText);
+                  this.BuffData.activeEffects[i].isValid = this.isValidEffect(this.BuffData.activeEffects[i].type,this.BuffData.activeEffects[i].effectText);
                   errorCode = "SubEffects";
                   this.BuffData.activeEffects[i].SubEffects = [];
                   errorCode = "effects";
@@ -983,6 +986,10 @@ package
                      });
                   }
                   i++;
+               }
+               if(config && config.sortBy == "custom")
+               {
+                  this.BuffData.activeEffects = sortEffects(this.BuffData.activeEffects,true);
                }
                errorCode = "lastProcessEventsTime";
                this._lastProcessEventsTime = getTimer() - t1;
@@ -1104,122 +1111,135 @@ package
                time = this.ServerTime % 43200 / 60;
                for each(add in config.displayData)
                {
-                  switch(add)
+                  if(add == "showHUDChildren")
                   {
-                     case "showHUDChildren":
-                        showHUDChildren();
-                        break;
-                     case "showVersion":
-                        displayMessage(FULL_MOD_NAME + (this.isHudMenu ? "" : (this.isPipboyMenu ? " (pipMenu)" : " (overlay)")));
-                        applyColor(add);
-                        break;
-                     case "showLastUpdate":
-                        displayMessage("LastUpdate: " + GlobalFunc.FormatTimeString(this.timeSinceLastUpdate) + " ago");
-                        applyColor(add);
-                        break;
-                     case "showLastConfigUpdate":
-                        displayMessage("ConfigUpdate: " + GlobalFunc.FormatTimeString(this.timeSinceLastConfigUpdate) + " ago");
-                        applyColor(add);
-                        break;
-                     case "showLastDataProcessTime":
-                        displayMessage("DataProcessing: " + this._lastProcessEventsTime + "ms");
-                        applyColor(add);
-                        break;
-                     case "showElapsedTime":
-                        displayMessage("ElapsedTime: " + GlobalFunc.FormatTimeString(this.elapsedTime));
-                        applyColor(add);
-                        break;
-                     case "showServerTick":
-                        displayMessage("ServerTick: " + this.ServerTime.toFixed(0));
-                        applyColor(add);
-                        break;
-                     case "showServerTime":
-                        displayMessage("ServerTime: " + GlobalFunc.FormatTimeString(this.ServerTime));
-                        applyColor(add);
-                        break;
-                     case "showLastExpiredBuff":
-                        if(this.expiredBuffs.length - expiredBuffsIndex >= 0)
+                     showHUDChildren();
+                  }
+                  else if(add == "showVersion")
+                  {
+                     displayMessage(FULL_MOD_NAME + (this.isHudMenu ? "" : (this.isPipboyMenu ? " (pipMenu)" : " (overlay)")));
+                     applyColor(add);
+                  }
+                  else if(add == "showLastUpdate")
+                  {
+                     displayMessage("LastUpdate: " + GlobalFunc.FormatTimeString(this.timeSinceLastUpdate) + " ago");
+                     applyColor(add);
+                  }
+                  else if(add == "showLastConfigUpdate")
+                  {
+                     displayMessage("ConfigUpdate: " + GlobalFunc.FormatTimeString(this.timeSinceLastConfigUpdate) + " ago");
+                     applyColor(add);
+                  }
+                  else if(add == "showLastDataProcessTime")
+                  {
+                     displayMessage("DataProcessing: " + this._lastProcessEventsTime + "ms");
+                     applyColor(add);
+                  }
+                  else if(add == "showElapsedTime")
+                  {
+                     displayMessage("ElapsedTime: " + GlobalFunc.FormatTimeString(this.elapsedTime));
+                     applyColor(add);
+                  }
+                  else if(add == "showServerTick")
+                  {
+                     displayMessage("ServerTick: " + this.ServerTime.toFixed(0));
+                     applyColor(add);
+                  }
+                  else if(add == "showServerTime")
+                  {
+                     displayMessage("ServerTime: " + GlobalFunc.FormatTimeString(this.ServerTime));
+                     applyColor(add);
+                  }
+                  else if(add == "showLastExpiredBuff")
+                  {
+                     if(this.expiredBuffs.length - expiredBuffsIndex >= 0)
+                     {
+                        displayMessage(formatExpiredBuff(this.expiredBuffs[this.expiredBuffs.length - expiredBuffsIndex],expiredBuffsIndex));
+                        applyColor(add + expiredBuffsIndex);
+                        expiredBuffsIndex++;
+                     }
+                  }
+                  else if(add == "showHUDMode")
+                  {
+                     displayMessage("HUDMode: " + (!this.isInMainMenu ? this.HUDModeData.data.hudMode : MAIN_MENU));
+                     applyColor(add);
+                  }
+                  else if(add == "showRenderTime")
+                  {
+                     displayMessage("RenderTime: " + this.lastRenderTime + "ms");
+                     applyColor(add);
+                  }
+                  else if(add == "showServerTime12")
+                  {
+                     displayMessage("ServerTime: " + GlobalFunc.FormatTimeString(time < 60 ? time + 720 : time) + (this.ServerTime % 86400 > 43200 ? " PM" : " AM"));
+                     applyColor(add);
+                  }
+                  else if(add == "showServerTime24")
+                  {
+                     displayMessage("ServerTime: " + GlobalFunc.FormatTimeString(this.ServerTime % 86400 / 60));
+                     applyColor(add);
+                  }
+                  else if(add == "showTime12")
+                  {
+                     displayMessage("Time: " + (date.hours == 0 ? 12 : date.hours % 12) + ":" + (date.minutes < 10 ? "0" + date.minutes : date.minutes) + (date.hours > 12 ? " PM" : " AM"));
+                     applyColor(add);
+                  }
+                  else if(add == "showTime24")
+                  {
+                     displayMessage("Time: " + date.hours + ":" + (date.minutes < 10 ? "0" + date.minutes : date.minutes));
+                     applyColor(add);
+                  }
+                  else if(add == "showChecklist")
+                  {
+                     for each(checkName in config.checklist)
+                     {
+                        if(!this.BuffData.activeEffects.some(function(buff:Object):Boolean
                         {
-                           displayMessage(formatExpiredBuff(this.expiredBuffs[this.expiredBuffs.length - expiredBuffsIndex],expiredBuffsIndex));
-                           applyColor(add + expiredBuffsIndex);
-                           expiredBuffsIndex++;
-                        }
-                        break;
-                     case "showHUDMode":
-                        displayMessage("HUDMode: " + (!this.isInMainMenu ? this.HUDModeData.data.hudMode : MAIN_MENU));
-                        applyColor(add);
-                        break;
-                     case "showRenderTime":
-                        displayMessage("RenderTime: " + this.lastRenderTime + "ms");
-                        applyColor(add);
-                        break;
-                     case "showServerTime12":
-                        displayMessage("ServerTime: " + GlobalFunc.FormatTimeString(time < 60 ? time + 720 : time) + (this.ServerTime % 86400 > 43200 ? " PM" : " AM"));
-                        applyColor(add);
-                        break;
-                     case "showServerTime24":
-                        displayMessage("ServerTime: " + GlobalFunc.FormatTimeString(this.ServerTime % 86400 / 60));
-                        applyColor(add);
-                        break;
-                     case "showTime12":
-                        displayMessage("Time: " + (date.hours == 0 ? 12 : date.hours % 12) + ":" + (date.minutes < 10 ? "0" + date.minutes : date.minutes) + (date.hours > 12 ? " PM" : " AM"));
-                        applyColor(add);
-                        break;
-                     case "showTime24":
-                        displayMessage("Time: " + date.hours + ":" + (date.minutes < 10 ? "0" + date.minutes : date.minutes));
-                        applyColor(add);
-                        break;
-                     case "showChecklist":
-                        for each(checkName in config.checklist)
-                        {
-                           if(!this.BuffData.activeEffects.some(function(buff:Object):Boolean
+                           if(buff.isValid)
                            {
-                              if(buff.isValid)
-                              {
-                                 return ArrayUtils.indexOfCaseInsensitiveString(checkName,buff.effectText) != -1;
-                              }
-                              return false;
-                           }))
-                           {
-                              displayMessage(config.formats[FORMAT_CHECKLIST].replace(STRING_TEXT,checkName.length == 0 || config.checklistDisplay[checkName[0]] == null ? checkName : config.checklistDisplay[checkName[0]]));
-                              applyColor(add);
+                              return ArrayUtils.indexOfCaseInsensitiveString(checkName,buff.effectText) != -1;
                            }
-                        }
-                        break;
-                     case "showXPBar":
-                        if(this.XPMeter)
+                           return false;
+                        }))
                         {
-                           displayMessage(formatXPBarText());
+                           displayMessage(config.formats[FORMAT_CHECKLIST].replace(STRING_TEXT,checkName.length == 0 || config.checklistDisplay[checkName[0]] == null ? checkName : config.checklistDisplay[checkName[0]]));
                            applyColor(add);
-                           if(config.xpBar.enabled)
-                           {
-                              xpBar = {
-                                 "id":effects_index - 1,
-                                 "progress":this.XPMeter.LevelUPBar.Percent
-                              };
-                           }
                         }
-                        break;
-                     case "showScoreBar":
-                        if(this.SeasonWidgetData.data && this.SeasonWidgetData.data.currentRank)
+                     }
+                  }
+                  else if(add == "showXPBar")
+                  {
+                     if(this.XPMeter)
+                     {
+                        displayMessage(formatXPBarText());
+                        applyColor(add);
+                        if(config.xpBar.enabled)
                         {
-                           displayMessage(formatScoreBarText());
-                           applyColor(add);
-                           if(config.scoreBar.enabled)
-                           {
-                              scoreBar = {
-                                 "id":effects_index - 1,
-                                 "progress":this.SeasonWidgetData.data.currentRank.nValuePosition / this.SeasonWidgetData.data.currentRank.nValueThreshold
-                              };
-                           }
+                           xpBar = {
+                              "id":effects_index - 1,
+                              "progress":this.XPMeter.LevelUPBar.Percent
+                           };
                         }
-                        break;
-                     default:
-                        if(add.indexOf(DATA_TEXT) == 0)
+                     }
+                  }
+                  else if(add == "showScoreBar")
+                  {
+                     if(this.SeasonWidgetData.data && this.SeasonWidgetData.data.currentRank)
+                     {
+                        displayMessage(formatScoreBarText());
+                        applyColor(add);
+                        if(config.scoreBar.enabled)
                         {
-                           addCustomText(add);
+                           scoreBar = {
+                              "id":effects_index - 1,
+                              "progress":this.SeasonWidgetData.data.currentRank.nValuePosition / this.SeasonWidgetData.data.currentRank.nValueThreshold
+                           };
                         }
-                        break;
+                     }
+                  }
+                  else if(add.indexOf(DATA_TEXT) == 0)
+                  {
+                     addCustomText(add);
                   }
                }
             }
@@ -1281,32 +1301,7 @@ package
             {
                if(this.BuffData.activeEffects[i].isValid)
                {
-                  if(this.isNerdRage(this.BuffData.activeEffects[i].effectText))
-                  {
-                     displayMessage(formatEffectWithText(this.BuffData.activeEffects[i],this.BuffData.activeEffects[i].effectText + " (" + (100 * this.HPMeter.MeterBar_mc.Percent).toFixed(1) + "% hp)"));
-                     if(this.HPMeter.MeterBar_mc.Percent >= 0.2)
-                     {
-                        LastDisplayEffect.textColor = getCustomColor(DATA_EXPIRED);
-                     }
-                     else
-                     {
-                        applyEffectColor(this.BuffData.activeEffects[i].effectText);
-                     }
-                  }
-                  else if(this.isTeamBonus(this.BuffData.activeEffects[i].effectText))
-                  {
-                     teamBonus = this.getTeamBonus();
-                     displayMessage(formatEffectWithText(this.BuffData.activeEffects[i],this.BuffData.activeEffects[i].effectText + " (" + teamBonus + "/4)"));
-                     if(teamBonus == 0)
-                     {
-                        LastDisplayEffect.textColor = getCustomColor(DATA_EXPIRED);
-                     }
-                     else
-                     {
-                        applyEffectColor(this.BuffData.activeEffects[i].effectText);
-                     }
-                  }
-                  else if(this.BuffData.activeEffects[i].isPermanentEffect)
+                  if(this.BuffData.activeEffects[i].isPermanentEffect)
                   {
                      displayMessage(formatEffect(this.BuffData.activeEffects[i]));
                      if(this.BuffData.activeEffects[i].isDebuff)
@@ -1553,6 +1548,37 @@ package
             }
          }
          return teamBonus;
+      }
+      
+      public function isValidEffect(type:String, text:String) : Boolean
+      {
+         if(!config)
+         {
+            return true;
+         }
+         if(config.hideTypes.length > 0)
+         {
+            var index:int = int(ArrayUtils.indexOfCaseInsensitiveString(config.hideTypes,type));
+            if(index != -1)
+            {
+               return false;
+            }
+         }
+         if(config.showTypes.length > 0)
+         {
+            index = int(ArrayUtils.indexOfCaseInsensitiveString(config.showTypes,type));
+            if(index != -1)
+            {
+               return true;
+            }
+         }
+         var isStateHidden:Boolean = config.hideEffectsState == BuffsMeterConfig.STATE_HIDDEN;
+         index = int(ArrayUtils.indexOfCaseInsensitiveString(config.hideEffects,text));
+         if(isStateHidden)
+         {
+            return index == -1;
+         }
+         return index != -1;
       }
       
       public function isValidEffectType(type:String) : Boolean

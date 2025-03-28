@@ -187,7 +187,6 @@ package
             }
             config.customEffectColors.keys = keys;
          }
-         config.hideTypesState = getState(config.hideTypesState);
          if(!config.hideTypes)
          {
             config.hideTypes = [];
@@ -197,6 +196,17 @@ package
             for(i in config.hideTypes)
             {
                config.hideTypes[i] = config.hideTypes[i].toLowerCase().replace("icon","");
+            }
+         }
+         if(!config.showTypes)
+         {
+            config.showTypes = [];
+         }
+         else
+         {
+            for(i in config.showTypes)
+            {
+               config.showTypes[i] = config.showTypes[i].toLowerCase().replace("icon","");
             }
          }
          config.hideEffectsState = getState(config.hideEffectsState);
