@@ -987,7 +987,7 @@ package
                   }
                   i++;
                }
-               if(config && config.sortBy == "custom")
+               if(config && config.sortBy == SORT_BY_CUSTOM)
                {
                   this.BuffData.activeEffects = sortEffects(this.BuffData.activeEffects,true);
                }
