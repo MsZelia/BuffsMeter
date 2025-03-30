@@ -12,12 +12,17 @@ package
    import flash.geom.Point;
    import flash.text.TextField;
    import flash.text.TextFieldAutoSize;
+   import flash.text.TextFormat;
    import scaleform.gfx.Extensions;
    import scaleform.gfx.TextFieldEx;
    
    [Embed(source="/_assets/assets.swf", symbol="symbol44")]
    public class Pipboy_Header extends BSUIComponent
    {
+      
+      public static var SHOW_ALL_TABS:Boolean = false;
+      
+      public static var MAX_TABS:int = 13;
       
       private static const SELECTED_INDEX:uint = 2;
       
@@ -60,6 +65,12 @@ package
       
       private var _tabSwipeZone:SwipeZone;
       
+      private var customTabs:Array;
+      
+      private var tabFormat:TextFormat;
+      
+      private var selectedTabFormat:TextFormat;
+      
       public function Pipboy_Header()
       {
          var _loc3_:TextField = null;
@@ -101,6 +112,52 @@ package
          }
          this.LeftTriggerButton_mc.ButtonHintData = this.LeftTriggerButton;
          this.RightTriggerButton_mc.ButtonHintData = this.RightTriggerButton;
+         this.initCustomTabs();
+      }
+      
+      private function initCustomTabs() : void
+      {
+         this.customTabs = [];
+         var i:int = 0;
+         while(i < MAX_TABS)
+         {
+            this.customTabs.push(createTab());
+            i++;
+         }
+      }
+      
+      private function createTab() : TextField
+      {
+         selectedTabFormat = this.PageHeader_mc.STAT_tf.getTextFormat();
+         tabFormat = this.PageHeader_mc.STAT_tf.getTextFormat();
+         selectedTabFormat.underline = true;
+         selectedTabFormat.size = 24;
+         tabFormat.underline = false;
+         tabFormat.size = 24;
+         var tf:TextField = new TextField();
+         tf.visible = false;
+         tf.setTextFormat(tabFormat);
+         tf.defaultTextFormat = tabFormat;
+         TextFieldEx.setTextAutoSize(tf,TextFieldEx.TEXTAUTOSZ_SHRINK);
+         tf.x = (this.customTabs.length - 1) * 70;
+         tf.y = 50;
+         tf.width = 70;
+         tf.height = 40;
+         tf.selectable = false;
+         tf.text = "[" + this.customTabs.length + "]";
+         tf.addEventListener(MouseEvent.CLICK,this.onCustomTabClicked);
+         addChild(tf);
+         return tf;
+      }
+      
+      public function onCustomTabClicked(event:MouseEvent) : void
+      {
+         var tf:TextField = event.target as TextField;
+         var index:int = int(this.customTabs.indexOf(tf));
+         if(index != -1)
+         {
+            dispatchEvent(new CustomEvent(TAB_CLICKED,uint(index),true,true));
+         }
       }
       
       public function get tabSwipeZone() : SwipeZone
@@ -129,6 +186,26 @@ package
       public function updateTabs(param1:Array) : void
       {
          this._TabNames = param1;
+         var tabNamesLen:int = !!param1 ? this._TabNames.length : 0;
+         var xPos:int = -75;
+         var xDelta:int = 860 / Math.max(tabNamesLen,1);
+         var i:int = 0;
+         while(i < this.customTabs.length)
+         {
+            if(tabNamesLen > i)
+            {
+               this.customTabs[i].text = this._TabNames[i];
+               this.customTabs[i].visible = SHOW_ALL_TABS;
+               this.customTabs[i].x = xPos;
+               this.customTabs[i].width = xDelta;
+               xPos += xDelta;
+            }
+            else
+            {
+               this.customTabs[i].visible = false;
+            }
+            i++;
+         }
          SetIsDirty();
       }
       
@@ -139,7 +216,7 @@ package
             this._currPageIndex = param1.DataObj.CurrentPage;
             this._prevTabIndex = uint.MAX_VALUE;
             this._currTabIndex = param1.DataObj.CurrentTab;
-            this._TabNames = param1.TabNames;
+            updateTabs(param1.TabNames);
             this.LeftTriggerButton.ButtonVisible = this._currPageIndex > 0;
             this.RightTriggerButton.ButtonVisible = this._currPageIndex < this.pageTextFields.length - 1;
             SetIsDirty();
@@ -221,7 +298,26 @@ package
       {
          var _loc1_:Array = null;
          var _loc2_:String = null;
-         if(this._prevTabIndex != this._currTabIndex)
+         if(SHOW_ALL_TABS)
+         {
+            this.TabHeader_mc.visible = false;
+            var i:int = 0;
+            while(i < this.customTabs.length)
+            {
+               if(i == this._currTabIndex && !this.customTabs[i].defaultTextFormat.underline)
+               {
+                  this.customTabs[i].setTextFormat(selectedTabFormat);
+                  this.customTabs[i].defaultTextFormat = selectedTabFormat;
+               }
+               else if(this.customTabs[i].defaultTextFormat.underline)
+               {
+                  this.customTabs[i].setTextFormat(tabFormat);
+                  this.customTabs[i].defaultTextFormat = tabFormat;
+               }
+               i++;
+            }
+         }
+         else if(this._prevTabIndex != this._currTabIndex)
          {
             _loc1_ = this._TabNames;
             this.TabHeader_mc.x = (this.pageTextXBounds[this._currPageIndex].x + this.pageTextXBounds[this._currPageIndex].y) / 2;

@@ -123,6 +123,7 @@ package
                try
                {
                   enableWidget = /"enableWidgetInPipboy":\s*true/i.test(loader.data);
+                  Pipboy_Header.SHOW_ALL_TABS = /"showAllPipboyTabs":\s*true/i.test(loader.data);
                   setTimeout(loadBuffsMeter,100);
                }
                catch(e:Error)
@@ -184,10 +185,20 @@ package
       
       public function updateWidgetData(message:String = "updateWidgetData") : void
       {
-         if(this.modLoader != null && this.modLoader.content != null)
+         var errorCode:String = "updateWidgetData";
+         try
          {
-            this.modLoader.content.BuffData = getBuffsData(message);
-            this.modLoader.content.processEvents();
+            if(this.modLoader != null && this.modLoader.content != null)
+            {
+               errorCode = "getBuffsData";
+               this.modLoader.content.BuffData = getBuffsData(message);
+               errorCode = "content.processEvents";
+               this.modLoader.content.processEvents();
+            }
+         }
+         catch(e:Error)
+         {
+            GlobalFunc.ShowHUDMessage("updateWidgetData error: " + errorCode + " : " + e.toString());
          }
       }
       
