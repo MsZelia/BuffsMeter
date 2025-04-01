@@ -351,6 +351,10 @@ package
             var i:int = 0;
             while(i < this.customTabs.length)
             {
+               if(this._TabNames && i < this._TabNames.length)
+               {
+                  this.customTabs[i].text = this._TabNames[i];
+               }
                if(i == this._currTabIndex)
                {
                   selectedTabText = this.customTabs[i].text;
