@@ -9,10 +9,12 @@ package
    import flash.display.MovieClip;
    import flash.display.Shape;
    import flash.events.MouseEvent;
+   import flash.events.TimerEvent;
    import flash.geom.Point;
    import flash.text.TextField;
    import flash.text.TextFieldAutoSize;
    import flash.text.TextFormat;
+   import flash.utils.Timer;
    import scaleform.gfx.Extensions;
    import scaleform.gfx.TextFieldEx;
    
@@ -71,6 +73,12 @@ package
       
       private var selectedTabFormat:TextFormat;
       
+      private var selectedTabText:String = "";
+      
+      private var biCurrentFilter:TextField;
+      
+      private var biTimer:Timer;
+      
       public function Pipboy_Header()
       {
          var _loc3_:TextField = null;
@@ -124,6 +132,32 @@ package
             this.customTabs.push(createTab());
             i++;
          }
+         this.initBIFilterTf();
+      }
+      
+      private function updateBIFilter() : void
+      {
+         if(this._currPageIndex == 1)
+         {
+            this.biCurrentFilter.text = this.TabHeader_mc.AlphaHolder.Selected.textField_tf.text;
+            this.biCurrentFilter.visible = SHOW_ALL_TABS && selectedTabText != this.biCurrentFilter.text;
+         }
+         else
+         {
+            this.biCurrentFilter.visible = false;
+         }
+      }
+      
+      private function initBIFilterTf() : void
+      {
+         this.biCurrentFilter = createTab();
+         this.biCurrentFilter.text = "";
+         this.biCurrentFilter.y = 90;
+         this.biCurrentFilter.x = 0;
+         this.biCurrentFilter.visible = true;
+         this.biTimer = new Timer(20);
+         this.biTimer.addEventListener(TimerEvent.TIMER,updateBIFilter);
+         this.biTimer.start();
       }
       
       private function createTab() : TextField
@@ -141,13 +175,22 @@ package
          TextFieldEx.setTextAutoSize(tf,TextFieldEx.TEXTAUTOSZ_SHRINK);
          tf.x = (this.customTabs.length - 1) * 70;
          tf.y = 50;
-         tf.width = 70;
+         tf.width = 300;
          tf.height = 40;
          tf.selectable = false;
-         tf.text = "[" + this.customTabs.length + "]";
          tf.addEventListener(MouseEvent.CLICK,this.onCustomTabClicked);
+         tf.addEventListener(MouseEvent.MOUSE_WHEEL,this.onCustomTabMouseWheel);
          addChild(tf);
          return tf;
+      }
+      
+      public function onCustomTabMouseWheel(event:MouseEvent) : void
+      {
+         var tf:TextField = event.target as TextField;
+         if(this.TabHeader_mc.AlphaHolder.Selected.textField_tf.hasEventListener(MouseEvent.MOUSE_WHEEL) && (tf.defaultTextFormat.underline || tf == this.biCurrentFilter))
+         {
+            this.TabHeader_mc.AlphaHolder.Selected.textField_tf.dispatchEvent(event);
+         }
       }
       
       public function onCustomTabClicked(event:MouseEvent) : void
@@ -157,6 +200,10 @@ package
          if(index != -1)
          {
             dispatchEvent(new CustomEvent(TAB_CLICKED,uint(index),true,true));
+         }
+         if(this.TabHeader_mc.AlphaHolder.Selected.textField_tf.hasEventListener(MouseEvent.CLICK) && (tf.defaultTextFormat.underline || tf == this.biCurrentFilter))
+         {
+            this.TabHeader_mc.AlphaHolder.Selected.textField_tf.dispatchEvent(event);
          }
       }
       
@@ -186,7 +233,7 @@ package
       public function updateTabs(param1:Array) : void
       {
          this._TabNames = param1;
-         var tabNamesLen:int = !!param1 ? this._TabNames.length : 0;
+         var tabNamesLen:int = Boolean(param1) ? this._TabNames.length : 0;
          var xPos:int = -75;
          var xDelta:int = 860 / Math.max(tabNamesLen,1);
          var i:int = 0;
@@ -304,10 +351,14 @@ package
             var i:int = 0;
             while(i < this.customTabs.length)
             {
-               if(i == this._currTabIndex && !this.customTabs[i].defaultTextFormat.underline)
+               if(i == this._currTabIndex)
                {
-                  this.customTabs[i].setTextFormat(selectedTabFormat);
-                  this.customTabs[i].defaultTextFormat = selectedTabFormat;
+                  selectedTabText = this.customTabs[i].text;
+                  if(!this.customTabs[i].defaultTextFormat.underline)
+                  {
+                     this.customTabs[i].setTextFormat(selectedTabFormat);
+                     this.customTabs[i].defaultTextFormat = selectedTabFormat;
+                  }
                }
                else if(this.customTabs[i].defaultTextFormat.underline)
                {
@@ -317,7 +368,7 @@ package
                i++;
             }
          }
-         else if(this._prevTabIndex != this._currTabIndex)
+         if(this._prevTabIndex != this._currTabIndex)
          {
             _loc1_ = this._TabNames;
             this.TabHeader_mc.x = (this.pageTextXBounds[this._currPageIndex].x + this.pageTextXBounds[this._currPageIndex].y) / 2;
@@ -336,7 +387,7 @@ package
                _loc2_ = this._currTabIndex < _loc1_.length - 2 ? _loc1_[this._currTabIndex + 2] : "";
                GlobalFunc.SetText(this.tabTextFields[SELECTED_INDEX + 2],_loc2_,false);
                this.TabHeader_mc.AlphaHolder.RightTwo.x = this.TabHeader_mc.AlphaHolder.RightOne.x + this.TabHeader_mc.AlphaHolder.RightOne.width / 2 + this.TabHeader_mc.AlphaHolder.RightTwo.width / 2 + TAB_SPACING;
-               this.TabHeader_mc.visible = true;
+               this.TabHeader_mc.visible = !SHOW_ALL_TABS;
             }
             else
             {

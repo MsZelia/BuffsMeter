@@ -24,7 +24,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.2.0";
+      public static const MOD_VERSION:String = "1.2.1";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -1003,6 +1003,18 @@ package
          }
       }
       
+      public function showBGSChildren() : void
+      {
+         if(!this.topLevel)
+         {
+            return;
+         }
+         for(c in this.topLevel.BGSCodeObj)
+         {
+            displayMessage(c + ":" + this.topLevel.BGSCodeObj[c]);
+         }
+      }
+      
       public function showHUDChildren() : void
       {
          if(!this.topLevel)
@@ -1114,6 +1126,10 @@ package
                   if(add == "showHUDChildren")
                   {
                      showHUDChildren();
+                  }
+                  else if(add == "showBGSChildren")
+                  {
+                     showBGSChildren();
                   }
                   else if(add == "showVersion")
                   {
