@@ -109,6 +109,8 @@ package
       private static const MAX_EXPIRED_BUFFS:int = 9;
       
       private static const MAIN_MENU:String = "MainMenu";
+      
+      private static const LOADING:String = "Loading";
        
       
       private var _lastUpdateTime:Number = 0;
@@ -187,6 +189,16 @@ package
       
       private var forceHide:Boolean = false;
       
+      private var isLoading:Boolean = false;
+      
+      private var lastLoadingTimeStart:Number = 0;
+      
+      private var lastLoadingTimeEnd:Number = 0;
+      
+      private var loadingTimeComp:Number = 0;
+      
+      private var loadingCheckTimer:Timer;
+      
       public function BuffsMeter()
       {
          this.effects_tf = [];
@@ -242,6 +254,7 @@ package
                {
                   this.XPMeter = this.topLevel.HUDNotificationsGroup_mc.XPMeter_mc;
                }
+               this.initLoadingCompCheck();
             }
             else if(this.topLevel.numChildren > 0)
             {
@@ -260,6 +273,7 @@ package
                   this.isPipboyMenu = false;
                   this.isInMainMenu = true;
                   BSUIDataManager.Subscribe("MenuStackData",this.updateIsMainMenu);
+                  BSUIDataManager.Subscribe("HUDModeData",this.onHUDModeUpdate);
                   var comment:String = "Only key down (and not key up) registers in overlay menu. Why? I do not know.";
                   stage.addEventListener(KeyboardEvent.KEY_DOWN,this.keyDownHandler);
                }
@@ -299,6 +313,45 @@ package
          {
             return x.menuName == MAIN_MENU;
          });
+      }
+      
+      private function onHUDModeUpdate(event:*) : void
+      {
+         if(event == null || event.data == null)
+         {
+            return;
+         }
+         var prevLoading:Boolean = this.isLoading;
+         this.isLoading = event.data.hudMode == LOADING;
+         if(this.isLoading)
+         {
+            if(!prevLoading)
+            {
+               this.lastLoadingTimeStart = getTimer();
+            }
+         }
+         else if(prevLoading)
+         {
+            this.lastLoadingTimeEnd = getTimer();
+            if(this._lastProcessEventsTime > this.lastLoadingTimeStart)
+            {
+               this.loadingTimeComp += (this.lastLoadingTimeEnd - this._lastProcessEventsTime) / 1000;
+            }
+            else
+            {
+               this.loadingTimeComp += (this.lastLoadingTimeEnd - this.lastLoadingTimeStart) / 1000;
+            }
+         }
+      }
+      
+      private function initLoadingCompCheck() : void
+      {
+         this.loadingCheckTimer = new Timer(20);
+         this.loadingCheckTimer.addEventListener(TimerEvent.TIMER,function():void
+         {
+            onHUDModeUpdate(HUDModeData);
+         });
+         this.loadingCheckTimer.start();
       }
       
       private function onMessageEvent(event:FromClientDataEvent) : void
@@ -433,6 +486,7 @@ package
                         ServerTime = jsonData.serverTime;
                         processEvents();
                         isSortReversed = false;
+                        loadingTimeComp = 0;
                         lastBuffData = loader.data;
                      }
                   }
@@ -1055,6 +1109,7 @@ package
          var parts:Array;
          var sub:Object;
          var t2:Number;
+         var _timeSinceLastUpdate:Number;
          var expiredBuffsIndex:* = 1;
          var t1:* = getTimer();
          try
@@ -1130,6 +1185,11 @@ package
                   else if(add == "showBGSChildren")
                   {
                      showBGSChildren();
+                  }
+                  else if(add == "showIsLoading")
+                  {
+                     displayMessage("isLoading: " + this.isLoading + ", last: " + this.lastLoadingTimeStart + " - " + this.lastLoadingTimeEnd);
+                     displayMessage("loadComp: " + this.loadingTimeComp);
                   }
                   else if(add == "showVersion")
                   {
@@ -1259,13 +1319,14 @@ package
                   }
                }
             }
+            _timeSinceLastUpdate = this.timeSinceLastUpdate;
             i = 0;
             while(i < this.BuffData.activeEffects.length)
             {
                if(this.BuffData.activeEffects[i].isValid)
                {
                   effectDuration = Number(this.BuffData.activeEffects[i].textDuration);
-                  effectDurationRemaining = effectDuration - this.timeSinceLastUpdate;
+                  effectDurationRemaining = effectDuration - _timeSinceLastUpdate + this.loadingTimeComp;
                   maxEffectDurationRemaining = int.MIN_VALUE;
                   maxEffectDuration = 0;
                   if(!this.BuffData.activeEffects[i].isPermanentEffect)
@@ -1280,7 +1341,7 @@ package
                         effectInitTime = Number(this.BuffData.activeEffects[i].effects[j].initTime);
                         effectDuration = !isNaN(this.BuffData.activeEffects[i].effects[j].duration) ? this.BuffData.activeEffects[i].effects[j].duration * 20 : 0;
                         maxEffectDuration = Math.max(maxEffectDuration,effectDuration);
-                        effectDurationRemaining = (effectInitTime + effectDuration - ServerTime) / 20;
+                        effectDurationRemaining = (effectInitTime + effectDuration - ServerTime) / 20 + this.loadingTimeComp;
                         if(GlobalFunc.CloseToNumber(maxEffectDurationRemaining,effectDurationRemaining,61))
                         {
                            if(GlobalFunc.CloseToNumber(effectDurationRemaining,0,61))
