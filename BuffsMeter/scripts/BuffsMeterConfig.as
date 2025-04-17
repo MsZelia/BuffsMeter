@@ -42,6 +42,7 @@ package
          config.blendMode = Boolean(config.blendMode) ? config.blendMode.toLowerCase() : "normal";
          config.textBlendMode = Boolean(config.textBlendMode) ? config.textBlendMode.toLowerCase() : "normal";
          config.refresh = Parser.parseNumber(config.refresh,1000);
+         config.hidePermanentEffects = Boolean(config.hidePermanentEffects);
          config.hideEffectsBelowDuration = Parser.parseNumber(config.hideEffectsBelowDuration,-15);
          config.hideEffectsAboveDuration = Parser.parseNumber(config.hideEffectsAboveDuration,0);
          config.warningBelowDuration = Parser.parseNumber(config.warningBelowDuration,30);

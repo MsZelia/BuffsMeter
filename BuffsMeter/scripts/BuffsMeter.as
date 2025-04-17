@@ -16,6 +16,7 @@ package
    import flash.text.*;
    import flash.ui.*;
    import flash.utils.*;
+   import mx.utils.Base64Decoder;
    import scaleform.gfx.*;
    import utils.*;
    
@@ -111,6 +112,8 @@ package
       private static const MAIN_MENU:String = "MainMenu";
       
       private static const LOADING:String = "Loading";
+      
+      private static const BUFF_MSG_SYNC:String = "syncPipBuffData:";
        
       
       private var _lastUpdateTime:Number = 0;
@@ -165,6 +168,8 @@ package
       
       private var lastBuffData:String = null;
       
+      private var lastBuffMsgData:String = null;
+      
       private var expiredBuffs:Vector.<Object>;
       
       private var lastRenderTime:Number = 0;
@@ -213,10 +218,7 @@ package
          this.PublicTeamsData = BSUIDataManager.GetDataFromClient("PublicTeamsData");
          this.PartyMenuList = BSUIDataManager.GetDataFromClient("PartyMenuList");
          this.SeasonWidgetData = BSUIDataManager.GetDataFromClient("SeasonWidgetData");
-         if(false)
-         {
-            BSUIDataManager.Subscribe("MessageEvents",this.onMessageEvent);
-         }
+         BSUIDataManager.Subscribe("MessageEvents",this.onMessageEvent);
          this.configTimer = new Timer(CONFIG_RELOAD_TIME);
          this.configTimer.addEventListener(TimerEvent.TIMER,this.loadConfig);
          this.configTimer.start();
@@ -354,23 +356,93 @@ package
          this.loadingCheckTimer.start();
       }
       
+      private function clearHUDMessages() : void
+      {
+         if(this.isHudMenu)
+         {
+            var messages_mc:* = topLevel.HUDNotificationsGroup_mc.Messages_mc;
+            var len:int = int(messages_mc.ShownMessageArray.length);
+            var i:int = 0;
+            while(i < len)
+            {
+               if(messages_mc.ShownMessageArray[i].data.messageID == id)
+               {
+                  messages_mc.ShownMessageArray[i].FadeOut();
+                  break;
+               }
+               i++;
+            }
+         }
+      }
+      
       private function onMessageEvent(event:FromClientDataEvent) : void
       {
-         var eventData:*;
-         var messageIndex:int;
          var messageData:*;
          var wornOffIndex:int;
          var wornOffItem:String;
-         var eventIndex:int = 0;
+         var jsonData:Object;
+         var b64decoder:Base64Decoder;
+         var baZlib:ByteArray;
+         var syncLen:int;
+         var messageText:String;
+         var messageTextUncompressed:String;
+         var messageIndex:int = 0;
+         var errorCode:String = "init";
          try
          {
-            while(eventIndex < event.data.events.length)
+            if(config == null || !config.enableManualPipBuffDataSync || this.HUDMessageProvider.data.messages == null)
             {
-               eventData = event.data.events[eventIndex];
-               if(eventData.eventType == "new")
+               return;
+            }
+            while(messageIndex < this.HUDMessageProvider.data.messages.length)
+            {
+               errorCode = "messageData";
+               messageData = this.HUDMessageProvider.data.messages[messageIndex];
+               errorCode = "SYNC len";
+               syncLen = BUFF_MSG_SYNC.length;
+               errorCode = "substr";
+               if(messageData != null && messageData.messageText != null && messageData.messageText.substr(0,syncLen) == BUFF_MSG_SYNC)
                {
-                  messageIndex = int(eventData.eventIndex);
-                  messageData = this.HUDMessageProvider.data.messages[messageIndex];
+                  errorCode = "messageText";
+                  messageText = messageData.messageText.substr(BUFF_MSG_SYNC.length);
+                  errorCode = "Base64Decoder";
+                  b64decoder = new Base64Decoder();
+                  errorCode = "decode";
+                  b64decoder.decode(messageText);
+                  errorCode = "toByteArray";
+                  baZlib = b64decoder.toByteArray();
+                  errorCode = "decompress";
+                  baZlib.uncompress("zlib");
+                  errorCode = "readObject";
+                  messageTextUncompressed = baZlib.readObject();
+                  errorCode = "replace";
+                  messageTextUncompressed = messageTextUncompressed.replace(/\"x\":/g,"\"text\":").replace(/\"n\":/g,"\"iconText\":").replace(/\"y\":/g,"\"type\":").replace(/\"f\":/g,"\"effects\":").replace(/\"v\":/g,"\"value\":").replace(/\"d\":/g,"\"duration\":").replace(/\"p\":/g,"\"showAsPercent\":").replace(/\"i\":/g,"\"initTime\":").replace(/\"c\":/g,"\"setAsCustomDesc\":").replace(/\"k\":/g,"\"keywordSortIndex\":").replace(/\"m\":/g,"\"PlusMinus\":");
+                  errorCode = "hudmsg";
+                  ShowHUDMessage("buffs length: " + messageData.messageText.length + ", uncompressed: " + messageTextUncompressed.length);
+                  errorCode = "lastBuffMsgData";
+                  if(lastBuffMsgData != messageTextUncompressed)
+                  {
+                     errorCode = "jsonData";
+                     jsonData = new JSONDecoder(messageTextUncompressed,true).getValue();
+                     errorCode = "jsonData check";
+                     if(jsonData && jsonData.time && jsonData.serverTime && jsonData.activeEffects)
+                     {
+                        errorCode = "BuffData";
+                        BuffData = jsonData;
+                        errorCode = "ServerTime";
+                        ServerTime = jsonData.serverTime;
+                        errorCode = "processEvents";
+                        processEvents();
+                        errorCode = "isSortReversed";
+                        isSortReversed = false;
+                        loadingTimeComp = 0;
+                        errorCode = "lastBuffMsgData";
+                        lastBuffMsgData = messageTextUncompressed;
+                     }
+                  }
+               }
+               if(false)
+               {
                   wornOffIndex = this.getIsWornOffIndex(messageData.messageText);
                   if(wornOffIndex != -1)
                   {
@@ -388,12 +460,12 @@ package
                      }
                   }
                }
-               eventIndex++;
+               messageIndex++;
             }
          }
          catch(e:Error)
          {
-            ShowHUDMessage("Error onMessageEvent: " + e);
+            ShowHUDMessage("Error onMessageEvent: " + errorCode + ", " + e);
          }
       }
       
@@ -1141,10 +1213,10 @@ package
                   }
                }
             }
-            if(this.isHudMenu && !this.isSFEDefined())
+            if(this.isHudMenu && !this.isSFEDefined() && !config.enableManualPipBuffDataSync)
             {
                displayMessage(FULL_MOD_NAME);
-               displayMessage("SFE not found");
+               displayMessage("SFE not found, ManualSync off");
                LastDisplayEffect.textColor = 16711680;
                if(!config.hideSFEMessage)
                {
@@ -1380,14 +1452,17 @@ package
                {
                   if(this.BuffData.activeEffects[i].isPermanentEffect)
                   {
-                     displayMessage(formatEffect(this.BuffData.activeEffects[i]));
-                     if(this.BuffData.activeEffects[i].isDebuff)
+                     if(!config.hidePermanentEffects)
                      {
-                        LastDisplayEffect.textColor = getCustomColor(DATA_DEBUFF);
-                     }
-                     else
-                     {
-                        applyEffectColor(this.BuffData.activeEffects[i].effectText);
+                        displayMessage(formatEffect(this.BuffData.activeEffects[i]));
+                        if(this.BuffData.activeEffects[i].isDebuff)
+                        {
+                           LastDisplayEffect.textColor = getCustomColor(DATA_DEBUFF);
+                        }
+                        else
+                        {
+                           applyEffectColor(this.BuffData.activeEffects[i].effectText);
+                        }
                      }
                   }
                   else if(this.BuffData.activeEffects[i].durationRemaining < 1)
