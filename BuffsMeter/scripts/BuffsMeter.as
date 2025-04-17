@@ -418,7 +418,10 @@ package
                   errorCode = "replace";
                   messageTextUncompressed = messageTextUncompressed.replace(/\"x\":/g,"\"text\":").replace(/\"n\":/g,"\"iconText\":").replace(/\"y\":/g,"\"type\":").replace(/\"f\":/g,"\"effects\":").replace(/\"v\":/g,"\"value\":").replace(/\"d\":/g,"\"duration\":").replace(/\"p\":/g,"\"showAsPercent\":").replace(/\"i\":/g,"\"initTime\":").replace(/\"c\":/g,"\"setAsCustomDesc\":").replace(/\"k\":/g,"\"keywordSortIndex\":").replace(/\"m\":/g,"\"PlusMinus\":");
                   errorCode = "hudmsg";
-                  ShowHUDMessage("buffs length: " + messageData.messageText.length + ", uncompressed: " + messageTextUncompressed.length);
+                  if(false)
+                  {
+                     ShowHUDMessage("buffs length: " + messageData.messageText.length + ", uncompressed: " + messageTextUncompressed.length);
+                  }
                   errorCode = "lastBuffMsgData";
                   if(lastBuffMsgData != messageTextUncompressed)
                   {
