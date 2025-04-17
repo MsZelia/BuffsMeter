@@ -24,6 +24,8 @@ package
       
       public static var SHOW_ALL_TABS:Boolean = false;
       
+      public static var INV_TAB_NAMES:Array = [];
+      
       public static var MAX_TABS:int = 13;
       
       private static const SELECTED_INDEX:uint = 2;
@@ -233,6 +235,7 @@ package
       public function updateTabs(param1:Array) : void
       {
          this._TabNames = param1;
+         var useCustomTabNames:Boolean = this._currPageIndex == 1 && INV_TAB_NAMES.length == 12;
          var tabNamesLen:int = Boolean(param1) ? this._TabNames.length : 0;
          var xPos:int = -75;
          var xDelta:int = 860 / Math.max(tabNamesLen,1);
@@ -241,7 +244,7 @@ package
          {
             if(tabNamesLen > i)
             {
-               this.customTabs[i].text = this._TabNames[i];
+               this.customTabs[i].text = useCustomTabNames ? INV_TAB_NAMES[i] : this._TabNames[i];
                this.customTabs[i].visible = SHOW_ALL_TABS;
                this.customTabs[i].x = xPos;
                this.customTabs[i].width = xDelta;
@@ -347,13 +350,14 @@ package
          var _loc2_:String = null;
          if(SHOW_ALL_TABS)
          {
+            var useCustomTabNames:Boolean = this._currPageIndex == 1 && INV_TAB_NAMES.length == 12;
             this.TabHeader_mc.visible = false;
             var i:int = 0;
             while(i < this.customTabs.length)
             {
                if(this._TabNames && i < this._TabNames.length)
                {
-                  this.customTabs[i].text = this._TabNames[i];
+                  this.customTabs[i].text = useCustomTabNames ? INV_TAB_NAMES[i] : this._TabNames[i];
                }
                if(i == this._currTabIndex)
                {

@@ -15,9 +15,9 @@ package
    import flash.display.MovieClip;
    import flash.events.*;
    import flash.net.*;
-   import flash.system.ApplicationDomain;
-   import flash.system.LoaderContext;
+   import flash.system.*;
    import flash.utils.*;
+   import mx.utils.Base64Encoder;
    
    [Embed(source="/_assets/assets.swf", symbol="symbol75")]
    public class PipboyMenu extends IMenu
@@ -76,6 +76,10 @@ package
       
       public var enableWidget:Boolean = false;
       
+      public var enableManualPipBuffDataSync:Boolean = false;
+      
+      public var pipBuffDataSyncHotkey:int = 0;
+      
       public var __SFCodeObj:Object;
       
       public var modLoader:Loader;
@@ -122,8 +126,19 @@ package
                var jsonData:Object;
                try
                {
-                  enableWidget = /"enableWidgetInPipboy":\s*true/i.test(loader.data);
-                  Pipboy_Header.SHOW_ALL_TABS = /"showAllPipboyTabs":\s*true/i.test(loader.data);
+                  jsonData = new JSONDecoder(loader.data,true).getValue();
+                  enableWidget = Boolean(jsonData.enableWidgetInPipboy);
+                  Pipboy_Header.SHOW_ALL_TABS = Boolean(jsonData.showAllPipboyTabs);
+                  if(jsonData.pipInventoryTabNames != null && jsonData.pipInventoryTabNames && jsonData.pipInventoryTabNames.length == 12)
+                  {
+                     Pipboy_Header.INV_TAB_NAMES = jsonData.pipInventoryTabNames;
+                  }
+                  enableManualPipBuffDataSync = Boolean(jsonData.enableManualPipBuffDataSync);
+                  pipBuffDataSyncHotkey = jsonData.pipBuffDataSyncHotkey != null && !isNaN(jsonData.pipBuffDataSyncHotkey) ? jsonData.pipBuffDataSyncHotkey : pipBuffDataSyncHotkey;
+                  if(enableManualPipBuffDataSync)
+                  {
+                     stage.addEventListener(KeyboardEvent.KEY_DOWN,keyDownHandler);
+                  }
                   setTimeout(loadBuffsMeter,100);
                }
                catch(e:Error)
@@ -146,7 +161,7 @@ package
       {
          try
          {
-            if(this.enableWidget || this.__SFCodeObj == null || this.__SFCodeObj.call == null)
+            if(this.enableWidget && !(this.enableManualPipBuffDataSync || this.__SFCodeObj != null && this.__SFCodeObj.call != null))
             {
                this.modLoader = new Loader();
                this.modLoader.load(new URLRequest("BuffsMeter.swf"),new LoaderContext(false,ApplicationDomain.currentDomain));
@@ -225,6 +240,48 @@ package
             {
                this.__SFCodeObj.call("writeBuffDataFile",toString(getBuffsData(message)));
             }
+         }
+      }
+      
+      public function keyDownHandler(event:Event) : void
+      {
+         if(event.keyCode == this.pipBuffDataSyncHotkey && this.lastPipboyChangeData != null)
+         {
+            this.syncPipBuffData();
+         }
+      }
+      
+      private function syncPipBuffData() : void
+      {
+         var buffs:*;
+         var baZlib:ByteArray;
+         var b64:Base64Encoder;
+         var b64str:String;
+         var baZlib2:ByteArray;
+         var errorCode:String = "";
+         try
+         {
+            errorCode = "getBuffs";
+            buffs = toString(getBuffsData("HUDMessage"));
+            buffs = buffs.replace(/\"text\":/g,"\"x\":").replace(/\"iconText\":/g,"\"n\":").replace(/\"type\":/g,"\"y\":").replace(/\"effects\":/g,"\"f\":").replace(/\"value\":/g,"\"v\":").replace(/\"duration\":/g,"\"d\":").replace(/\"showAsPercent\":/g,"\"p\":").replace(/\"initTime\":/g,"\"i\":").replace(/\"usesCustomDesc\":/g,"\"c\":").replace(/\"keywordSortIndex\":/g,"\"k\":").replace(/\"PlusMinus\":/g,"\"m\":");
+            errorCode = "zlib";
+            baZlib = new ByteArray();
+            errorCode = "zlib write";
+            baZlib.writeObject(buffs);
+            errorCode = "zlib compress";
+            baZlib.compress("zlib");
+            errorCode = "Base64Encoder";
+            b64 = new Base64Encoder();
+            errorCode = "encodeBytes";
+            b64.encodeBytes(baZlib);
+            errorCode = "b64 string";
+            b64str = b64.toString();
+            errorCode = "HUD message";
+            GlobalFunc.ShowHUDMessage("syncPipBuffData:" + b64str);
+         }
+         catch(e:*)
+         {
+            GlobalFunc.ShowHUDMessage("Error syncPipBuffData " + errorCode + ", " + e);
          }
       }
       
