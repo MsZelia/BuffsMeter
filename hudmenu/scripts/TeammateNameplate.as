@@ -10,7 +10,7 @@ package
    import scaleform.gfx.Extensions;
    import scaleform.gfx.TextFieldEx;
    
-   [Embed(source="/_assets/assets.swf", symbol="symbol157")]
+   [Embed(source="/_assets/assets.swf", symbol="symbol158")]
    public class TeammateNameplate extends BSUIComponent
    {
       
@@ -85,7 +85,7 @@ package
       
       private var _IsLocalPlayer:Boolean = false;
       
-      public var _Distance:Number;
+      private var _Distance:Number;
       
       private var _EmoteVisible:Boolean = false;
       
