@@ -26,6 +26,23 @@ package utils
          return -1;
       }
       
+      public static function indexOfCaseInsensitiveStringStarts(arr:Array, searchingFor:String, fromIndex:uint = 0) : int
+      {
+         var lowercaseSearchString:String = searchingFor.toLowerCase();
+         var arrayLength:uint = arr.length;
+         var index:uint = fromIndex;
+         while(index < arrayLength)
+         {
+            var element:* = arr[index];
+            if(element is String && lowercaseSearchString.indexOf(element.toLowerCase()) == 0)
+            {
+               return index;
+            }
+            index++;
+         }
+         return -1;
+      }
+      
       public static function findTargetIndex(arr:Array, searchingIn:String) : int
       {
          var x:int = 0;

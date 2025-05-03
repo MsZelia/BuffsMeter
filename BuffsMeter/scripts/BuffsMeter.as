@@ -25,7 +25,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.2.3";
+      public static const MOD_VERSION:String = "1.2.4";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -1342,19 +1342,58 @@ package
                   }
                   else if(add == "showChecklist")
                   {
-                     for each(checkName in config.checklist)
+                     if(config.checklistCompareMode == 0)
                      {
-                        if(!this.BuffData.activeEffects.some(function(buff:Object):Boolean
+                        for each(checkName in config.checklist)
                         {
-                           if(buff.isValid)
+                           if(!this.BuffData.activeEffects.some(function(buff:Object):Boolean
                            {
-                              return ArrayUtils.indexOfCaseInsensitiveString(checkName,buff.effectText) != -1;
+                              if(buff.isValid)
+                              {
+                                 return ArrayUtils.indexOfCaseInsensitiveStringStarts(checkName,buff.effectText) != -1;
+                              }
+                              return false;
+                           }))
+                           {
+                              displayMessage(config.formats[FORMAT_CHECKLIST].replace(STRING_TEXT,checkName.length == 0 || config.checklistDisplay[checkName[0]] == null ? checkName : config.checklistDisplay[checkName[0]]));
+                              applyColor(add);
                            }
-                           return false;
-                        }))
+                        }
+                     }
+                     else if(config.checklistCompareMode == 1)
+                     {
+                        for each(checkName in config.checklist)
                         {
-                           displayMessage(config.formats[FORMAT_CHECKLIST].replace(STRING_TEXT,checkName.length == 0 || config.checklistDisplay[checkName[0]] == null ? checkName : config.checklistDisplay[checkName[0]]));
-                           applyColor(add);
+                           if(!this.BuffData.activeEffects.some(function(buff:Object):Boolean
+                           {
+                              if(buff.isValid)
+                              {
+                                 return checkName.indexOf(buff.effectText.toLowerCase()) != -1;
+                              }
+                              return false;
+                           }))
+                           {
+                              displayMessage(config.formats[FORMAT_CHECKLIST].replace(STRING_TEXT,checkName.length == 0 || config.checklistDisplay[checkName[0]] == null ? checkName : config.checklistDisplay[checkName[0]]));
+                              applyColor(add);
+                           }
+                        }
+                     }
+                     else
+                     {
+                        for each(checkName in config.checklist)
+                        {
+                           if(!this.BuffData.activeEffects.some(function(buff:Object):Boolean
+                           {
+                              if(buff.isValid)
+                              {
+                                 return ArrayUtils.indexOfCaseInsensitiveString(checkName,buff.effectText) != -1;
+                              }
+                              return false;
+                           }))
+                           {
+                              displayMessage(config.formats[FORMAT_CHECKLIST].replace(STRING_TEXT,checkName.length == 0 || config.checklistDisplay[checkName[0]] == null ? checkName : config.checklistDisplay[checkName[0]]));
+                              applyColor(add);
+                           }
                         }
                      }
                   }

@@ -255,6 +255,18 @@ package
                config.debuffs[i] = config.debuffs[i].toLowerCase();
             }
          }
+         if(config.checklistCompareMode.toLowerCase() == "starts")
+         {
+            config.checklistCompareMode = 0;
+         }
+         else if(config.checklistCompareMode.toLowerCase() == "exact")
+         {
+            config.checklistCompareMode = 1;
+         }
+         else
+         {
+            config.checklistCompareMode = 2;
+         }
          if(!config.checklist)
          {
             config.checklist = [];
