@@ -511,7 +511,7 @@ package
                }
                catch(e:Error)
                {
-                  ShowHUDMessage("Error loading config: " + e);
+                  ShowHUDMessage("Error parsing config: " + e);
                }
             };
             url = new URLRequest(CONFIG_FILE);
