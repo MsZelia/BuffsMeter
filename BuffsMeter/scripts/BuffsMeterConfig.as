@@ -255,7 +255,11 @@ package
                config.debuffs[i] = config.debuffs[i].toLowerCase();
             }
          }
-         if(config.checklistCompareMode.toLowerCase() == "starts")
+         if(!config.checklistCompareMode)
+         {
+            config.checklistCompareMode = 2;
+         }
+         else if(config.checklistCompareMode.toLowerCase() == "starts")
          {
             config.checklistCompareMode = 0;
          }
