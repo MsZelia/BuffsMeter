@@ -53,6 +53,7 @@ package
          config.reverseSort = Parser.parseBoolean(config.reverseSort,false);
          config.toggleVisibilityHotkey = Parser.parsePositiveNumber(config.toggleVisibilityHotkey,0);
          config.forceHideHotkey = Parser.parsePositiveNumber(config.forceHideHotkey,0);
+         config.toggleChecklistHotkey = Parser.parsePositiveNumber(config.toggleChecklistHotkey,0);
          if(!config.formats)
          {
             config.formats = {};
