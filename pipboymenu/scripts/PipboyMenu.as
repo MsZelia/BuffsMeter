@@ -247,7 +247,14 @@ package
       {
          if(event.keyCode == this.pipBuffDataSyncHotkey && this.lastPipboyChangeData != null)
          {
-            this.syncPipBuffData();
+            if(this.__SFCodeObj == null || this.__SFCodeObj.call == null)
+            {
+               this.syncPipBuffData();
+            }
+            else
+            {
+               this.savePipboy("keyDownHandler");
+            }
          }
       }
       
