@@ -266,7 +266,7 @@ package
             this._currPageIndex = param1.DataObj.CurrentPage;
             this._prevTabIndex = uint.MAX_VALUE;
             this._currTabIndex = param1.DataObj.CurrentTab;
-            updateTabs(param1.TabNames);
+            this.updateTabs(param1.TabNames);
             this.LeftTriggerButton.ButtonVisible = this._currPageIndex > 0;
             this.RightTriggerButton.ButtonVisible = this._currPageIndex < this.pageTextFields.length - 1;
             SetIsDirty();
