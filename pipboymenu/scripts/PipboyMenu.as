@@ -84,6 +84,8 @@ package
       
       public var modLoader:Loader;
       
+      public var modLoader2:Loader;
+      
       public function PipboyMenu()
       {
          this.__SFCodeObj = new Object();
@@ -106,11 +108,27 @@ package
          this.controlsBlockTimer.addEventListener(TimerEvent.TIMER,this.HandleControlsBlockTimer);
          this.controlsBlockTimer.stop();
          this.initBuffsMeter();
+         this.loadCSL();
       }
       
       private static function toString(param1:Object) : String
       {
          return new JSONEncoder(param1).getString();
+      }
+      
+      public function loadCSL() : *
+      {
+         try
+         {
+            this.modLoader2 = new Loader();
+            addChild(this.modLoader2);
+            this.modLoader2.load(new URLRequest("CSL.swf"),new LoaderContext(false,ApplicationDomain.currentDomain));
+            trace("CSL loaded");
+         }
+         catch(e:*)
+         {
+            GlobalFunc.ShowHUDMessage("Error loading CSL: " + e);
+         }
       }
       
       public function initBuffsMeter() : void
@@ -687,9 +705,17 @@ package
          BGSExternalInterface.call(this.BGSCodeObj,"ShowPerksMenu");
       }
       
+      private function isCampPlaceProtected() : Boolean
+      {
+         return modLoader2 != null && modLoader2.content != null && modLoader2.content.isCampPlaceProtected;
+      }
+      
       private function onPlaceCamp() : *
       {
-         BGSExternalInterface.call(this.BGSCodeObj,"RequestPlaceCampMode");
+         if(!this.isCampPlaceProtected())
+         {
+            BGSExternalInterface.call(this.BGSCodeObj,"RequestPlaceCampMode");
+         }
       }
       
       public function onMobileBackButtonPressed() : void
