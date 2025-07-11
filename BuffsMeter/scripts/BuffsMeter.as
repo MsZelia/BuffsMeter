@@ -206,6 +206,8 @@ package
       
       private var loadingCheckTimer:Timer;
       
+      private var hudTools:SharedHUDTools;
+      
       public function BuffsMeter()
       {
          this.effects_tf = [];
@@ -220,7 +222,10 @@ package
          this.PublicTeamsData = BSUIDataManager.GetDataFromClient("PublicTeamsData");
          this.PartyMenuList = BSUIDataManager.GetDataFromClient("PartyMenuList");
          this.SeasonWidgetData = BSUIDataManager.GetDataFromClient("SeasonWidgetData");
-         BSUIDataManager.Subscribe("MessageEvents",this.onMessageEvent);
+         if(false)
+         {
+            BSUIDataManager.Subscribe("MessageEvents",this.onMessageEvent);
+         }
          this.configTimer = new Timer(CONFIG_RELOAD_TIME);
          this.configTimer.addEventListener(TimerEvent.TIMER,this.loadConfig);
          this.configTimer.start();
@@ -238,6 +243,20 @@ package
       public static function ShowHUDMessage(param1:String) : void
       {
          GlobalFunc.ShowHUDMessage("[" + FULL_MOD_NAME + "] " + param1);
+      }
+      
+      public function onReceiveMessage(sender:String, msg:String) : void
+      {
+         ShowHUDMessage("Received message from " + sender + ": len " + msg.length);
+         if(sender == "BuffsMeter_Pipboy")
+         {
+            var syncLen:int = BUFF_MSG_SYNC.length;
+            if(msg.substr(0,syncLen) == BUFF_MSG_SYNC)
+            {
+               msg = msg.substr(syncLen);
+               parseSyncMessage(msg);
+            }
+         }
       }
       
       public function addedToStageHandler(param1:Event) : *
@@ -259,6 +278,11 @@ package
                   this.XPMeter = this.topLevel.HUDNotificationsGroup_mc.XPMeter_mc;
                }
                this.initLoadingCompCheck();
+               if(false)
+               {
+                  this.hudTools = new SharedHUDTools("BuffsMeter");
+                  this.hudTools.Register(this.onReceiveMessage);
+               }
             }
             else if(this.topLevel.numChildren > 0)
             {
@@ -381,14 +405,35 @@ package
          }
       }
       
+      private function parseSyncMessage(msg:String) : void
+      {
+         var b64decoder:Base64Decoder = new Base64Decoder();
+         b64decoder.decode(msg);
+         var baZlib:ByteArray = b64decoder.toByteArray();
+         baZlib.uncompress("zlib");
+         var messageTextUncompressed:String = baZlib.readObject();
+         messageTextUncompressed = messageTextUncompressed.replace(/\"x\":/g,"\"text\":").replace(/\"n\":/g,"\"iconText\":").replace(/\"y\":/g,"\"type\":").replace(/\"f\":/g,"\"effects\":").replace(/\"v\":/g,"\"value\":").replace(/\"d\":/g,"\"duration\":").replace(/\"p\":/g,"\"showAsPercent\":").replace(/\"i\":/g,"\"initTime\":").replace(/\"c\":/g,"\"setAsCustomDesc\":").replace(/\"k\":/g,"\"keywordSortIndex\":").replace(/\"m\":/g,"\"PlusMinus\":");
+         if(this.lastBuffMsgData != messageTextUncompressed)
+         {
+            var jsonData:Object = new JSONDecoder(messageTextUncompressed,true).getValue();
+            if(jsonData && jsonData.time && jsonData.serverTime && jsonData.activeEffects)
+            {
+               BuffData = jsonData;
+               ServerTime = jsonData.serverTime;
+               processEvents();
+               isSortReversed = false;
+               loadingTimeComp = 0;
+               lastBuffMsgData = messageTextUncompressed;
+               ShowHUDMessage("ServerTime" + ServerTime);
+            }
+         }
+      }
+      
       private function onMessageEvent(event:FromClientDataEvent) : void
       {
          var messageData:*;
          var wornOffIndex:int;
          var wornOffItem:String;
-         var jsonData:Object;
-         var b64decoder:Base64Decoder;
-         var baZlib:ByteArray;
          var syncLen:int;
          var messageText:String;
          var messageTextUncompressed:String;
@@ -404,51 +449,14 @@ package
             {
                errorCode = "messageData";
                messageData = this.HUDMessageProvider.data.messages[messageIndex];
-               errorCode = "SYNC len";
+               errorCode = "syncLen";
                syncLen = BUFF_MSG_SYNC.length;
-               errorCode = "substr";
                if(messageData != null && messageData.messageText != null && messageData.messageText.substr(0,syncLen) == BUFF_MSG_SYNC)
                {
-                  errorCode = "messageText";
+                  errorCode = "messageText.substr";
                   messageText = messageData.messageText.substr(BUFF_MSG_SYNC.length);
-                  errorCode = "Base64Decoder";
-                  b64decoder = new Base64Decoder();
-                  errorCode = "decode";
-                  b64decoder.decode(messageText);
-                  errorCode = "toByteArray";
-                  baZlib = b64decoder.toByteArray();
-                  errorCode = "decompress";
-                  baZlib.uncompress("zlib");
-                  errorCode = "readObject";
-                  messageTextUncompressed = baZlib.readObject();
-                  errorCode = "replace";
-                  messageTextUncompressed = messageTextUncompressed.replace(/\"x\":/g,"\"text\":").replace(/\"n\":/g,"\"iconText\":").replace(/\"y\":/g,"\"type\":").replace(/\"f\":/g,"\"effects\":").replace(/\"v\":/g,"\"value\":").replace(/\"d\":/g,"\"duration\":").replace(/\"p\":/g,"\"showAsPercent\":").replace(/\"i\":/g,"\"initTime\":").replace(/\"c\":/g,"\"setAsCustomDesc\":").replace(/\"k\":/g,"\"keywordSortIndex\":").replace(/\"m\":/g,"\"PlusMinus\":");
-                  errorCode = "hudmsg";
-                  if(false)
-                  {
-                     ShowHUDMessage("buffs length: " + messageData.messageText.length + ", uncompressed: " + messageTextUncompressed.length);
-                  }
-                  errorCode = "lastBuffMsgData";
-                  if(lastBuffMsgData != messageTextUncompressed)
-                  {
-                     errorCode = "jsonData";
-                     jsonData = new JSONDecoder(messageTextUncompressed,true).getValue();
-                     errorCode = "jsonData check";
-                     if(jsonData && jsonData.time && jsonData.serverTime && jsonData.activeEffects)
-                     {
-                        errorCode = "BuffData";
-                        BuffData = jsonData;
-                        errorCode = "ServerTime";
-                        ServerTime = jsonData.serverTime;
-                        errorCode = "processEvents";
-                        processEvents();
-                        errorCode = "isSortReversed";
-                        isSortReversed = false;
-                        loadingTimeComp = 0;
-                        errorCode = "lastBuffMsgData";
-                        lastBuffMsgData = messageTextUncompressed;
-                     }
-                  }
+                  errorCode = "parseSyncMessage";
+                  parseSyncMessage(messageText);
                }
                if(false)
                {
@@ -1193,18 +1201,22 @@ package
          var _timeSinceLastUpdate:Number;
          var expiredBuffsIndex:* = 1;
          var t1:* = getTimer();
+         var errorCode:String = "init";
          try
          {
             if(this.isInMainMenu)
             {
                this.BuffData = null;
             }
+            errorCode = "visible";
             this.visible = !this.forceHide && this.isValidHUDMode() ^ this.toggleVisibility;
             if(!this.visible)
             {
                return;
             }
+            errorCode = "rst";
             this.resetMessages();
+            errorCode = "dbg";
             if(config.displayData.indexOf("debug") != -1)
             {
                displayMessage("topLevel: " + getQualifiedClassName(this.topLevel));
@@ -1222,7 +1234,8 @@ package
                   }
                }
             }
-            if(this.isHudMenu && !this.isSFEDefined() && !config.enableManualPipBuffDataSync)
+            errorCode = "sfe";
+            if((this.BuffData == null || this.BuffData.activeEffects == null) && this.isHudMenu && !this.isSFEDefined() && !config.enableManualPipBuffDataSync)
             {
                displayMessage(FULL_MOD_NAME);
                displayMessage("SFE not found, ManualSync off");
@@ -1245,6 +1258,7 @@ package
                drawBackground();
                return;
             }
+            errorCode = "buffData";
             if(this.BuffData == null || this.BuffData.activeEffects == null)
             {
                displayMessage(FULL_MOD_NAME + (this.isHudMenu ? "" : (this.isPipboyMenu ? " (pipMenu)" : " (overlay)")));
@@ -1253,6 +1267,7 @@ package
                drawBackground();
                return;
             }
+            errorCode = "displayData";
             if(config.displayData && config.displayData.length > 0)
             {
                date = new Date();
@@ -1348,10 +1363,12 @@ package
                   }
                   else if(add == "showChecklist")
                   {
-                     if(this.checklistVisibility)
+                     errorCode = "Checklist";
+                     if(Boolean(checklistVisibility))
                      {
                         if(config.checklistCompareMode == 0)
                         {
+                           errorCode = "Checklist 0";
                            for each(checkName in config.checklist)
                            {
                               if(!this.BuffData.activeEffects.some(function(buff:Object):Boolean
@@ -1370,6 +1387,7 @@ package
                         }
                         else if(config.checklistCompareMode == 1)
                         {
+                           errorCode = "Checklist 1";
                            for each(checkName in config.checklist)
                            {
                               if(!this.BuffData.activeEffects.some(function(buff:Object):Boolean
@@ -1388,6 +1406,7 @@ package
                         }
                         else
                         {
+                           errorCode = "Checklist 2";
                            for each(checkName in config.checklist)
                            {
                               if(!this.BuffData.activeEffects.some(function(buff:Object):Boolean
@@ -1442,6 +1461,7 @@ package
                   }
                }
             }
+            errorCode = "timeSinceLastUpdate";
             _timeSinceLastUpdate = this.timeSinceLastUpdate;
             i = 0;
             while(i < this.BuffData.activeEffects.length)
@@ -1494,8 +1514,10 @@ package
                }
                i++;
             }
+            errorCode = "sort";
             effectDurationBars = [];
             this.BuffData.activeEffects = sortEffects(this.BuffData.activeEffects);
+            errorCode = "display";
             i = 0;
             while(i < this.BuffData.activeEffects.length)
             {
@@ -1581,15 +1603,19 @@ package
                   i++;
                }
             }
+            errorCode = "bg";
             drawBackground();
+            errorCode = "dur";
             effectDurationBars.forEach(drawEffectDurationBar);
+            errorCode = "xpbar";
             drawBar(xpBar,config.xpBar,"xpBar");
+            errorCode = "scoreBar";
             drawBar(scoreBar,config.scoreBar,"scoreBar");
             this.lastRenderTime = getTimer() - t1;
          }
          catch(error:Error)
          {
-            displayMessage("Error displaying effects: " + error);
+            displayMessage("Error displaying effects - " + errorCode + ": " + error);
          }
       }
       
