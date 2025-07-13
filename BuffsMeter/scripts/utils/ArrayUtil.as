@@ -1,10 +1,10 @@
 package utils
 {
-   public class ArrayUtils
+   public class ArrayUtil
    {
        
       
-      public function ArrayUtils()
+      public function ArrayUtil()
       {
          super();
       }

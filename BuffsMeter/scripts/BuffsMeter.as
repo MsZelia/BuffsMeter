@@ -25,7 +25,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.2.7";
+      public static const MOD_VERSION:String = "1.2.8";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -245,6 +245,23 @@ package
          GlobalFunc.ShowHUDMessage("[" + FULL_MOD_NAME + "] " + param1);
       }
       
+      public static function indexOfCaseInsensitiveStringStarts(arr:Array, searchingFor:String, fromIndex:uint = 0) : int
+      {
+         var lowercaseSearchString:String = searchingFor.toLowerCase();
+         var arrayLength:uint = arr.length;
+         var index:uint = fromIndex;
+         while(index < arrayLength)
+         {
+            var element:* = arr[index];
+            if(element is String && lowercaseSearchString.indexOf(element.toLowerCase()) == 0)
+            {
+               return index;
+            }
+            index++;
+         }
+         return -1;
+      }
+      
       public function onReceiveMessage(sender:String, msg:String) : void
       {
          ShowHUDMessage("Received message from " + sender + ": len " + msg.length);
@@ -278,11 +295,8 @@ package
                   this.XPMeter = this.topLevel.HUDNotificationsGroup_mc.XPMeter_mc;
                }
                this.initLoadingCompCheck();
-               if(false)
-               {
-                  this.hudTools = new SharedHUDTools("BuffsMeter");
-                  this.hudTools.Register(this.onReceiveMessage);
-               }
+               this.hudTools = new SharedHUDTools("BuffsMeter");
+               this.hudTools.Register(this.onReceiveMessage);
             }
             else if(this.topLevel.numChildren > 0)
             {
@@ -960,7 +974,7 @@ package
       
       public function applyEffectColor(name:String) : Boolean
       {
-         var index:int = int(ArrayUtils.indexOfCaseInsensitiveString(config.customEffectColors.keys,name));
+         var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(config.customEffectColors.keys,name));
          if(index != -1)
          {
             LastDisplayEffect.textColor = config.customEffectColors[config.customEffectColors.keys[index]];
@@ -1375,7 +1389,7 @@ package
                               {
                                  if(buff.isValid)
                                  {
-                                    return ArrayUtils.indexOfCaseInsensitiveStringStarts(checkName,buff.effectText) != -1;
+                                    return ArrayUtil.indexOfCaseInsensitiveStringStarts(checkName,buff.effectText) != -1;
                                  }
                                  return false;
                               }))
@@ -1413,7 +1427,7 @@ package
                               {
                                  if(buff.isValid)
                                  {
-                                    return ArrayUtils.indexOfCaseInsensitiveString(checkName,buff.effectText) != -1;
+                                    return ArrayUtil.indexOfCaseInsensitiveString(checkName,buff.effectText) != -1;
                                  }
                                  return false;
                               }))
@@ -1705,7 +1719,7 @@ package
       
       public function getIsWornOffIndex(message:String) : int
       {
-         var index:int = int(ArrayUtils.indexOfCaseInsensitiveString(EFFECT_WORN_OFF_LOCALIZED,message));
+         var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(EFFECT_WORN_OFF_LOCALIZED,message));
          if(index != -1)
          {
             return index;
@@ -1715,7 +1729,7 @@ package
       
       public function isTextInList(text:String, list:Array) : Boolean
       {
-         var index:int = int(ArrayUtils.indexOfCaseInsensitiveString(list,text));
+         var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(list,text));
          return index != -1;
       }
       
@@ -1723,7 +1737,7 @@ package
       {
          if(this.HPMeter && this.HPMeter.MeterBar_mc)
          {
-            var index:int = int(ArrayUtils.indexOfCaseInsensitiveString(EFFECT_NERD_RAGE_LOCALIZED,message));
+            var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(EFFECT_NERD_RAGE_LOCALIZED,message));
             return index != -1;
          }
          return false;
@@ -1787,7 +1801,7 @@ package
          }
          if(config.hideTypes.length > 0)
          {
-            var index:int = int(ArrayUtils.indexOfCaseInsensitiveString(config.hideTypes,type));
+            var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(config.hideTypes,type));
             if(index != -1)
             {
                return false;
@@ -1795,14 +1809,14 @@ package
          }
          if(config.showTypes.length > 0)
          {
-            index = int(ArrayUtils.indexOfCaseInsensitiveString(config.showTypes,type));
+            index = int(ArrayUtil.indexOfCaseInsensitiveString(config.showTypes,type));
             if(index != -1)
             {
                return true;
             }
          }
          var isStateHidden:Boolean = config.hideEffectsState == BuffsMeterConfig.STATE_HIDDEN;
-         index = int(ArrayUtils.indexOfCaseInsensitiveString(config.hideEffects,text));
+         index = int(ArrayUtil.indexOfCaseInsensitiveString(config.hideEffects,text));
          if(isStateHidden)
          {
             return index == -1;
@@ -1819,7 +1833,7 @@ package
          var isStateHidden:Boolean = config.hideTypesState == BuffsMeterConfig.STATE_HIDDEN;
          if(config.hideTypes.length > 0)
          {
-            var index:int = int(ArrayUtils.indexOfCaseInsensitiveString(config.hideTypes,type));
+            var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(config.hideTypes,type));
             if(isStateHidden)
             {
                return index == -1;
@@ -1838,7 +1852,7 @@ package
          var isStateHidden:Boolean = config.hideEffectsState == BuffsMeterConfig.STATE_HIDDEN;
          if(config.hideEffects.length > 0)
          {
-            var index:int = int(ArrayUtils.indexOfCaseInsensitiveString(config.hideEffects,text));
+            var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(config.hideEffects,text));
             if(isStateHidden)
             {
                return index == -1;
@@ -1850,7 +1864,7 @@ package
       
       public function isHiddenSubEffect(name:String) : Boolean
       {
-         var index:int = int(ArrayUtils.indexOfCaseInsensitiveString(config.hideSubEffects,name));
+         var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(config.hideSubEffects,name));
          if(index != -1)
          {
             return true;
@@ -1860,7 +1874,7 @@ package
       
       public function isHiddenSubEffectFor(type:String, name:String) : Boolean
       {
-         var index:int = int(ArrayUtils.indexOfCaseInsensitiveString(config.hideSubEffectsFor,name + "|" + type));
+         var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(config.hideSubEffectsFor,name + "|" + type));
          return index != -1;
       }
       
