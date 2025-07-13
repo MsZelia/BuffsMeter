@@ -86,6 +86,8 @@ package
       
       public var modLoader2:Loader;
       
+      private var hudTools:SharedHUDTools;
+      
       public function PipboyMenu()
       {
          this.__SFCodeObj = new Object();
@@ -267,6 +269,10 @@ package
          {
             if(this.__SFCodeObj == null || this.__SFCodeObj.call == null)
             {
+               if(!this.hudTools)
+               {
+                  this.hudTools = new SharedHUDTools("BuffsMeter_Pipboy");
+               }
                this.syncPipBuffData();
             }
             else
@@ -302,7 +308,7 @@ package
             errorCode = "b64 string";
             b64str = b64.toString();
             errorCode = "HUD message";
-            GlobalFunc.ShowHUDMessage("syncPipBuffData:" + b64str);
+            this.hudTools.SendMessage("BuffsMeter","syncPipBuffData:" + b64str);
          }
          catch(e:*)
          {
