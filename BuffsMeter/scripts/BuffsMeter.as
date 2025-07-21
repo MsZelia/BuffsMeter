@@ -114,6 +114,12 @@ package
       private static const LOADING:String = "Loading";
       
       private static const BUFF_MSG_SYNC:String = "syncPipBuffData:";
+      
+      private static const BUFFSMETER_TOGGLE_CHECKLIST:String = "BUFFSMETER_TOGGLE_CHECKLIST";
+      
+      private static const BUFFSMETER_TOGGLE_VISIBILITY:String = "BUFFSMETER_TOGGLE_VISIBILITY";
+      
+      private static const BUFFSMETER_HIDE:String = "BUFFSMETER_HIDE";
        
       
       private var _lastUpdateTime:Number = 0;
@@ -295,7 +301,8 @@ package
                   this.XPMeter = this.topLevel.HUDNotificationsGroup_mc.XPMeter_mc;
                }
                this.initLoadingCompCheck();
-               this.hudTools = new SharedHUDTools("BuffsMeter");
+               this.hudTools = new SharedHUDTools(MOD_NAME);
+               this.hudTools.RegisterMenu(this.onBuildMenu,this.onSelectMenu);
                this.hudTools.Register(this.onReceiveMessage);
             }
             else if(this.topLevel.numChildren > 0)
@@ -326,6 +333,38 @@ package
          {
             trace(MOD_NAME + " not added to stage: " + getQualifiedClassName(this.topLevel));
             ShowHUDMessage("Not added to stage: " + getQualifiedClassName(this.topLevel));
+         }
+      }
+      
+      public function onBuildMenu(parentItem:String = null) : *
+      {
+         try
+         {
+            if(parentItem == MOD_NAME)
+            {
+               this.hudTools.AddMenuItem(BUFFSMETER_TOGGLE_CHECKLIST,"Toggle Checklist",true,false,500);
+               this.hudTools.AddMenuItem(BUFFSMETER_TOGGLE_VISIBILITY,"Toggle Visible",true,false,500);
+               this.hudTools.AddMenuItem(BUFFSMETER_HIDE,"Force Hide",true,false,500);
+            }
+         }
+         catch(e:Error)
+         {
+         }
+      }
+      
+      public function onSelectMenu(selectItem:String) : *
+      {
+         if(selectItem == BUFFSMETER_TOGGLE_CHECKLIST)
+         {
+            this.checklistVisibility = !this.checklistVisibility;
+         }
+         else if(selectItem == BUFFSMETER_TOGGLE_VISIBILITY)
+         {
+            this.toggleVisibility = !this.toggleVisibility;
+         }
+         else if(selectItem == BUFFSMETER_HIDE)
+         {
+            this.forceHide = !this.forceHide;
          }
       }
       
