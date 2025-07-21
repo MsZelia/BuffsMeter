@@ -438,7 +438,6 @@ package
                isSortReversed = false;
                loadingTimeComp = 0;
                lastBuffMsgData = messageTextUncompressed;
-               ShowHUDMessage("ServerTime" + ServerTime);
             }
          }
       }
