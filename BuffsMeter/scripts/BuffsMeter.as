@@ -220,7 +220,7 @@ package
          this.separators = [];
          this.expiredBuffs = new Vector.<Object>();
          super();
-         addEventListener(Event.ADDED_TO_STAGE,this.addedToStageHandler);
+         addEventListener(Event.ADDED_TO_STAGE,this.addedToStageHandler,false,0,true);
          this.HUDMessageProvider = BSUIDataManager.GetDataFromClient("HUDMessageProvider");
          this.HUDModeData = BSUIDataManager.GetDataFromClient("HUDModeData");
          this.CharacterInfoData = BSUIDataManager.GetDataFromClient("CharacterInfoData");
@@ -233,10 +233,10 @@ package
             BSUIDataManager.Subscribe("MessageEvents",this.onMessageEvent);
          }
          this.configTimer = new Timer(CONFIG_RELOAD_TIME);
-         this.configTimer.addEventListener(TimerEvent.TIMER,this.loadConfig);
+         this.configTimer.addEventListener(TimerEvent.TIMER,this.loadConfig,false,0,true);
          this.configTimer.start();
          this.buffsTimer = new Timer(BUFFS_RELOAD_TIME);
-         this.buffsTimer.addEventListener(TimerEvent.TIMER,this.loadEffects);
+         this.buffsTimer.addEventListener(TimerEvent.TIMER,this.loadEffects,false,0,true);
          this.buffsTimer.start();
          this.loadConfig();
       }
@@ -284,6 +284,8 @@ package
       
       public function addedToStageHandler(param1:Event) : *
       {
+         removeEventListener(Event.ADDED_TO_STAGE,this.addedToStageHandler);
+         addEventListener(Event.REMOVED_FROM_STAGE,this.removedFromStageHandler,false,0,true);
          this.topLevel = stage.getChildAt(0);
          if(Boolean(this.topLevel))
          {
@@ -313,7 +315,7 @@ package
                   this.isHudMenu = false;
                   this.isPipboyMenu = true;
                   this.isInMainMenu = false;
-                  stage.addEventListener(KeyboardEvent.KEY_DOWN,this.keyDownHandler);
+                  stage.addEventListener(KeyboardEvent.KEY_DOWN,this.keyDownHandler,false,0,true);
                }
                else if(getQualifiedClassName(this.topLevel.getChildAt(0)) == "OverlayMenu")
                {
@@ -324,7 +326,7 @@ package
                   BSUIDataManager.Subscribe("MenuStackData",this.updateIsMainMenu);
                   BSUIDataManager.Subscribe("HUDModeData",this.onHUDModeUpdate);
                   var comment:String = "Only key down (and not key up) registers in overlay menu. Why? I do not know.";
-                  stage.addEventListener(KeyboardEvent.KEY_DOWN,this.keyDownHandler);
+                  stage.addEventListener(KeyboardEvent.KEY_DOWN,this.keyDownHandler,false,0,true);
                }
             }
             trace(MOD_NAME + " added to stage: " + getQualifiedClassName(this.topLevel));
@@ -333,6 +335,31 @@ package
          {
             trace(MOD_NAME + " not added to stage: " + getQualifiedClassName(this.topLevel));
             ShowHUDMessage("Not added to stage: " + getQualifiedClassName(this.topLevel));
+         }
+      }
+      
+      public function removedFromStageHandler(param1:Event) : *
+      {
+         removeEventListener(Event.REMOVED_FROM_STAGE,this.removedFromStageHandler);
+         if(stage)
+         {
+            stage.removeEventListener(KeyboardEvent.KEY_DOWN,this.keyDownHandler);
+         }
+         if(this.configTimer)
+         {
+            this.configTimer.removeEventListener(TimerEvent.TIMER,this.loadConfig);
+         }
+         if(this.displayTimer)
+         {
+            this.displayTimer.removeEventListener(TimerEvent.TIMER,display);
+         }
+         if(this.buffsTimer)
+         {
+            this.buffsTimer.removeEventListener(TimerEvent.TIMER,this.loadEffects);
+         }
+         if(this.hudtools)
+         {
+            this.hudtools.Shutdown();
          }
       }
       
@@ -435,7 +462,7 @@ package
          this.loadingCheckTimer.addEventListener(TimerEvent.TIMER,function():void
          {
             onHUDModeUpdate(HUDModeData);
-         });
+         },false,0,true);
          this.loadingCheckTimer.start();
       }
       
@@ -541,6 +568,7 @@ package
       public function loadConfig() : void
       {
          var loaderComplete:Function;
+         var ioErrorHandler:Function;
          var url:URLRequest = null;
          var loader:URLLoader = null;
          try
@@ -580,10 +608,15 @@ package
                   ShowHUDMessage("Error parsing config: " + e);
                }
             };
+            ioErrorHandler = function(param1:*):void
+            {
+               ShowHUDMessage("Error loading config: " + param1.text);
+            };
             url = new URLRequest(CONFIG_FILE);
             loader = new URLLoader();
             loader.load(url);
-            loader.addEventListener(Event.COMPLETE,loaderComplete);
+            loader.addEventListener(Event.COMPLETE,loaderComplete,false,0,true);
+            loader.addEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler,false,0,true);
          }
          catch(e:Error)
          {
@@ -640,7 +673,7 @@ package
             url = new URLRequest(EFFECTS_FILE);
             loader = new URLLoader();
             loader.load(url);
-            loader.addEventListener(Event.COMPLETE,loaderComplete);
+            loader.addEventListener(Event.COMPLETE,loaderComplete,false,0,true);
          }
          catch(e:Error)
          {
@@ -661,7 +694,7 @@ package
             displayTimer.removeEventListener(TimerEvent.TIMER,display);
          }
          this.displayTimer = new Timer(config.refresh);
-         this.displayTimer.addEventListener(TimerEvent.TIMER,display);
+         this.displayTimer.addEventListener(TimerEvent.TIMER,display,false,0,true);
          this.displayTimer.start();
       }
       
