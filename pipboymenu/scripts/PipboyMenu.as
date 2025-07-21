@@ -269,10 +269,6 @@ package
          {
             if(this.__SFCodeObj == null || this.__SFCodeObj.call == null)
             {
-               if(!this.hudTools)
-               {
-                  this.hudTools = new SharedHUDTools("BuffsMeter_Pipboy");
-               }
                this.syncPipBuffData();
             }
             else
@@ -308,6 +304,10 @@ package
             errorCode = "b64 string";
             b64str = b64.toString();
             errorCode = "HUD message";
+            if(!this.hudTools)
+            {
+               this.hudTools = new SharedHUDTools("BuffsMeter_Pipboy");
+            }
             this.hudTools.SendMessage("BuffsMeter","syncPipBuffData:" + b64str);
          }
          catch(e:*)
