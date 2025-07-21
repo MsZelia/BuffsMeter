@@ -115,11 +115,11 @@ package
       
       private static const BUFF_MSG_SYNC:String = "syncPipBuffData:";
       
-      private static const BUFFSMETER_TOGGLE_CHECKLIST:String = "BUFFSMETER_TOGGLE_CHECKLIST";
+      private static const HUDTOOLS_MENU_TOGGLE_CHECKLIST:String = MOD_NAME + "_TOGGLE_CHECKLIST";
       
-      private static const BUFFSMETER_TOGGLE_VISIBILITY:String = "BUFFSMETER_TOGGLE_VISIBILITY";
+      private static const HUDTOOLS_MENU_TOGGLE_VISIBILITY:String = MOD_NAME + "_TOGGLE_VISIBILITY";
       
-      private static const BUFFSMETER_HIDE:String = "BUFFSMETER_HIDE";
+      private static const HUDTOOLS_MENU_HIDE:String = MOD_NAME + "_HIDE";
        
       
       private var _lastUpdateTime:Number = 0;
@@ -342,9 +342,9 @@ package
          {
             if(parentItem == MOD_NAME)
             {
-               this.hudTools.AddMenuItem(BUFFSMETER_TOGGLE_CHECKLIST,"Toggle Checklist",true,false,500);
-               this.hudTools.AddMenuItem(BUFFSMETER_TOGGLE_VISIBILITY,"Toggle Visible",true,false,500);
-               this.hudTools.AddMenuItem(BUFFSMETER_HIDE,"Force Hide",true,false,500);
+               this.hudTools.AddMenuItem(HUDTOOLS_MENU_TOGGLE_CHECKLIST,"Toggle Checklist",true,false,250);
+               this.hudTools.AddMenuItem(HUDTOOLS_MENU_TOGGLE_VISIBILITY,"Toggle Visible",true,false,250);
+               this.hudTools.AddMenuItem(HUDTOOLS_MENU_HIDE,"Force Hide",true,false,250);
             }
          }
          catch(e:Error)
@@ -354,15 +354,15 @@ package
       
       public function onSelectMenu(selectItem:String) : *
       {
-         if(selectItem == BUFFSMETER_TOGGLE_CHECKLIST)
+         if(selectItem == HUDTOOLS_MENU_TOGGLE_CHECKLIST)
          {
             this.checklistVisibility = !this.checklistVisibility;
          }
-         else if(selectItem == BUFFSMETER_TOGGLE_VISIBILITY)
+         else if(selectItem == HUDTOOLS_MENU_TOGGLE_VISIBILITY)
          {
             this.toggleVisibility = !this.toggleVisibility;
          }
-         else if(selectItem == BUFFSMETER_HIDE)
+         else if(selectItem == HUDTOOLS_MENU_HIDE)
          {
             this.forceHide = !this.forceHide;
          }
