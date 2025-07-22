@@ -698,6 +698,11 @@ package
          this.displayTimer.start();
       }
       
+      public function get isReloadable() : Boolean
+      {
+         return true;
+      }
+      
       public function get config() : Object
       {
          return BuffsMeterConfig.get();
