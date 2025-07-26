@@ -25,7 +25,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.2.8";
+      public static const MOD_VERSION:String = "1.2.9";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -120,7 +120,6 @@ package
       private static const HUDTOOLS_MENU_TOGGLE_VISIBILITY:String = MOD_NAME + "_TOGGLE_VISIBILITY";
       
       private static const HUDTOOLS_MENU_HIDE:String = MOD_NAME + "_HIDE";
-       
       
       private var _lastUpdateTime:Number = 0;
       
@@ -176,15 +175,15 @@ package
       
       private var lastBuffMsgData:String = null;
       
-      private var expiredBuffs:Vector.<Object>;
+      private var expiredBuffs:Vector.<Object> = new Vector.<Object>();
       
       private var lastRenderTime:Number = 0;
       
-      private var effects_tf:Array;
+      private var effects_tf:Array = [];
       
       private var effects_index:int = 0;
       
-      private var separators:Array;
+      private var separators:Array = [];
       
       private var _effects:Array;
       
@@ -216,9 +215,6 @@ package
       
       public function BuffsMeter()
       {
-         this.effects_tf = [];
-         this.separators = [];
-         this.expiredBuffs = new Vector.<Object>();
          super();
          addEventListener(Event.ADDED_TO_STAGE,this.addedToStageHandler,false,0,true);
          this.HUDMessageProvider = BSUIDataManager.GetDataFromClient("HUDMessageProvider");
@@ -232,13 +228,9 @@ package
          {
             BSUIDataManager.Subscribe("MessageEvents",this.onMessageEvent);
          }
-         this.configTimer = new Timer(CONFIG_RELOAD_TIME);
-         this.configTimer.addEventListener(TimerEvent.TIMER,this.loadConfig,false,0,true);
-         this.configTimer.start();
          this.buffsTimer = new Timer(BUFFS_RELOAD_TIME);
          this.buffsTimer.addEventListener(TimerEvent.TIMER,this.loadEffects,false,0,true);
          this.buffsTimer.start();
-         this.loadConfig();
       }
       
       public static function toString(param1:Object) : String
@@ -270,15 +262,22 @@ package
       
       public function onReceiveMessage(sender:String, msg:String) : void
       {
-         ShowHUDMessage("Received message from " + sender + ": len " + msg.length);
-         if(sender == "BuffsMeter_Pipboy")
+         var syncLen:int;
+         try
          {
-            var syncLen:int = BUFF_MSG_SYNC.length;
-            if(msg.substr(0,syncLen) == BUFF_MSG_SYNC)
+            ShowHUDMessage("Received message from " + sender + ": len " + msg.length);
+            if(sender == "BuffsMeter_Pipboy")
             {
-               msg = msg.substr(syncLen);
-               parseSyncMessage(msg);
+               syncLen = BUFF_MSG_SYNC.length;
+               if(msg.substr(0,syncLen) == BUFF_MSG_SYNC)
+               {
+                  msg = msg.substr(syncLen);
+                  parseSyncMessage(msg);
+               }
             }
+         }
+         catch(e:Error)
+         {
          }
       }
       
@@ -306,6 +305,8 @@ package
                this.hudTools = new SharedHUDTools(MOD_NAME);
                this.hudTools.RegisterMenu(this.onBuildMenu,this.onSelectMenu);
                this.hudTools.Register(this.onReceiveMessage);
+               this.initConfigTimer();
+               this.loadConfig();
             }
             else if(this.topLevel.numChildren > 0)
             {
@@ -316,6 +317,8 @@ package
                   this.isPipboyMenu = true;
                   this.isInMainMenu = false;
                   stage.addEventListener(KeyboardEvent.KEY_DOWN,this.keyDownHandler,false,0,true);
+                  this.initConfigTimer();
+                  this.loadConfig();
                }
                else if(getQualifiedClassName(this.topLevel.getChildAt(0)) == "OverlayMenu")
                {
@@ -327,6 +330,8 @@ package
                   BSUIDataManager.Subscribe("HUDModeData",this.onHUDModeUpdate);
                   var comment:String = "Only key down (and not key up) registers in overlay menu. Why? I do not know.";
                   stage.addEventListener(KeyboardEvent.KEY_DOWN,this.keyDownHandler,false,0,true);
+                  this.initConfigTimer();
+                  this.loadConfig();
                }
             }
             trace(MOD_NAME + " added to stage: " + getQualifiedClassName(this.topLevel));
@@ -340,6 +345,8 @@ package
       
       public function removedFromStageHandler(param1:Event) : *
       {
+         BSUIDataManager.Unsubscribe("MenuStackData",this.updateIsMainMenu);
+         BSUIDataManager.Unsubscribe("HUDModeData",this.onHUDModeUpdate);
          removeEventListener(Event.REMOVED_FROM_STAGE,this.removedFromStageHandler);
          if(stage)
          {
@@ -363,6 +370,13 @@ package
          }
       }
       
+      public function initConfigTimer() : void
+      {
+         this.configTimer = new Timer(CONFIG_RELOAD_TIME);
+         this.configTimer.addEventListener(TimerEvent.TIMER,this.loadConfig,false,0,true);
+         this.configTimer.start();
+      }
+      
       public function onBuildMenu(parentItem:String = null) : *
       {
          try
@@ -381,17 +395,23 @@ package
       
       public function onSelectMenu(selectItem:String) : *
       {
-         if(selectItem == HUDTOOLS_MENU_TOGGLE_CHECKLIST)
+         try
          {
-            this.checklistVisibility = !this.checklistVisibility;
+            if(selectItem == HUDTOOLS_MENU_TOGGLE_CHECKLIST)
+            {
+               this.checklistVisibility = !this.checklistVisibility;
+            }
+            else if(selectItem == HUDTOOLS_MENU_TOGGLE_VISIBILITY)
+            {
+               this.toggleVisibility = !this.toggleVisibility;
+            }
+            else if(selectItem == HUDTOOLS_MENU_HIDE)
+            {
+               this.forceHide = !this.forceHide;
+            }
          }
-         else if(selectItem == HUDTOOLS_MENU_TOGGLE_VISIBILITY)
+         catch(e:Error)
          {
-            this.toggleVisibility = !this.toggleVisibility;
-         }
-         else if(selectItem == HUDTOOLS_MENU_HIDE)
-         {
-            this.forceHide = !this.forceHide;
          }
       }
       
@@ -421,10 +441,16 @@ package
       
       private function updateIsMainMenu(event:FromClientDataEvent) : void
       {
-         this.isInMainMenu = event.data && event.data.menuStackA && event.data.menuStackA.some(function(x:*):*
+         try
          {
-            return x.menuName == MAIN_MENU;
-         });
+            this.isInMainMenu = Boolean(event) && Boolean(event.data) && Boolean(event.data.menuStackA) && Boolean(event.data.menuStackA.some(function(x:*):*
+            {
+               return x.menuName == MAIN_MENU;
+            }));
+         }
+         catch(e:Error)
+         {
+         }
       }
       
       private function onHUDModeUpdate(event:*) : void
@@ -852,7 +878,7 @@ package
          }
          applyConfig(effects_tf[effects_index]);
          effects_tf[effects_index].text = text;
-         effects_index++;
+         ++effects_index;
       }
       
       public function drawBackground() : void
@@ -1187,7 +1213,7 @@ package
                   errorCode = "type";
                   this.BuffData.activeEffects[i].type = String(this.BuffData.activeEffects[i].type.toLowerCase().replace("icon",""));
                   errorCode = "isDebuff";
-                  this.BuffData.activeEffects[i].isDebuff = this.isTextInList(this.BuffData.activeEffects[i].text,!!config ? config.debuffs : []);
+                  this.BuffData.activeEffects[i].isDebuff = this.isTextInList(this.BuffData.activeEffects[i].text,config ? config.debuffs : []);
                   errorCode = "textDuration";
                   this.BuffData.activeEffects[i].textDuration = getTimeFromName(this.BuffData.activeEffects[i].text);
                   errorCode = "duration";
@@ -1299,7 +1325,7 @@ package
                this.BuffData = null;
             }
             errorCode = "visible";
-            this.visible = !this.forceHide && this.isValidHUDMode() ^ this.toggleVisibility;
+            this.visible = !this.forceHide && Boolean(this.isValidHUDMode() ^ this.toggleVisibility);
             if(!this.visible)
             {
                return;
@@ -2017,3 +2043,4 @@ package
       }
    }
 }
+
