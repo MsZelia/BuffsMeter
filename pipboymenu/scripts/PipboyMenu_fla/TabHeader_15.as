@@ -5,7 +5,6 @@ package PipboyMenu_fla
    [Embed(source="/_assets/assets.swf", symbol="symbol35")]
    public dynamic class TabHeader_15 extends MovieClip
    {
-       
       
       public var AlphaHolder:MovieClip;
       
@@ -26,3 +25,4 @@ package PipboyMenu_fla
       }
    }
 }
+

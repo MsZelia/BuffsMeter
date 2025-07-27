@@ -39,7 +39,6 @@ package
       public static const TAB_CHANGE_ATTEMPT:String = "Pipboy_Header::TabChangeAttempt";
       
       public static const INVALID_VALUE:uint = uint.MAX_VALUE;
-       
       
       public var PageHeader_mc:MovieClip;
       
@@ -116,7 +115,8 @@ package
          var _loc2_:uint = 0;
          while(_loc2_ < this.tabTextFields.length)
          {
-            (_loc6_ = this.tabTextFields[_loc2_] as TextField).autoSize = TextFieldAutoSize.CENTER;
+            _loc6_ = this.tabTextFields[_loc2_] as TextField;
+            _loc6_.autoSize = TextFieldAutoSize.CENTER;
             _loc6_.addEventListener(MouseEvent.CLICK,this.onTabClicked);
             _loc2_++;
          }
@@ -416,3 +416,4 @@ package
       }
    }
 }
+

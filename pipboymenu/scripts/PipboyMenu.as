@@ -32,7 +32,6 @@ package
       public static const PIPBOY_PAGE_RADIO:uint = 3;
       
       public static const CONFIG_FILE:String = "../BuffsMeter.json";
-       
       
       public var Header_mc:Pipboy_Header;
       
@@ -56,11 +55,11 @@ package
       
       private var PlaceCampButton:BSButtonHintData;
       
-      private var ToggleQuickboyButton:BSButtonHintData;
+      private var ToggleQuickboyButton:BSButtonHintData = new BSButtonHintData("$ToggleQuickboyButton","V","PSN_Select","Xenon_Select",1,null);
       
       private var ReadOnlyWarning:MovieClip;
       
-      private var controlsBlockTimer:Timer;
+      private var controlsBlockTimer:Timer = new Timer(150,1);
       
       public var READ_ONLY_WARNING_NONE:* = 0;
       
@@ -80,7 +79,7 @@ package
       
       public var pipBuffDataSyncHotkey:int = 0;
       
-      public var __SFCodeObj:Object;
+      public var __SFCodeObj:Object = new Object();
       
       public var modLoader:Loader;
       
@@ -90,11 +89,8 @@ package
       
       public function PipboyMenu()
       {
-         this.__SFCodeObj = new Object();
          this.GridViewButton = new BSButtonHintData("$Grid View","T","PSN_Y","Xenon_Y",1,this.onGridViewPress);
          this.PlaceCampButton = new BSButtonHintData("$$PlaceCampButton (0)","Z","PSN_L1","Xenon_L1",1,this.onPlaceCamp);
-         this.ToggleQuickboyButton = new BSButtonHintData("$ToggleQuickboyButton","V","PSN_Select","Xenon_Select",1,null);
-         this.controlsBlockTimer = new Timer(150,1);
          super();
          this.BGSCodeObj = new Object();
          this.DataObj = new Pipboy_DataObj();
@@ -744,3 +740,4 @@ package
       }
    }
 }
+

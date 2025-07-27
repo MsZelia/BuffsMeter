@@ -5,7 +5,6 @@ package PipboyMenu_fla
    [Embed(source="/_assets/assets.swf", symbol="symbol11")]
    public dynamic class BSButtonHint_IconHolder_33 extends MovieClip
    {
-       
       
       public var IconAnimInstance:MovieClip;
       
@@ -26,3 +25,4 @@ package PipboyMenu_fla
       }
    }
 }
+

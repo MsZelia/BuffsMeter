@@ -9,7 +9,6 @@ package Shared.AS3.COMPANIONAPP
    [Embed(source="/_assets/assets.swf", symbol="symbol12")]
    public dynamic class MobileButtonHint extends BSButtonHint
    {
-       
       
       public var background:MovieClip;
       
@@ -108,3 +107,4 @@ package Shared.AS3.COMPANIONAPP
       }
    }
 }
+

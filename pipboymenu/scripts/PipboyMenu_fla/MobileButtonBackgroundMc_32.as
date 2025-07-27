@@ -5,7 +5,6 @@ package PipboyMenu_fla
    [Embed(source="/_assets/assets.swf", symbol="symbol7")]
    public dynamic class MobileButtonBackgroundMc_32 extends MovieClip
    {
-       
       
       public function MobileButtonBackgroundMc_32()
       {
@@ -29,3 +28,4 @@ package PipboyMenu_fla
       }
    }
 }
+

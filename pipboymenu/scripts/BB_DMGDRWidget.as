@@ -8,7 +8,6 @@ package
    {
       
       public static const NUM_ICON_FRAMES:uint = 13;
-       
       
       public var Icon_mc:MovieClip;
       
@@ -61,7 +60,8 @@ package
          var _loc4_:BB_DMGDRWidget_Entry = null;
          if(param2.type + GlobalFunc.NUM_DAMAGE_TYPES <= NUM_ICON_FRAMES)
          {
-            (_loc4_ = new BB_DMGDRWidget_Entry()).redraw(param1,param2.type,param2.value);
+            _loc4_ = new BB_DMGDRWidget_Entry();
+            _loc4_.redraw(param1,param2.type,param2.value);
             this.addChild(_loc4_);
             _loc4_.x = param3;
             if(this.width > this.MAX_WIDTH)
@@ -75,3 +75,4 @@ package
       }
    }
 }
+

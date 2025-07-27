@@ -5,7 +5,6 @@ package PipboyMenu_fla
    [Embed(source="/_assets/assets.swf", symbol="symbol29")]
    public dynamic class DamageIcons_22 extends MovieClip
    {
-       
       
       public function DamageIcons_22()
       {
@@ -19,3 +18,4 @@ package PipboyMenu_fla
       }
    }
 }
+

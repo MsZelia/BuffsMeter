@@ -5,7 +5,6 @@ package PipboyMenu_fla
    [Embed(source="/_assets/assets.swf", symbol="symbol49")]
    public dynamic class WeaponArmorHolder_11 extends MovieClip
    {
-       
       
       public function WeaponArmorHolder_11()
       {
@@ -19,3 +18,4 @@ package PipboyMenu_fla
       }
    }
 }
+

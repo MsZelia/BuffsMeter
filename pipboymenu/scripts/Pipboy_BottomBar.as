@@ -12,7 +12,6 @@ package
    [Embed(source="/_assets/assets.swf", symbol="symbol71")]
    public class Pipboy_BottomBar extends BSUIComponent
    {
-       
       
       public var Info_mc:MovieClip;
       
@@ -200,3 +199,4 @@ package
       }
    }
 }
+

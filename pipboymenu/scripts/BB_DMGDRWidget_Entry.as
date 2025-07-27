@@ -10,7 +10,6 @@ package
    [Embed(source="/_assets/assets.swf", symbol="symbol31")]
    public class BB_DMGDRWidget_Entry extends MovieClip
    {
-       
       
       public var Icon_mc:MovieClip;
       
@@ -37,3 +36,4 @@ package
       }
    }
 }
+

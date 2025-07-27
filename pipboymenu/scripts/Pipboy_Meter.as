@@ -6,7 +6,6 @@ package
    [Embed(source="/_assets/assets.swf", symbol="symbol54")]
    public class Pipboy_Meter extends BSUIComponent
    {
-       
       
       public var Fill_mc:MovieClip;
       
@@ -59,3 +58,4 @@ package
       }
    }
 }
+

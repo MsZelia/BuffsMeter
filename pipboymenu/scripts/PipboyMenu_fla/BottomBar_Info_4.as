@@ -6,7 +6,6 @@ package PipboyMenu_fla
    [Embed(source="/_assets/assets.swf", symbol="symbol70")]
    public dynamic class BottomBar_Info_4 extends MovieClip
    {
-       
       
       public var AP_tf:TextField;
       
@@ -42,3 +41,4 @@ package PipboyMenu_fla
       }
    }
 }
+
