@@ -49,8 +49,6 @@ package
       
       private var _IsLoadingPage:Boolean;
       
-      private var _WasPerkChartPressRegistered:Boolean = false;
-      
       private var GridViewButton:BSButtonHintData;
       
       private var PlaceCampButton:BSButtonHintData;
@@ -628,13 +626,9 @@ package
                {
                   this.gotoNextTab(param1);
                }
-               if(param1 == "YButton" && this.GridViewButton.ButtonVisible)
+               if((param1 == "TransferLockItem_Hold" || param1 == "YButton") && this.GridViewButton.ButtonVisible)
                {
-                  if(this._WasPerkChartPressRegistered)
-                  {
-                     this.onGridViewPress();
-                  }
-                  this._WasPerkChartPressRegistered = false;
+                  this.onGridViewPress();
                }
                else if(param1 == "LShoulder" && this.PlaceCampButton.ButtonVisible)
                {
@@ -644,10 +638,6 @@ package
                {
                   _loc3_ = false;
                }
-            }
-            else if(param1 == "YButton" && this.GridViewButton.ButtonVisible)
-            {
-               this._WasPerkChartPressRegistered = true;
             }
          }
          return _loc3_;
