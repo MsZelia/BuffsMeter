@@ -75,7 +75,9 @@ package
       
       public var enableWidget:Boolean = false;
       
-      public var enableManualPipBuffDataSync:Boolean = false;
+      public var enableManualPipBuffDataSync:* = false;
+      
+      public var autoPipBuffDataSynced:Boolean = false;
       
       public var pipBuffDataSyncHotkey:int = 0;
       
@@ -149,11 +151,19 @@ package
                   {
                      Pipboy_Header.INV_TAB_NAMES = jsonData.pipInventoryTabNames;
                   }
-                  enableManualPipBuffDataSync = Boolean(jsonData.enableManualPipBuffDataSync);
+                  enableManualPipBuffDataSync = jsonData.enableManualPipBuffDataSync;
                   pipBuffDataSyncHotkey = jsonData.pipBuffDataSyncHotkey != null && !isNaN(jsonData.pipBuffDataSyncHotkey) ? jsonData.pipBuffDataSyncHotkey : pipBuffDataSyncHotkey;
-                  if(enableManualPipBuffDataSync)
+                  if(enableManualPipBuffDataSync == true)
                   {
                      stage.addEventListener(KeyboardEvent.KEY_DOWN,keyDownHandler);
+                  }
+                  else if(enableManualPipBuffDataSync == "AUTO" && !autoPipBuffDataSynced)
+                  {
+                     if(__SFCodeObj == null || __SFCodeObj.call == null)
+                     {
+                        syncPipBuffData();
+                        autoPipBuffDataSynced = true;
+                     }
                   }
                   setTimeout(loadBuffsMeter,100);
                }
@@ -255,6 +265,14 @@ package
             else
             {
                this.__SFCodeObj.call("writeBuffDataFile",toString(getBuffsData(message)));
+            }
+         }
+         else if(enableManualPipBuffDataSync == "AUTO" && !this.autoPipBuffDataSynced)
+         {
+            if(this.lastPipboyChangeData != null)
+            {
+               this.syncPipBuffData();
+               this.autoPipBuffDataSynced = true;
             }
          }
       }
@@ -709,7 +727,7 @@ package
       
       private function isCampPlaceProtected() : Boolean
       {
-         return modLoader2 != null && modLoader2.content != null && modLoader2.content.isCampPlaceProtected;
+         return modLoader2 != null && modLoader2.content != null && Boolean(modLoader2.content.isCampPlaceProtected);
       }
       
       private function onPlaceCamp() : *
