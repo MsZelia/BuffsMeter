@@ -25,7 +25,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.2.9";
+      public static const MOD_VERSION:String = "1.3.1";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -103,6 +103,8 @@ package
       
       private static const FORMAT_EXPIRED_BUFF:String = "expiredBuff";
       
+      private static const STRING_XP:String = "{xp}";
+      
       private static const FORMAT_SUBEFFECT:String = "subEffect";
       
       private static const FORMAT_CHECKLIST:String = "checklist";
@@ -156,6 +158,8 @@ package
       private var HUDMessageProvider:*;
       
       private var SeasonWidgetData:*;
+      
+      private var UniversalRewardData:*;
       
       private var dummy_tf:TextField;
       
@@ -226,6 +230,7 @@ package
          this.PublicTeamsData = BSUIDataManager.GetDataFromClient("PublicTeamsData");
          this.PartyMenuList = BSUIDataManager.GetDataFromClient("PartyMenuList");
          this.SeasonWidgetData = BSUIDataManager.GetDataFromClient("SeasonWidgetData");
+         this.UniversalRewardData = BSUIDataManager.GetDataFromClient("UniversalRewardData");
          if(false)
          {
             BSUIDataManager.Subscribe("MessageEvents",this.onMessageEvent);
@@ -1550,6 +1555,14 @@ package
                               }
                            }
                         }
+                     }
+                  }
+                  else if(add == "showRaidXP")
+                  {
+                     if(this.UniversalRewardData.data && this.UniversalRewardData.data.xp)
+                     {
+                        displayMessage(config.formats.showRaidXP.replace(STRING_XP,this.UniversalRewardData.data.xp));
+                        applyColor(add);
                      }
                   }
                   else if(add == "showXPBar")

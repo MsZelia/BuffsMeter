@@ -11,6 +11,8 @@ package
       
       public static const STATE_SHOWN:String = "shown";
       
+      public static const DEFAULT_RAID_XP_FORMAT:* = "Raid XP: {xp}";
+      
       public function BuffsMeterConfig()
       {
          super();
@@ -59,6 +61,7 @@ package
             config.formats.subEffect = "   {text} {duration}";
             config.formats.expiredBuff = "Expired: {text} {time}ago";
             config.formats.checklist = "Not active: {text}";
+            config.formats.showRaidXP = DEFAULT_RAID_XP_FORMAT;
          }
          else
          {
@@ -73,6 +76,10 @@ package
             if(!config.formats.checklist)
             {
                config.formats.checklist = "Not active: {text}";
+            }
+            if(!config.formats.showRaidXP)
+            {
+               config.formats.showRaidXP = DEFAULT_RAID_XP_FORMAT;
             }
          }
          if(!config.sortOrder)
