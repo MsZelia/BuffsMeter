@@ -229,6 +229,17 @@ package
                config.hideEffects[i] = config.hideEffects[i].toLowerCase();
             }
          }
+         if(!config.shownSubEffects)
+         {
+            config.shownSubEffects = [];
+         }
+         else
+         {
+            for(i in config.shownSubEffects)
+            {
+               config.shownSubEffects[i] = config.shownSubEffects[i].toLowerCase();
+            }
+         }
          if(!config.hideSubEffects)
          {
             config.hideSubEffects = [];

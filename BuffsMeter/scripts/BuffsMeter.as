@@ -105,6 +105,8 @@ package
       
       private static const STRING_XP:String = "{xp}";
       
+      private static const STRING_SUBEFFECTS:String = "{subEffects}";
+      
       private static const FORMAT_SUBEFFECT:String = "subEffect";
       
       private static const FORMAT_CHECKLIST:String = "checklist";
@@ -1331,6 +1333,7 @@ package
          var sub:Object;
          var t2:Number;
          var _timeSinceLastUpdate:Number;
+         var isInlineSubEffects:Boolean;
          var expiredBuffsIndex:* = 1;
          var t1:* = getTimer();
          var errorCode:String = "init";
@@ -1704,6 +1707,7 @@ package
                         "durationMax":this.BuffData.activeEffects[i].duration / 20
                      });
                   }
+                  isInlineSubEffects = LastDisplayEffect.text.indexOf(STRING_SUBEFFECTS) >= 0;
                   if(config.showSubEffects && !isHiddenSubEffectFor(this.BuffData.activeEffects[i].type,this.BuffData.activeEffects[i].effectText))
                   {
                      for each(sub in this.BuffData.activeEffects[i].SubEffects)
@@ -1714,16 +1718,27 @@ package
                            {
                               if(config.showExpiredSubEffects || sub.durationRemaining >= config.hideEffectsBelowDuration)
                               {
-                                 displayMessage(formatSubEffect(sub.text,Math.max(sub.durationRemaining,0)));
-                                 if(sub.durationRemaining < 0)
+                                 if(isInlineSubEffects)
                                  {
-                                    LastDisplayEffect.textColor = getCustomColor(DATA_EXPIRED);
+                                    LastDisplayEffect.text = LastDisplayEffect.text.replace(STRING_SUBEFFECTS,formatSubEffect(sub.text,Math.max(sub.durationRemaining,0)) + STRING_SUBEFFECTS);
                                  }
-                                 else if(sub.durationRemaining < config.warningBelowDuration)
+                                 else
                                  {
-                                    LastDisplayEffect.textColor = getCustomColor(DATA_WARNING);
+                                    displayMessage(formatSubEffect(sub.text,Math.max(sub.durationRemaining,0)));
+                                    if(sub.durationRemaining < 0)
+                                    {
+                                       LastDisplayEffect.textColor = getCustomColor(DATA_EXPIRED);
+                                    }
+                                    else if(sub.durationRemaining < config.warningBelowDuration)
+                                    {
+                                       LastDisplayEffect.textColor = getCustomColor(DATA_WARNING);
+                                    }
                                  }
                               }
+                           }
+                           else if(isInlineSubEffects)
+                           {
+                              LastDisplayEffect.text = LastDisplayEffect.text.replace(STRING_SUBEFFECTS,formatSubEffect(sub.text,-1) + STRING_SUBEFFECTS);
                            }
                            else
                            {
@@ -1731,6 +1746,10 @@ package
                            }
                         }
                      }
+                  }
+                  if(isInlineSubEffects)
+                  {
+                     LastDisplayEffect.text = LastDisplayEffect.text.replace(STRING_SUBEFFECTS,"");
                   }
                }
                if(!this.BuffData.activeEffects[i].isPermanentEffect && this.BuffData.activeEffects[i].durationRemaining < config.hideEffectsBelowDuration)
@@ -1990,8 +2009,23 @@ package
       
       public function isHiddenSubEffect(name:String) : Boolean
       {
-         var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(config.hideSubEffects,name));
-         if(index != -1)
+         if(config.shownSubEffects.length > 0)
+         {
+            var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(config.shownSubEffects,name));
+            if(index != -1)
+            {
+               return false;
+            }
+         }
+         if(config.hideSubEffects.length > 0)
+         {
+            index = int(ArrayUtil.indexOfCaseInsensitiveString(config.hideSubEffects,name));
+            if(index != -1)
+            {
+               return true;
+            }
+         }
+         else if(config.shownSubEffects.length > 0)
          {
             return true;
          }
