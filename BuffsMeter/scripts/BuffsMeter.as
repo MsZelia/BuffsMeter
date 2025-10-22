@@ -25,7 +25,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.3.1";
+      public static const MOD_VERSION:String = "1.3.2";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -536,7 +536,7 @@ package
          var baZlib:ByteArray = b64decoder.toByteArray();
          baZlib.uncompress("zlib");
          var messageTextUncompressed:String = baZlib.readObject();
-         messageTextUncompressed = messageTextUncompressed.replace(/\"x\":/g,"\"text\":").replace(/\"n\":/g,"\"iconText\":").replace(/\"y\":/g,"\"type\":").replace(/\"f\":/g,"\"effects\":").replace(/\"v\":/g,"\"value\":").replace(/\"d\":/g,"\"duration\":").replace(/\"p\":/g,"\"showAsPercent\":").replace(/\"i\":/g,"\"initTime\":").replace(/\"c\":/g,"\"setAsCustomDesc\":").replace(/\"k\":/g,"\"keywordSortIndex\":").replace(/\"m\":/g,"\"PlusMinus\":");
+         messageTextUncompressed = messageTextUncompressed.replace(/\"x\":/g,"\"text\":").replace(/\"n\":/g,"\"iconText\":").replace(/\"y\":/g,"\"type\":").replace(/\"f\":/g,"\"effects\":").replace(/\"v\":/g,"\"value\":").replace(/\"d\":/g,"\"duration\":").replace(/\"p\":/g,"\"showAsPercent\":").replace(/\"i\":/g,"\"initTime\":").replace(/\"c\":/g,"\"usesCustomDesc\":").replace(/\"k\":/g,"\"keywordSortIndex\":").replace(/\"m\":/g,"\"PlusMinus\":");
          if(this.lastBuffMsgData != messageTextUncompressed)
          {
             var jsonData:Object = new JSONDecoder(messageTextUncompressed,true).getValue();
@@ -548,6 +548,10 @@ package
                isSortReversed = false;
                loadingTimeComp = 0;
                lastBuffMsgData = messageTextUncompressed;
+            }
+            if(config && config.debugSync)
+            {
+               dispatchEvent(new HUDModError(messageTextUncompressed));
             }
          }
       }
