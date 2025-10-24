@@ -25,7 +25,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.3.2";
+      public static const MOD_VERSION:String = "1.3.3";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -1338,6 +1338,7 @@ package
          var t2:Number;
          var _timeSinceLastUpdate:Number;
          var isInlineSubEffects:Boolean;
+         var isEffectShown:Boolean;
          var expiredBuffsIndex:* = 1;
          var t1:* = getTimer();
          var errorCode:String = "init";
@@ -1670,10 +1671,12 @@ package
             {
                if(this.BuffData.activeEffects[i].isValid)
                {
+                  isEffectShown = false;
                   if(this.BuffData.activeEffects[i].isPermanentEffect)
                   {
                      if(!config.hidePermanentEffects)
                      {
+                        isEffectShown = true;
                         displayMessage(formatEffect(this.BuffData.activeEffects[i]));
                         if(this.BuffData.activeEffects[i].isDebuff)
                         {
@@ -1687,11 +1690,13 @@ package
                   }
                   else if(this.BuffData.activeEffects[i].durationRemaining < 1)
                   {
+                     isEffectShown = true;
                      displayMessage(formatEffect(this.BuffData.activeEffects[i]));
                      LastDisplayEffect.textColor = getCustomColor(DATA_EXPIRED);
                   }
                   else if(config.hideEffectsAboveDuration == 0 || config.hideEffectsAboveDuration > 0 && this.BuffData.activeEffects[i].durationRemaining <= config.hideEffectsAboveDuration)
                   {
+                     isEffectShown = true;
                      displayMessage(formatEffect(this.BuffData.activeEffects[i]));
                      if(this.BuffData.activeEffects[i].durationRemaining < config.warningBelowDuration)
                      {
@@ -1711,49 +1716,52 @@ package
                         "durationMax":this.BuffData.activeEffects[i].duration / 20
                      });
                   }
-                  isInlineSubEffects = LastDisplayEffect.text.indexOf(STRING_SUBEFFECTS) >= 0;
-                  if(config.showSubEffects && !isHiddenSubEffectFor(this.BuffData.activeEffects[i].type,this.BuffData.activeEffects[i].effectText))
+                  if(isEffectShown)
                   {
-                     for each(sub in this.BuffData.activeEffects[i].SubEffects)
+                     isInlineSubEffects = LastDisplayEffect.text.indexOf(STRING_SUBEFFECTS) >= 0;
+                     if(config.showSubEffects && !isHiddenSubEffectFor(this.BuffData.activeEffects[i].type,this.BuffData.activeEffects[i].effectText))
                      {
-                        if(!isHiddenSubEffect(sub.text))
+                        for each(sub in this.BuffData.activeEffects[i].SubEffects)
                         {
-                           if(!this.BuffData.activeEffects[i].isPermanentEffect)
+                           if(!isHiddenSubEffect(sub.text))
                            {
-                              if(config.showExpiredSubEffects || sub.durationRemaining >= config.hideEffectsBelowDuration)
+                              if(!this.BuffData.activeEffects[i].isPermanentEffect)
                               {
-                                 if(isInlineSubEffects)
+                                 if(config.showExpiredSubEffects || sub.durationRemaining >= config.hideEffectsBelowDuration)
                                  {
-                                    LastDisplayEffect.text = LastDisplayEffect.text.replace(STRING_SUBEFFECTS,formatSubEffect(sub.text,Math.max(sub.durationRemaining,0)) + STRING_SUBEFFECTS);
-                                 }
-                                 else
-                                 {
-                                    displayMessage(formatSubEffect(sub.text,Math.max(sub.durationRemaining,0)));
-                                    if(sub.durationRemaining < 0)
+                                    if(isInlineSubEffects)
                                     {
-                                       LastDisplayEffect.textColor = getCustomColor(DATA_EXPIRED);
+                                       LastDisplayEffect.text = LastDisplayEffect.text.replace(STRING_SUBEFFECTS,formatSubEffect(sub.text,Math.max(sub.durationRemaining,0)) + STRING_SUBEFFECTS);
                                     }
-                                    else if(sub.durationRemaining < config.warningBelowDuration)
+                                    else
                                     {
-                                       LastDisplayEffect.textColor = getCustomColor(DATA_WARNING);
+                                       displayMessage(formatSubEffect(sub.text,Math.max(sub.durationRemaining,0)));
+                                       if(sub.durationRemaining < 0)
+                                       {
+                                          LastDisplayEffect.textColor = getCustomColor(DATA_EXPIRED);
+                                       }
+                                       else if(sub.durationRemaining < config.warningBelowDuration)
+                                       {
+                                          LastDisplayEffect.textColor = getCustomColor(DATA_WARNING);
+                                       }
                                     }
                                  }
                               }
-                           }
-                           else if(isInlineSubEffects)
-                           {
-                              LastDisplayEffect.text = LastDisplayEffect.text.replace(STRING_SUBEFFECTS,formatSubEffect(sub.text,-1) + STRING_SUBEFFECTS);
-                           }
-                           else
-                           {
-                              displayMessage(formatSubEffect(sub.text,-1));
+                              else if(isInlineSubEffects)
+                              {
+                                 LastDisplayEffect.text = LastDisplayEffect.text.replace(STRING_SUBEFFECTS,formatSubEffect(sub.text,-1) + STRING_SUBEFFECTS);
+                              }
+                              else
+                              {
+                                 displayMessage(formatSubEffect(sub.text,-1));
+                              }
                            }
                         }
                      }
-                  }
-                  if(isInlineSubEffects)
-                  {
-                     LastDisplayEffect.text = LastDisplayEffect.text.replace(STRING_SUBEFFECTS,"");
+                     if(isInlineSubEffects)
+                     {
+                        LastDisplayEffect.text = LastDisplayEffect.text.replace(STRING_SUBEFFECTS,"");
+                     }
                   }
                }
                if(!this.BuffData.activeEffects[i].isPermanentEffect && this.BuffData.activeEffects[i].durationRemaining < config.hideEffectsBelowDuration)
