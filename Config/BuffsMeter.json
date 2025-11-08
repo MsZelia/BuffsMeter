@@ -1,0 +1,396 @@
+{
+	// WIDGET SETTINGS
+	"x": 5,
+	"y": 100,
+	"anchor": "top", // top, bottom (Update 1.0.7)
+	"ySpacing": -3,
+	"width": 250,
+	"textSize": 18,
+	/* Some of the working fonts:
+	"$76HandwrittenNeat_Font", "$76HandwrittenIlliterate", "$BerlinDemi", "$BRODY",
+	"$Brush_Script_Std", "$ChowderHead", "$ConsoleFont", "$DebugTextFont", "$DotMatrix_Font",
+	"$evaScript_Font", "$Futura_Bold", "$HandwrittenFont", "$KiddieCocktails", "$Leiascript_Font",
+	"$MAIN_Font", "$MAIN_Font_Bold", "$MAIN_Font_Light", "$NixieTube_Font", "$Portico_Font_Regular",
+	"$Slate_Mobile", "$Terminal_Font", "$Typewriter_Font" */
+	"textFont": "$ChowderHead",
+	"textAlign": "left", // left, center, right
+	"textColor": "0xffffff",
+	"textShadow": true, // Update 1.0.8
+	"background": false,
+	"backgroundColor": "0x222222",
+	/* alpha / backgroundAlpha:
+		0 = loads default value
+		0.0001 = transparent
+		0.0 < value < 1.0 = semi-transparent
+		1.0 = opaque */
+	/* HUD Opacity in settings can be changed so value of "alpha" can go over 1.0 (does not apply to "backgroundAlpha") */
+	"alpha": 1.0,
+	"backgroundAlpha": 0.5,
+	/* Blend modes:
+	add, alpha, darken, difference, erase, hardlight, invert, layer,
+	lighten, multiply, normal, overlay, screen, shader, subtract
+	https://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/flash/display/BlendMode.html */
+	"blendMode": "normal",
+	"textBlendMode": "normal",
+	
+	"disableRealTimeEdit": false, // Update 1.0.8
+	
+	"hideSFEMessage": false,
+	
+	
+	// PIPBOY SETTINGS (Update 1.1.6)
+	"showAllPipboyTabs": true, // Update 1.2.0
+	"enableWidgetInPipboy": false,
+	"pipboyConfig": { // screen size: 876x700
+		"x": 620,
+		"y": 60,
+		"anchor": "top",
+		"width": 250,
+		"textAlign": "right",
+		"background": false
+	},
+	"pipInventoryTabNames": [ // Update 1.2.2
+		"$InventoryCategoryNew",
+		"WPN", // "$InventoryCategoryWeapons",
+		"$InventoryCategoryArmor",
+		"APRL", // "$InventoryCategoryApparel",
+		"FD/DR", // "$InventoryCategoryFoodWater",
+		"$InventoryCategoryAid",
+		"$InventoryCategoryMisc",
+		"$InventoryCategoryHolo",
+		"$InventoryCategoryNotes",
+		"$InventoryCategoryJunk",
+		"$InventoryCategoryMods",
+		"$InventoryCategoryAmmo"
+	],
+	
+	"enableManualPipBuffDataSync": false, // Update 1.2.2
+	"pipBuffDataSyncHotkey": 20, // Update 1.2.2
+	
+	
+	// OVERLAY MOD LOADER ONLY SETTINGS (Update 1.1.4)
+	"debugKeys": false,
+	"toggleVisibilityHotkey": 106,
+	"forceHideHotkey": 109, // Update 1.1.7
+	"toggleChecklistHotkey": 107, // Update 1.2.6
+	
+	
+	// EFFECT DISPLAY SETTINGS
+	"refresh": 1000,
+	
+	"hidePermanentEffects": false, // Update 1.2.2
+	
+	"hideEffectsAboveDuration": 0, // Update 1.1.4
+	"hideEffectsBelowDuration": -15,
+	"warningBelowDuration": 30,
+	
+	"showSubEffects": false,
+	"showExpiredSubEffects": false, // Update 1.0.4
+	"shownSubEffects": [ // Update 1.3.1
+	
+	],
+	"hideSubEffects": [ // Update 1.0.2
+	
+	],
+	"hideSubEffectsFor": [
+		"MUTATION",
+		"hydrated",
+		"fed",
+		"nerd rage",
+		"team bonus"
+	],
+	
+	
+	/* Types options: ALCOHOL, CHEMS, FOOD, DRINKTEA, HUNGER, MUTATION, THRIST - yes, it's a typo
+	All perks effects are in CHEMS category so if you want to hide them you'll have to list them by names in hideEffects below */
+	"hideTypes": [
+		"MUTATION",
+		"HUNGER",
+		"THRIST"
+	],
+	"showTypes": [
+		"ALCOHOL",
+		"FOOD",
+		"DRINKTEA"
+	],
+	
+	"hideEffectsState": "hidden", // Options: hidden, shown (Update 1.0.1)
+	"hideEffects": [
+		"overencumbered",
+		"team",
+		"scout",
+		"so much cake",
+		"gift bag",
+		"to-go punch",
+		"noisemaker",
+		"antacids",
+		"plastic animals",
+		"confetti mess",
+		"fingertrap",
+		"commando",
+		"science expert",
+		"science master",
+		"good with salt",
+		"grenadier",
+		"explosive damage",
+		"chem fiend",
+		"iron stomach",
+		"natural resistance",
+		"thirst quencher",
+		"squad maneuvers",
+		"stealth move",
+		"bloody mess",
+		"heavy gunner",
+		"slugger",
+		"nocturnal",
+		"mutant's",
+		"adrenaline",
+		"stimpak",
+		"bodyguards",
+		"first aid",
+		"four leaf clover",
+		"ricochet",
+		"serendipity",
+		"evasive",
+		"demolition expert",
+		"action boy",
+		"life giver",
+		"polished",
+		"junk shield",
+		"nerd rage",
+		"local practitioner",
+		"gladiator",
+		"guerrilla",
+		"gunslinger",
+		"inspirational",
+		"spiritual healer",
+		"packin light",
+		"chameleon",
+		"vanguard",
+		"power armor",
+		"strong back"
+	],
+	
+	"debuffs": [ // Update 1.0.4
+		"radaway",
+		"addiction",
+		"the blight",
+		"blood worms",
+		"bone worms",
+		"buzz brain",
+		"dysentery",
+		"fever claw",
+		"flap limb",
+		"glowing pustules",
+		"heat flashes",
+		"jelly fingers",
+		"lock joint",
+		"needle spine",
+		"parasites",
+		"rad worms",
+		"rattle hands",
+		"shell shock",
+		"sludge lung",
+		"snot ear",
+		"swamp gas",
+		"swamp itch",
+		"weeping sores",
+		"the woopsies"
+	],
+	
+	"checklistCompareMode": "contains", // Options: starts, exact, contains (Update 1.2.4)
+	"checklist": [ // Update 1.0.7
+		["Int food", "Brain Bombs", "brain fungus soup", "Broiled Scorchbeast Brain"],
+		["XP food", "Cranberry Relish", "Cranberry Cobbler", "Tasty Squirrel Stew", "Canned Meat Stew"],
+		["Rested", "well rested", "kindred spirit", "lover's embrace"],
+		"Wisdom of the Mothman",
+		"Intelligence Boost",
+		"Bobblehead: Leader",
+		"Live & Love 8",
+		"Berry Mentats"
+	],
+	
+	"durationBar": {
+		"enabled": true,
+		"alignVertical": "bottom", // top, center, bottom
+		"alignHorizontal": "left", // left, center, right
+		"height": 4
+	},
+	
+	"xpBar": { // Update 1.0.8
+		"enabled": true,
+		//text accepts: {text}, {progress}, {lastChangeValue}
+		// {currentLevel}, {currentValue}, {thresholdValue} (Update 1.1.1)
+		"text": "{text} {progress}% ({lastChangeValue})",
+		"alignVertical": "center", // top, center, bottom
+		"alignHorizontal": "left", // left, center, right
+		"height": 20
+	},
+	
+	"scoreBar": { // Update 1.1.0
+		"enabled": true,
+		//text accepts: {progress}, {currentValue}, {thresholdValue}, {currentRank}, {currentBoost}
+		"text": "SCORE [{currentRank}] {currentValue}/{thresholdValue} +{currentBoost}%",
+		"alignVertical": "center", // top, center, bottom
+		"alignHorizontal": "left", // left, center, right
+		"height": 20
+	},
+	
+	/* Format accepts:
+		{text}, {type}, {duration},
+		{durationFull}, {durationInSeconds}, {durationInMinutes} (Update 1.0.2)
+		{subEffects} (Update 1.3.1)
+		example: "{duration} {text}"
+			duration examples: 01:11:05, 08:25
+			durationFull example: 00:17:25 (hours always visible)
+			durationInSeconds example: 505s
+			durationInMinutes example: 71m
+		example for in-line subeffects:
+			"{duration} {text} {subEffects}"
+			works best with similar format: "subEffect": "|{text}"
+			and filtering effects with shownSubEffects or hideSubEffects
+	
+	formats options:
+		subEffect, expiredBuff, (Update 1.0.2)
+		checklist (Update 1.0.7)
+		showRaidXP (Update 1.3.1)
+	
+	subEffect accepts: {text}, {duration}, {durationFull}, {durationInSeconds}, {durationInMinutes}
+		example: "   {text} ({durationInMinutes})"
+	
+	expiredBuff accepts: {text}, {time}, {timeInSeconds}, {timeInMinutes}
+		examples: "Expired: {text} {time} ago"    "Expired: {text} {timeInMinutes}m ago"
+	
+	checklist accepts: {text} (Update 1.0.7)
+		example: "Not active: {text}"
+		
+	showRaidXP accepts {xp} (Update 1.3.1)
+	*/
+	"format": "{duration} {text}",
+	"formats": {
+		"subEffect": "   {text} {duration}",
+		"expiredBuff": "Expired: {text} {time}ago",
+		"checklist": "Not active: {text}",
+		"showRaidXP": "Raid XP: {xp}"
+	},
+	
+	"sortBy": "property",
+	/* Options: default, custom, property
+	default: doesn't use sortOrder, lists effects same as in pipboy
+	custom: list effect names or types which will be shown on top (in order)
+		example: [cranberry relish", "brain bombs", "FOOD", "DRINK" ]
+	property: list property name(s) to sort by
+		options: "type", "text", "durationRemaining", "duration" (Update 1.0.1)
+		example: ["durationRemaining", "text"] - first sort by durationRemaining then by text */
+	"sortOrder": [
+		"durationRemaining",
+		"text"
+	],
+	"reverseSort": false, // ascending <=> descending
+	
+	/* Display data options:
+		"showVersion" - mod version
+		"showHUDMode" - current HUD Mode, turn it on if you want to hide widget on some screen, use displayed name in "HUDModes" below
+		"showRenderTime" - time in milliseconds it took to redraw widget
+		"showLastUpdate" - last time when pipboy was open and effects were updated
+		"showLastConfigUpdate" - last time when config was reloaded (either on server join or config file changed)
+		"showElapsedTime" - elapsed time on server
+		"showServerTime" - current server full time, in format dd:hh:mm:ss
+		"showServerTick" - server time converted to server ticks (20/s)
+		"showLastExpiredBuff" - last expired buff
+		"showServerTime12" - current server time in 12-hour format, e.g. 5:05 PM (Update 1.0.1)
+		"showServerTime24" - current server time in 24-hour format, e.g. 17:05 (Update 1.0.1)
+		"showTime12" - current PC time in 12-hour format, e.g. 5:05 PM (Update 1.0.1)
+		"showTime24" - current PC time in 24-hour format, e.g. 17:05 (Update 1.0.1)
+		"text:color:text to display" - color can also be specified as any customColors value (Update 1.0.6)
+			examples: "text:0xffffff:My custom text", "text:warning:Custom text 2"
+		"showChecklist" - show effects from "checklist" field if they are not active (Update 1.0.7)
+		"showLastDataProcessTime" - show processing time for effects saved in file (Update 1.0.8)
+		"showXPBar" - show xp bar showing progress to next level (Update 1.0.8)
+		"showScoreBar" - show SCORE bar showing progress to next rank (Update 1.1.0)
+		"showRaidXP" - shows xp gained from last completed raid stage (Update 1.3.1)
+		
+	Data will show in order in which it is listed here, remove anything unnecessary: */
+	"displayData": [
+		"showVersion",
+		"showHUDMode",
+		//"showRenderTime",
+		//"showLastUpdate",
+		//"showLastConfigUpdate",
+		//"showChecklist",
+		"showTime24",
+		"showServerTime24"
+	],
+	
+	/* Custom color options:
+		warning - effect color when duration is below warningBelowDuration
+		expired - effect color when it expires, before it is removed
+		durationBar - default duration bar color
+		durationBarWarning - duration bar color when duration is below warningBelowDuration
+		showLastExpiredBuffN - e.g. showLastExpiredBuff1 is last expired buff, showLastExpiredBuff2 is 2nd last... (Update 1.0.2)
+		debuffs - custom color for debuffs (Update 1.0.4)
+		xpBar - default xp bar color (Update 1.0.8)
+		scoreBar - default score bar color (Update 1.1.0)
+		All options from displayData */
+	"customColors": {
+		"warning": "0xffff33",
+		"expired": "0xff3377",
+		"durationBar": "0x009900",
+		"durationBarWarning": "0x990099",
+		"showVersion": "0xff2222",
+		"showHUDMode": "0xffffff",
+		"showLastUpdate": "0xffaacc",
+		"showLastConfigUpdate": "0x77eeff",
+		"showElapsedTime": "0xaaaaff",
+		"showServerTick": "0xffff00",
+		"showServerTime": "0xffff00",
+		"showLastExpiredBuff1": "0xff8800",
+		"showLastExpiredBuff2": "0xffaa00",
+		"showLastExpiredBuff3": "0xffcc00",
+		"showRenderTime": "0x55ff55",
+		"showServerTime12": "0xffff00",
+		"showServerTime24": "0xffff00",
+		"showTime12": "0x99ff99",
+		"showTime24": "0x99ff99",
+		"debuffs": "0xff0000",
+		"showChecklist": "0xf7a0b5",
+		"showXPBar": "0x99ff99",
+		"xpBar": "0x009900",
+		"showScoreBar": "0xffffff",
+		"scoreBar": "0x0066ff",
+		"showRaidXP": "0x99ff99"
+	},
+	"customEffectColors": { // Update 1.0.7
+		"cranberry relish": "0x00aaff",
+		"brain bombs": "0x00aaff"
+	},
+	
+	/* HUD Modes:
+	"ActivateTypeMode", "All", "AutoVanity", "CampPlacement", "ContainerMode", "CrosshairAndActivateOnly",
+	"DeathRespawnMode", "DefaultScopeMenu", "DialogueMode", "EndOfMatch", "FurnitureEnterExit",
+	"InsideMemory", "InspectMode", "IronSights", "LegendaryPerksMode", "LockpickingMode", "MapMenu",
+	"MessageMode", "MovementDisabled", "NoHud", "PauseMode", "PerksMode", "Pipboy", "PowerArmor",
+	"RadialMenu", "SelfieMode", "SitWaitMode", "SpectatorMode", "TerminalMode", "VATS", "VATSPlayback",
+	"VertibirdMode", "WorkshopMode", "WorkshopNoCrosshairMode",
+	"Fishing"
+	"DefaultScopeMenu", "CameraScopeMenu"
+	"Loading", "MainMenu"
+	
+	"All" is default HUD mode (non-power armor), not all of them */
+	"HUDModesState": "hidden", // Options: hidden, shown
+	"HUDModes": [
+	
+		"ContainerMode",
+		"DialogueMode",
+		"ExamineConfirmMode",
+		"LegendaryPerksMode",
+		"MapMenu",
+		"MessageMode",
+		"PauseMode",
+		"PerksMode",
+		//"Pipboy",
+		"RadialMenu",
+		"SelfieMode",
+		"WorkshopMode"
+	]
+}
