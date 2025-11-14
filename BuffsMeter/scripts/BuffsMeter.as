@@ -1096,6 +1096,16 @@ package
          return false;
       }
       
+      public function applySubEffectColor(name:String) : Boolean
+      {
+         if(config.customSubEffectColors[name] != null)
+         {
+            LastDisplayEffect.textColor = config.customSubEffectColors[name];
+            return true;
+         }
+         return false;
+      }
+      
       public function applyEffectColor(name:String) : Boolean
       {
          var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(config.customEffectColors.keys,name));
@@ -1340,6 +1350,9 @@ package
          var isInlineSubEffects:Boolean;
          var isEffectShown:Boolean;
          var checklistName:String;
+         var subEffectIndexStart:int;
+         var subEffectLenAfter:int;
+         var inlineTextFormats:Array;
          var expiredBuffsIndex:* = 1;
          var t1:* = getTimer();
          var errorCode:String = "init";
@@ -1385,6 +1398,17 @@ package
                {
                   displayMessage("Make sure SFE dxgi.dll is in game");
                   displayMessage("folder and not in data folder");
+                  displayMessage("");
+                  if(this.isHudMenu)
+                  {
+                     displayMessage("Alternatively, change to true:");
+                     displayMessage("\"enableManualPipBuffDataSync\"");
+                  }
+                  else
+                  {
+                     displayMessage("Alternatively, load mod via HML");
+                     displayMessage("and use enableManualPipBuffDataSync");
+                  }
                   displayMessage("");
                   displayMessage("If game was recently updated, you");
                   displayMessage("will have to wait for SFE update");
@@ -1727,7 +1751,10 @@ package
                   }
                   if(isEffectShown)
                   {
-                     isInlineSubEffects = LastDisplayEffect.text.indexOf(STRING_SUBEFFECTS) >= 0;
+                     subEffectIndexStart = int(LastDisplayEffect.text.indexOf(STRING_SUBEFFECTS));
+                     subEffectLenAfter = LastDisplayEffect.text.length - subEffectIndexStart - STRING_SUBEFFECTS.length;
+                     isInlineSubEffects = subEffectIndexStart >= 0;
+                     inlineTextFormats = [];
                      if(config.showSubEffects && !isHiddenSubEffectFor(this.BuffData.activeEffects[i].type,this.BuffData.activeEffects[i].effectText))
                      {
                         for each(sub in this.BuffData.activeEffects[i].SubEffects)
@@ -1741,6 +1768,14 @@ package
                                     if(isInlineSubEffects)
                                     {
                                        LastDisplayEffect.text = LastDisplayEffect.text.replace(STRING_SUBEFFECTS,formatSubEffect(sub.text,Math.max(sub.durationRemaining,0)) + STRING_SUBEFFECTS);
+                                       if(config.customSubEffectColors[sub.text] != null)
+                                       {
+                                          inlineTextFormats.push({
+                                             "start":LastDisplayEffect.text.indexOf(STRING_SUBEFFECTS),
+                                             "end":LastDisplayEffect.text.length - STRING_SUBEFFECTS.length - subEffectLenAfter,
+                                             "format":new TextFormat(null,null,config.customSubEffectColors[sub.text])
+                                          });
+                                       }
                                     }
                                     else
                                     {
@@ -1753,16 +1788,29 @@ package
                                        {
                                           LastDisplayEffect.textColor = getCustomColor(DATA_WARNING);
                                        }
+                                       else
+                                       {
+                                          applySubEffectColor(sub.text);
+                                       }
                                     }
                                  }
                               }
                               else if(isInlineSubEffects)
                               {
                                  LastDisplayEffect.text = LastDisplayEffect.text.replace(STRING_SUBEFFECTS,formatSubEffect(sub.text,-1) + STRING_SUBEFFECTS);
+                                 if(config.customSubEffectColors[sub.text] != null)
+                                 {
+                                    inlineTextFormats.push({
+                                       "start":LastDisplayEffect.text.indexOf(STRING_SUBEFFECTS),
+                                       "end":LastDisplayEffect.text.length - STRING_SUBEFFECTS.length - subEffectLenAfter,
+                                       "format":new TextFormat(null,null,config.customSubEffectColors[sub.text])
+                                    });
+                                 }
                               }
                               else
                               {
                                  displayMessage(formatSubEffect(sub.text,-1));
+                                 applySubEffectColor(sub.text);
                               }
                            }
                         }
@@ -1770,6 +1818,10 @@ package
                      if(isInlineSubEffects)
                      {
                         LastDisplayEffect.text = LastDisplayEffect.text.replace(STRING_SUBEFFECTS,"");
+                        for(format in inlineTextFormats)
+                        {
+                           LastDisplayEffect.setTextFormat(inlineTextFormats[format].format,inlineTextFormats[format].start,inlineTextFormats[format].end);
+                        }
                      }
                   }
                }

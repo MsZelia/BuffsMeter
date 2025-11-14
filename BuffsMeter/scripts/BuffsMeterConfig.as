@@ -203,7 +203,18 @@ package
          {
             for(color in config.customChecklistColors)
             {
-               config.customChecklistColors[color] = Parser.parseNumber(config.customChecklistColors[color],config.customColors.showChecklist || 16777215);
+               config.customChecklistColors[color] = Parser.parseNumber(config.customChecklistColors[color],config.customColors.showChecklist || config.textColor);
+            }
+         }
+         if(!config.customSubEffectColors)
+         {
+            config.customSubEffectColors = {};
+         }
+         else
+         {
+            for(color in config.customSubEffectColors)
+            {
+               config.customSubEffectColors[color] = Parser.parseNumber(config.customSubEffectColors[color],config.textColor);
             }
          }
          if(!config.hideTypes)
