@@ -1408,7 +1408,7 @@ package
                   displayMessage("");
                   if(this.isHudMenu)
                   {
-                     displayMessage("Alternatively, change to true:");
+                     displayMessage("Alternatively, change to \"AUTO\":");
                      displayMessage("\"enableManualPipBuffDataSync\"");
                   }
                   else
