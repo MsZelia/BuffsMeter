@@ -195,6 +195,17 @@ package
             }
             config.customEffectColors.keys = keys;
          }
+         if(!config.customChecklistColors)
+         {
+            config.customChecklistColors = {};
+         }
+         else
+         {
+            for(color in config.customChecklistColors)
+            {
+               config.customChecklistColors[color] = Parser.parseNumber(config.customChecklistColors[color],config.customColors.showChecklist || 16777215);
+            }
+         }
          if(!config.hideTypes)
          {
             config.hideTypes = [];
