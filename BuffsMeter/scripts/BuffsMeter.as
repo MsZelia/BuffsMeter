@@ -1399,6 +1399,13 @@ package
                   displayMessage("Make sure SFE dxgi.dll is in game");
                   displayMessage("folder and not in data folder");
                   displayMessage("");
+                  displayMessage("If game was recently updated, you");
+                  displayMessage("will have to wait for SFE update");
+                  displayMessage("");
+                  displayMessage("Download latest version of SFE:");
+                  displayMessage("www.nexusmods.com/fallout76");
+                  displayMessage("/mods/287");
+                  displayMessage("");
                   if(this.isHudMenu)
                   {
                      displayMessage("Alternatively, change to true:");
@@ -1409,13 +1416,6 @@ package
                      displayMessage("Alternatively, load mod via HML");
                      displayMessage("and use enableManualPipBuffDataSync");
                   }
-                  displayMessage("");
-                  displayMessage("If game was recently updated, you");
-                  displayMessage("will have to wait for SFE update");
-                  displayMessage("");
-                  displayMessage("Download latest version of SFE:");
-                  displayMessage("www.nexusmods.com/fallout76");
-                  displayMessage("/mods/287");
                   displayMessage("");
                   displayMessage("To hide this message, edit config:");
                   displayMessage("\"hideSFEMessage\": true");
@@ -1771,11 +1771,12 @@ package
                                        if(config.customSubEffectColors[sub.text] != null)
                                        {
                                           inlineTextFormats.push({
-                                             "start":LastDisplayEffect.text.indexOf(STRING_SUBEFFECTS),
+                                             "start":subEffectIndexStart,
                                              "end":LastDisplayEffect.text.length - STRING_SUBEFFECTS.length - subEffectLenAfter,
                                              "format":new TextFormat(null,null,config.customSubEffectColors[sub.text])
                                           });
                                        }
+                                       subEffectIndexStart = int(LastDisplayEffect.text.indexOf(STRING_SUBEFFECTS));
                                     }
                                     else
                                     {
@@ -1801,11 +1802,12 @@ package
                                  if(config.customSubEffectColors[sub.text] != null)
                                  {
                                     inlineTextFormats.push({
-                                       "start":LastDisplayEffect.text.indexOf(STRING_SUBEFFECTS),
+                                       "start":subEffectIndexStart,
                                        "end":LastDisplayEffect.text.length - STRING_SUBEFFECTS.length - subEffectLenAfter,
                                        "format":new TextFormat(null,null,config.customSubEffectColors[sub.text])
                                     });
                                  }
+                                 subEffectIndexStart = int(LastDisplayEffect.text.indexOf(STRING_SUBEFFECTS));
                               }
                               else
                               {
