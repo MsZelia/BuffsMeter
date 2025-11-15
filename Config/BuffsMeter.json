@@ -64,7 +64,7 @@
 		"$InventoryCategoryAmmo"
 	],
 	
-	"enableManualPipBuffDataSync": false, // Update 1.2.2
+	"enableManualPipBuffDataSync": "AUTO", // Update 1.2.2
 	"pipBuffDataSyncHotkey": 20, // Update 1.2.2
 	
 	
@@ -168,7 +168,19 @@
 		"chameleon",
 		"vanguard",
 		"power armor",
-		"strong back"
+		"strong back",
+		"barbarian",
+		"center masochist",
+		"down ranger",
+		"tormentor",
+		"easy target",
+		"bullet storm",
+		"tightly wound",
+		"one gun army",
+		"ground pounder",
+		"awareness",
+		"bullet shield",
+		"magnetic personality"
 	],
 	
 	"debuffs": [ // Update 1.0.4
@@ -363,6 +375,12 @@
 	"customEffectColors": { // Update 1.0.7
 		"cranberry relish": "0x00aaff",
 		"brain bombs": "0x00aaff"
+	},
+	"customChecklistColors": { // Update 1.3.3
+		// example: "Rested": "0xff0000"
+	},
+	"customSubEffectColors": { // Update 1.3.3
+		// example: "+5 INT": "0x99ff99"
 	},
 	
 	/* HUD Modes:
