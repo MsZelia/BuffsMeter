@@ -25,7 +25,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.3.3";
+      public static const MOD_VERSION:String = "1.3.4";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -221,6 +221,8 @@ package
       
       private var hudTools:SharedHUDTools;
       
+      private var isKeyDownDetected:Object = {};
+      
       public function BuffsMeter()
       {
          super();
@@ -339,6 +341,7 @@ package
                   BSUIDataManager.Subscribe("HUDModeData",this.onHUDModeUpdate);
                   var comment:String = "Only key down (and not key up) registers in overlay menu. Why? I do not know.";
                   stage.addEventListener(KeyboardEvent.KEY_DOWN,this.keyDownHandler,false,0,true);
+                  stage.addEventListener(KeyboardEvent.KEY_UP,this.keyUpHandler,false,0,true);
                   this.initConfigTimer();
                   this.loadConfig();
                }
@@ -360,6 +363,7 @@ package
          if(stage)
          {
             stage.removeEventListener(KeyboardEvent.KEY_DOWN,this.keyDownHandler);
+            stage.removeEventListener(KeyboardEvent.KEY_UP,this.keyUpHandler);
          }
          if(this.configTimer)
          {
@@ -435,14 +439,53 @@ package
       
       public function keyDownHandler(event:Event) : void
       {
-         if(!config || !effects_tf)
+         try
          {
-            return;
+            this.isKeyDownDetected[event.keyCode] = true;
+            if(!config || !effects_tf)
+            {
+               return;
+            }
+            if(config.debugKeys)
+            {
+               displayMessage("keyDown: " + event.keyCode + " - " + Buttons.getButtonKey(event.keyCode));
+            }
+            this.handleKey(event);
          }
-         if(config.debugKeys)
+         catch(e:Error)
          {
-            displayMessage("keyDown: " + event.keyCode);
+            displayMessage("Error keyDownHandler: " + e);
          }
+      }
+      
+      public function keyUpHandler(event:Event) : void
+      {
+         try
+         {
+            if(config)
+            {
+               if(!config || !effects_tf)
+               {
+                  return;
+               }
+               if(config.debugKeys)
+               {
+                  displayMessage("keyUp (kd:" + Boolean(this.isKeyDownDetected[event.keyCode]) + "): " + event.keyCode + " - " + Buttons.getButtonKey(event.keyCode));
+               }
+               if(!this.isKeyDownDetected[event.keyCode])
+               {
+                  this.handleKey(event);
+               }
+            }
+         }
+         catch(e:Error)
+         {
+            displayMessage("Error keyUpHandler: " + e);
+         }
+      }
+      
+      private function handleKey(event:Event) : void
+      {
          if(event.keyCode == config.toggleVisibilityHotkey)
          {
             this.toggleVisibility = !this.toggleVisibility;

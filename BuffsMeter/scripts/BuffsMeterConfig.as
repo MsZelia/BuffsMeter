@@ -1,6 +1,6 @@
 package
 {
-   import utils.Parser;
+   import utils.*;
    
    public class BuffsMeterConfig
    {
@@ -52,9 +52,9 @@ package
          config.format = Boolean(config.format) ? config.format : "{duration} {text}";
          config.sortBy = Boolean(config.sortBy) ? config.sortBy.toLowerCase() : "default";
          config.reverseSort = Parser.parseBoolean(config.reverseSort,false);
-         config.toggleVisibilityHotkey = Parser.parsePositiveNumber(config.toggleVisibilityHotkey,0);
-         config.forceHideHotkey = Parser.parsePositiveNumber(config.forceHideHotkey,0);
-         config.toggleChecklistHotkey = Parser.parsePositiveNumber(config.toggleChecklistHotkey,0);
+         config.toggleVisibilityHotkey = Buttons.parseValue(config.toggleVisibilityHotkey);
+         config.forceHideHotkey = Buttons.parseValue(config.forceHideHotkey);
+         config.toggleChecklistHotkey = Buttons.parseValue(config.toggleChecklistHotkey);
          if(!config.formats)
          {
             config.formats = {};
