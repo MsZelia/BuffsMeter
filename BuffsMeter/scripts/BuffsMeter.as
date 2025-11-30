@@ -339,7 +339,6 @@ package
                   this.isInMainMenu = true;
                   BSUIDataManager.Subscribe("MenuStackData",this.updateIsMainMenu);
                   BSUIDataManager.Subscribe("HUDModeData",this.onHUDModeUpdate);
-                  var comment:String = "Only key down (and not key up) registers in overlay menu. Why? I do not know.";
                   stage.addEventListener(KeyboardEvent.KEY_DOWN,this.keyDownHandler,false,0,true);
                   stage.addEventListener(KeyboardEvent.KEY_UP,this.keyUpHandler,false,0,true);
                   this.initConfigTimer();
