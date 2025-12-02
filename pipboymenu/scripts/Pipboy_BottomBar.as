@@ -99,7 +99,7 @@ package
                   TextFieldEx.setTextAutoSize(this.Info_mc.LVL_tf,TextFieldEx.TEXTAUTOSZ_SHRINK);
                   TextFieldEx.setTextAutoSize(this.Info_mc.AP_tf,TextFieldEx.TEXTAUTOSZ_SHRINK);
                   GlobalFunc.SetText(this.Info_mc.HP_tf,"$HP",false);
-                  GlobalFunc.SetText(this.Info_mc.HP_tf,this.Info_mc.HP_tf.text + "  " + Math.max(0,Math.floor(this._DataObj.CurrHP)) + "/" + Math.floor(this._DataObj.MaxHP),false);
+                  GlobalFunc.SetText(this.Info_mc.HP_tf,this.Info_mc.HP_tf.text + "  " + Math.max(1,Math.floor(this._DataObj.CurrHP)) + "/" + Math.floor(this._DataObj.MaxHP),false);
                   if(this._DataObj.ShowXPInfo)
                   {
                      GlobalFunc.SetText(this.Info_mc.LVL_tf,"$LEVEL",false);
