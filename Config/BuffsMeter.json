@@ -7,11 +7,11 @@
 	"width": 250,
 	"textSize": 18,
 	/* Some of the working fonts:
-	"$76HandwrittenNeat_Font", "$76HandwrittenIlliterate", "$BerlinDemi", "$BRODY",
-	"$Brush_Script_Std", "$ChowderHead", "$ConsoleFont", "$DebugTextFont", "$DotMatrix_Font",
-	"$evaScript_Font", "$Futura_Bold", "$HandwrittenFont", "$KiddieCocktails", "$Leiascript_Font",
-	"$MAIN_Font", "$MAIN_Font_Bold", "$MAIN_Font_Light", "$NixieTube_Font", "$Portico_Font_Regular",
-	"$Slate_Mobile", "$Terminal_Font", "$Typewriter_Font" */
+	"$76HandwrittenNeat_Font", "$76HandwrittenIlliterate", "$Adventure_Font", "$BerlinDemi", "$BRODY",
+	"$Brush_Script_Std", "$ChowderHead", "$ConsoleFont", "$DebugTextFont", "$DotMatrix_Font", "$evaScript_Font",
+	"$Futura_Bold", "$Futura_Bold_Oblique", "$Futura_Medium_Oblique", "$HandwrittenFont", "$KiddieCocktails",
+	"$Leiascript_Font", "$MAIN_Font", "$MAIN_Font_Bold", "$MAIN_Font_Light", "$NixieTube_Font",
+	"$Portico_Font_Regular", "$Slate_Mobile", "$Terminal_Font", "$Typewriter_Font" */
 	"textFont": "$ChowderHead",
 	"textAlign": "left", // left, center, right
 	"textColor": "0xffffff",
@@ -70,9 +70,9 @@
 	
 	// OVERLAY MOD LOADER ONLY SETTINGS (Update 1.1.4)
 	"debugKeys": false,
-	"toggleVisibilityHotkey": 106,
-	"forceHideHotkey": 109, // Update 1.1.7
-	"toggleChecklistHotkey": 107, // Update 1.2.6
+	"toggleVisibilityHotkey": 0,
+	"forceHideHotkey": "N-", // Update 1.1.7
+	"toggleChecklistHotkey": "N+", // Update 1.2.6
 	
 	
 	// EFFECT DISPLAY SETTINGS
@@ -106,7 +106,8 @@
 	"hideTypes": [
 		"MUTATION",
 		"HUNGER",
-		"THRIST"
+		"THRIST",
+		"PERK"
 	],
 	"showTypes": [
 		"ALCOHOL",
@@ -127,60 +128,16 @@
 		"plastic animals",
 		"confetti mess",
 		"fingertrap",
-		"commando",
-		"science expert",
-		"science master",
-		"good with salt",
-		"grenadier",
 		"explosive damage",
-		"chem fiend",
-		"iron stomach",
-		"natural resistance",
-		"thirst quencher",
-		"squad maneuvers",
 		"stealth move",
-		"bloody mess",
-		"heavy gunner",
-		"slugger",
-		"nocturnal",
-		"mutant's",
-		"adrenaline",
 		"stimpak",
-		"bodyguards",
-		"first aid",
-		"four leaf clover",
-		"ricochet",
-		"serendipity",
-		"evasive",
-		"demolition expert",
-		"action boy",
 		"life giver",
 		"polished",
-		"junk shield",
-		"nerd rage",
 		"local practitioner",
-		"gladiator",
-		"guerrilla",
-		"gunslinger",
-		"inspirational",
 		"spiritual healer",
-		"packin light",
 		"chameleon",
 		"vanguard",
-		"power armor",
-		"strong back",
-		"barbarian",
-		"center masochist",
-		"down ranger",
-		"tormentor",
-		"easy target",
-		"bullet storm",
-		"tightly wound",
-		"one gun army",
-		"ground pounder",
-		"awareness",
-		"bullet shield",
-		"magnetic personality"
+		"power armor"
 	],
 	
 	"debuffs": [ // Update 1.0.4
@@ -385,14 +342,16 @@
 	
 	/* HUD Modes:
 	"ActivateTypeMode", "All", "AutoVanity", "CampPlacement", "ContainerMode", "CrosshairAndActivateOnly",
-	"DeathRespawnMode", "DefaultScopeMenu", "DialogueMode", "EndOfMatch", "FurnitureEnterExit",
-	"InsideMemory", "InspectMode", "IronSights", "LegendaryPerksMode", "LockpickingMode", "MapMenu",
-	"MessageMode", "MovementDisabled", "NoHud", "PauseMode", "PerksMode", "Pipboy", "PowerArmor",
-	"RadialMenu", "SelfieMode", "SitWaitMode", "SpectatorMode", "TerminalMode", "VATS", "VATSPlayback",
-	"VertibirdMode", "WorkshopMode", "WorkshopNoCrosshairMode",
+	"DeathRespawnMode", "DialogueMode", "EndOfMatch", "FurnitureEnterExit", "InsideMemory", "InspectMode",
+	"IronSights", "LegendaryPerksMode", "LockpickingMode", "MapMenu", 	"MessageMode", "MovementDisabled",
+	"NoHud", "PauseMode", "PerksMode", "Pipboy", "PowerArmor", 	"RadialMenu", "SelfieMode", "SitWaitMode",
+	"SpectatorMode", "TerminalMode", "VATS", "VATSPlayback", "VertibirdMode", "WorkshopMode"
 	"Fishing"
+	"WorkshopNoCrosshairMode"
 	"DefaultScopeMenu", "CameraScopeMenu"
+	"ExamineConfirmMode"
 	"Loading", "MainMenu"
+	
 	
 	"All" is default HUD mode (non-power armor), not all of them */
 	"HUDModesState": "hidden", // Options: hidden, shown
