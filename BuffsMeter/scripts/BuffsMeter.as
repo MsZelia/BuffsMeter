@@ -25,7 +25,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.3.4";
+      public static const MOD_VERSION:String = "1.4.0";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -575,25 +575,24 @@ package
       {
          var b64decoder:Base64Decoder = new Base64Decoder();
          b64decoder.decode(msg);
-         var baZlib:ByteArray = b64decoder.toByteArray();
-         baZlib.uncompress("zlib");
-         var messageTextUncompressed:String = baZlib.readObject();
-         messageTextUncompressed = messageTextUncompressed.replace(/\"x\":/g,"\"text\":").replace(/\"n\":/g,"\"iconText\":").replace(/\"y\":/g,"\"type\":").replace(/\"f\":/g,"\"effects\":").replace(/\"v\":/g,"\"value\":").replace(/\"d\":/g,"\"duration\":").replace(/\"p\":/g,"\"showAsPercent\":").replace(/\"i\":/g,"\"initTime\":").replace(/\"c\":/g,"\"usesCustomDesc\":").replace(/\"k\":/g,"\"keywordSortIndex\":").replace(/\"m\":/g,"\"PlusMinus\":");
+         var ba:ByteArray = b64decoder.toByteArray();
+         var messageTextUncompressed:String = ba.readObject();
+         messageTextUncompressed = messageTextUncompressed.replace(/\"n\":/g,"\"Name\":").replace(/\"i\":/g,"\"IconLabel\":").replace(/\"y\":/g,"\"IconType\":").replace(/\"t\":/g,"\"TimeRemainingLabel\":").replace(/\"e\":/g,"\"EffectEntriesA\":").replace(/\"l\":/g,"\"Label\":").replace(/\"m\":/g,"\"MagnitudeText\":").replace(/\"s\":/g,"\"isStackedMagnitude\":");
          if(this.lastBuffMsgData != messageTextUncompressed)
          {
+            if(config && config.debugSync)
+            {
+               dispatchEvent(new HUDModError(messageTextUncompressed));
+            }
             var jsonData:Object = new JSONDecoder(messageTextUncompressed,true).getValue();
-            if(jsonData && jsonData.time && jsonData.serverTime && jsonData.activeEffects)
+            if(jsonData && jsonData.time && jsonData.activeEffects)
             {
                BuffData = jsonData;
-               ServerTime = jsonData.serverTime;
+               ServerTime = Number(jsonData.serverTime) || 0;
                processEvents();
                isSortReversed = false;
                loadingTimeComp = 0;
                lastBuffMsgData = messageTextUncompressed;
-            }
-            if(config && config.debugSync)
-            {
-               dispatchEvent(new HUDModError(messageTextUncompressed));
             }
          }
       }
@@ -1284,38 +1283,26 @@ package
                t1 = getTimer();
                while(i < this.BuffData.activeEffects.length)
                {
+                  errorCode = "text";
+                  this.BuffData.activeEffects[i].text = String(this.BuffData.activeEffects[i].Name);
                   errorCode = "type";
-                  this.BuffData.activeEffects[i].type = String(this.BuffData.activeEffects[i].type.toLowerCase().replace("icon",""));
+                  this.BuffData.activeEffects[i].type = String(this.BuffData.activeEffects[i].IconType.toLowerCase().replace("icon",""));
                   errorCode = "isDebuff";
-                  this.BuffData.activeEffects[i].isDebuff = this.isTextInList(this.BuffData.activeEffects[i].text,config ? config.debuffs : []);
+                  this.BuffData.activeEffects[i].isDebuff = this.isTextInList(this.BuffData.activeEffects[i].Name,config ? config.debuffs : []);
                   errorCode = "textDuration";
-                  this.BuffData.activeEffects[i].textDuration = getTimeFromName(this.BuffData.activeEffects[i].text);
-                  errorCode = "duration";
-                  if(this.BuffData.activeEffects[i].effects[0].duration == null)
-                  {
-                     this.BuffData.activeEffects[i].effects[0].duration = 0;
-                  }
+                  this.BuffData.activeEffects[i].textDuration = getTimeFromName(this.BuffData.activeEffects[i].TimeRemainingLabel);
                   errorCode = "isPermanentEffect";
-                  this.BuffData.activeEffects[i].isPermanentEffect = this.BuffData.activeEffects[i].effects[0].duration == 0;
-                  errorCode = "isPermanentEffect2";
-                  if(!this.BuffData.activeEffects[i].isPermanentEffect && this.BuffData.activeEffects[i].text.lastIndexOf("(") != -1)
-                  {
-                     this.BuffData.activeEffects[i].effectText = String(this.BuffData.activeEffects[i].text.slice(0,this.BuffData.activeEffects[i].text.lastIndexOf("(") - 1));
-                  }
-                  else
-                  {
-                     this.BuffData.activeEffects[i].effectText = this.BuffData.activeEffects[i].text;
-                  }
+                  this.BuffData.activeEffects[i].isPermanentEffect = this.BuffData.activeEffects[i].TimeRemainingLabel.length == 0;
                   errorCode = "isValid";
-                  this.BuffData.activeEffects[i].isValid = this.isValidEffect(this.BuffData.activeEffects[i].type,this.BuffData.activeEffects[i].effectText);
+                  this.BuffData.activeEffects[i].isValid = this.isValidEffect(this.BuffData.activeEffects[i].type,this.BuffData.activeEffects[i].text);
                   errorCode = "SubEffects";
                   this.BuffData.activeEffects[i].SubEffects = [];
                   errorCode = "effects";
-                  for each(effect in this.BuffData.activeEffects[i].effects)
+                  for each(effect in this.BuffData.activeEffects[i].EffectEntriesA)
                   {
                      this.BuffData.activeEffects[i].SubEffects.push({
-                        "text":(Boolean(effect.usesCustomDesc) ? effect.text : effect.text + (effect.value > 0 ? " +" : " ") + (effect.value % 1 == 0 ? effect.value : effect.value.toFixed(2)) + (Boolean(effect.showAsPercent) ? "%" : "")),
-                        "durationRemaining":-1
+                        "text":(effect.MagnitudeText != "" ? effect.MagnitudeText + " " + effect.Label : effect.Label),
+                        "durationRemaining":this.BuffData.activeEffects[i].textDuration
                      });
                   }
                   i++;
@@ -1582,7 +1569,7 @@ package
                               {
                                  if(buff.isValid)
                                  {
-                                    return ArrayUtil.indexOfCaseInsensitiveStringStarts(checkName,buff.effectText) != -1;
+                                    return ArrayUtil.indexOfCaseInsensitiveStringStarts(checkName,buff.text) != -1;
                                  }
                                  return false;
                               }))
@@ -1609,7 +1596,7 @@ package
                               {
                                  if(buff.isValid)
                                  {
-                                    return checkName.indexOf(buff.effectText.toLowerCase()) != -1;
+                                    return checkName.indexOf(buff.text.toLowerCase()) != -1;
                                  }
                                  return false;
                               }))
@@ -1628,7 +1615,7 @@ package
                               {
                                  if(buff.isValid)
                                  {
-                                    return ArrayUtil.indexOfCaseInsensitiveString(checkName,buff.effectText) != -1;
+                                    return ArrayUtil.indexOfCaseInsensitiveString(checkName,buff.text) != -1;
                                  }
                                  return false;
                               }))
@@ -1684,62 +1671,39 @@ package
                   }
                }
             }
-            errorCode = "timeSinceLastUpdate";
             _timeSinceLastUpdate = this.timeSinceLastUpdate;
+            errorCode = "durationRemaining";
             i = 0;
             while(i < this.BuffData.activeEffects.length)
             {
                if(this.BuffData.activeEffects[i].isValid)
                {
-                  effectDuration = Number(this.BuffData.activeEffects[i].textDuration);
-                  effectDurationRemaining = effectDuration - _timeSinceLastUpdate + this.loadingTimeComp;
-                  maxEffectDurationRemaining = int.MIN_VALUE;
-                  maxEffectDuration = 0;
-                  if(!this.BuffData.activeEffects[i].isPermanentEffect)
-                  {
-                     maxEffectDurationRemaining = effectDurationRemaining;
-                  }
+                  effectDurationRemaining = this.BuffData.activeEffects[i].textDuration - _timeSinceLastUpdate + this.loadingTimeComp;
+                  this.BuffData.activeEffects[i].durationRemaining = effectDurationRemaining;
                   j = 0;
-                  while(j < this.BuffData.activeEffects[i].effects.length)
+                  while(j < this.BuffData.activeEffects[i].EffectEntriesA.length)
                   {
                      if(!this.BuffData.activeEffects[i].isPermanentEffect)
                      {
-                        effectInitTime = Number(this.BuffData.activeEffects[i].effects[j].initTime);
-                        effectDuration = !isNaN(this.BuffData.activeEffects[i].effects[j].duration) ? this.BuffData.activeEffects[i].effects[j].duration * 20 : 0;
-                        maxEffectDuration = Math.max(maxEffectDuration,effectDuration);
-                        effectDurationRemaining = (effectInitTime + effectDuration - ServerTime) / 20 + this.loadingTimeComp;
-                        if(GlobalFunc.CloseToNumber(maxEffectDurationRemaining,effectDurationRemaining,61))
-                        {
-                           if(GlobalFunc.CloseToNumber(effectDurationRemaining,0,61))
-                           {
-                              maxEffectDurationRemaining = Math.min(maxEffectDurationRemaining,effectDurationRemaining);
-                           }
-                           else
-                           {
-                              maxEffectDurationRemaining = effectDurationRemaining;
-                           }
-                        }
                         this.BuffData.activeEffects[i].SubEffects[j].durationRemaining = effectDurationRemaining;
-                     }
-                     else
-                     {
-                        this.BuffData.activeEffects[i].SubEffects[j].durationRemaining = -1;
                      }
                      j++;
                   }
-                  this.BuffData.activeEffects[i].duration = maxEffectDuration;
-                  this.BuffData.activeEffects[i].durationRemaining = maxEffectDurationRemaining;
                }
                else
                {
                   this.BuffData.activeEffects[i].durationRemaining = -1;
-                  this.BuffData.activeEffects[i].duration = 0;
                }
                i++;
             }
             errorCode = "sort";
             effectDurationBars = [];
             this.BuffData.activeEffects = sortEffects(this.BuffData.activeEffects);
+            errorCode = "debugBuffs";
+            if(config.debugBuffs)
+            {
+               dispatchEvent(new HUDModError(toString(this.BuffData.activeEffects)));
+            }
             errorCode = "display";
             i = 0;
             while(i < this.BuffData.activeEffects.length)
@@ -1759,7 +1723,7 @@ package
                         }
                         else
                         {
-                           applyEffectColor(this.BuffData.activeEffects[i].effectText);
+                           applyEffectColor(this.BuffData.activeEffects[i].text);
                         }
                      }
                   }
@@ -1783,12 +1747,12 @@ package
                      }
                      else
                      {
-                        applyEffectColor(this.BuffData.activeEffects[i].effectText);
+                        applyEffectColor(this.BuffData.activeEffects[i].text);
                      }
                      effectDurationBars.push({
                         "id":effects_index - 1,
                         "duration":this.BuffData.activeEffects[i].durationRemaining,
-                        "durationMax":this.BuffData.activeEffects[i].duration / 20
+                        "durationMax":config.durationBar.maxDuration
                      });
                   }
                   if(isEffectShown)
@@ -1797,7 +1761,7 @@ package
                      subEffectLenAfter = LastDisplayEffect.text.length - subEffectIndexStart - STRING_SUBEFFECTS.length;
                      isInlineSubEffects = subEffectIndexStart >= 0;
                      inlineTextFormats = [];
-                     if(config.showSubEffects && !isHiddenSubEffectFor(this.BuffData.activeEffects[i].type,this.BuffData.activeEffects[i].effectText))
+                     if(config.showSubEffects && !isHiddenSubEffectFor(this.BuffData.activeEffects[i].type,this.BuffData.activeEffects[i].text))
                      {
                         for each(sub in this.BuffData.activeEffects[i].SubEffects)
                         {
@@ -1871,7 +1835,7 @@ package
                }
                if(!this.BuffData.activeEffects[i].isPermanentEffect && this.BuffData.activeEffects[i].durationRemaining < config.hideEffectsBelowDuration)
                {
-                  this.addExpiredBuff(BuffData.activeEffects[i].effectText);
+                  this.addExpiredBuff(BuffData.activeEffects[i].text);
                   this.BuffData.activeEffects.splice(i,1);
                }
                else
@@ -1934,10 +1898,10 @@ package
          }
          if(effect.isPermanentEffect)
          {
-            return StringUtil.trim(config.format.replace(STRING_TEXT,effect.effectText).replace(STRING_TYPE,effect.type).replace(STRING_DURATION,"").replace(STRING_DURATION_FULL,"").replace(STRING_DURATION_IN_SECONDS,"").replace(STRING_DURATION_IN_MINUTES,""));
+            return StringUtil.trim(config.format.replace(STRING_TEXT,effect.text).replace(STRING_TYPE,effect.type).replace(STRING_DURATION,"").replace(STRING_DURATION_FULL,"").replace(STRING_DURATION_IN_SECONDS,"").replace(STRING_DURATION_IN_MINUTES,""));
          }
          var duration:Number = Math.max(effect.durationRemaining,0);
-         return config.format.replace(STRING_TEXT,effect.effectText).replace(STRING_TYPE,effect.type).replace(STRING_DURATION,GlobalFunc.FormatTimeString(duration)).replace(STRING_DURATION_FULL,formatTimeString(duration)).replace(STRING_DURATION_IN_SECONDS,Math.floor(duration) + "s").replace(STRING_DURATION_IN_MINUTES,(duration < 60 ? "<" : "") + Math.ceil(duration / 60) + "m");
+         return config.format.replace(STRING_TEXT,effect.text).replace(STRING_TYPE,effect.type).replace(STRING_DURATION,GlobalFunc.FormatTimeString(duration)).replace(STRING_DURATION_FULL,formatTimeString(duration)).replace(STRING_DURATION_IN_SECONDS,Math.floor(duration) + "s").replace(STRING_DURATION_IN_MINUTES,(duration < 60 ? "<" : "") + Math.ceil(duration / 60) + "m");
       }
       
       public function formatEffectWithText(effect:Object, text:String) : String
@@ -2155,48 +2119,37 @@ package
          return index != -1;
       }
       
-      public function getSubEffectDescription(effect:Object) : String
-      {
-         if(effect.usesCustomDesc)
-         {
-            return effect.text;
-         }
-         return effect.text + (effect.value > 0 ? " +" : " ") + (effect.value % 1 == 0 ? effect.value : effect.value.toFixed(2)) + (Boolean(effect.showAsPercent) ? "%" : "");
-      }
-      
       public function getTimeFromName(name:String) : int
       {
-         if(name.lastIndexOf("(") != -1)
+         if(name.length == 0)
          {
-            var parts:Array = name.split("(");
-            var s_time:String = String(parts[parts.length - 1]);
-            s_time = s_time.substring(0,s_time.indexOf(")")).replace("<","").replace(" ","");
-            for each(minuteAbbr in ABBREVIATION_MINUTE_LOCALIZED)
-            {
-               s_time = s_time.replace(minuteAbbr,"");
-            }
-            for each(hourAbbr in ABBREVIATION_HOUR_LOCALIZED)
-            {
-               parts = s_time.split(hourAbbr);
-               if(parts.length > 1)
-               {
-                  break;
-               }
-            }
-            var hours:int = 0;
-            var minutes:int = 0;
+            return -1;
+         }
+         var s_time:String = name.replace("<","").replace(" ","");
+         for each(minuteAbbr in ABBREVIATION_MINUTE_LOCALIZED)
+         {
+            s_time = s_time.replace(minuteAbbr,"");
+         }
+         for each(hourAbbr in ABBREVIATION_HOUR_LOCALIZED)
+         {
+            parts = s_time.split(hourAbbr);
             if(parts.length > 1)
             {
-               hours = int(parseInt(parts[0]));
-               minutes = int(parseInt(parts[1]));
+               break;
             }
-            else
-            {
-               minutes = int(parseInt(parts[0]));
-            }
-            return (hours * 60 + minutes) * 60;
          }
-         return -1;
+         var hours:int = 0;
+         var minutes:int = 0;
+         if(parts.length > 1)
+         {
+            hours = int(parseInt(parts[0]));
+            minutes = int(parseInt(parts[1]));
+         }
+         else
+         {
+            minutes = int(parseInt(parts[0]));
+         }
+         return (hours * 60 + minutes) * 60;
       }
       
       public function isValidHUDMode() : Boolean

@@ -100,6 +100,7 @@ package
             config.durationBar.alignVertical = "bottom";
             config.durationBar.alignHorizontal = "left";
             config.durationBar.height = 4;
+            config.durationBar.maxDuration = 600;
          }
          else
          {
@@ -107,6 +108,7 @@ package
             config.durationBar.alignVertical = Boolean(config.durationBar.alignVertical) ? config.durationBar.alignVertical.toLowerCase() : "bottom";
             config.durationBar.alignHorizontal = Boolean(config.durationBar.alignHorizontal) ? config.durationBar.alignHorizontal.toLowerCase() : "left";
             config.durationBar.height = Parser.parseNumber(config.durationBar.height,4);
+            config.durationBar.maxDuration = Parser.parseNumber(config.durationBar.maxDuration,600);
          }
          if(!config.xpBar)
          {
