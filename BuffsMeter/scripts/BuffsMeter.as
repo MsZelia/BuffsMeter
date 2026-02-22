@@ -1301,7 +1301,7 @@ package
                   for each(effect in this.BuffData.activeEffects[i].EffectEntriesA)
                   {
                      this.BuffData.activeEffects[i].SubEffects.push({
-                        "text":(effect.MagnitudeText != "" ? effect.MagnitudeText + " " + effect.Label : effect.Label),
+                        "text":(effect.MagnitudeText.length == 0 || effect.Label.indexOf(effect.MagnitudeText) != -1 ? effect.Label : effect.MagnitudeText + " " + effect.Label),
                         "durationRemaining":this.BuffData.activeEffects[i].textDuration
                      });
                   }
