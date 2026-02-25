@@ -675,13 +675,6 @@ package
                   {
                      jsonData = new JSONDecoder(loader.data,true).getValue();
                      BuffsMeterConfig.init(jsonData);
-                     if(isPipboyMenu && config.pipboyConfig)
-                     {
-                        for(p in config.pipboyConfig)
-                        {
-                           config[p] = config.pipboyConfig[p];
-                        }
-                     }
                      initTextField();
                      initTimers();
                      _lastConfigUpdateTime = getTimer();
@@ -1417,46 +1410,16 @@ package
                   }
                }
             }
-            errorCode = "sfe";
-            if((this.BuffData == null || this.BuffData.activeEffects == null) && this.isHudMenu && !this.isSFEDefined() && !config.enableManualPipBuffDataSync)
-            {
-               displayMessage(FULL_MOD_NAME);
-               displayMessage("SFE not found, ManualSync off");
-               LastDisplayEffect.textColor = 16711680;
-               if(!config.hideSFEMessage)
-               {
-                  displayMessage("Make sure SFE dxgi.dll is in game");
-                  displayMessage("folder and not in data folder");
-                  displayMessage("");
-                  displayMessage("If game was recently updated, you");
-                  displayMessage("will have to wait for SFE update");
-                  displayMessage("");
-                  displayMessage("Download latest version of SFE:");
-                  displayMessage("www.nexusmods.com/fallout76");
-                  displayMessage("/mods/287");
-                  displayMessage("");
-                  if(this.isHudMenu)
-                  {
-                     displayMessage("Alternatively, change to \"AUTO\":");
-                     displayMessage("\"enableManualPipBuffDataSync\"");
-                  }
-                  else
-                  {
-                     displayMessage("Alternatively, load mod via HML");
-                     displayMessage("and use enableManualPipBuffDataSync");
-                  }
-                  displayMessage("");
-                  displayMessage("To hide this message, edit config:");
-                  displayMessage("\"hideSFEMessage\": true");
-               }
-               drawBackground();
-               return;
-            }
             errorCode = "buffData";
             if(this.BuffData == null || this.BuffData.activeEffects == null)
             {
-               displayMessage(FULL_MOD_NAME + (this.isHudMenu ? "" : (this.isPipboyMenu ? " (pipMenu)" : " (overlay)")));
-               displayMessage("Effects not found, open your pipboy");
+               displayMessage(FULL_MOD_NAME + (this.isHudMenu ? "" : " (overlay)"));
+               if(this.isHudMenu && !this.isSFEDefined())
+               {
+                  displayMessage("SFE not found!");
+                  LastDisplayEffect.textColor = 16711680;
+               }
+               displayMessage("Effects not found, sync in pipboy!");
                LastDisplayEffect.textColor = 16711680;
                drawBackground();
                return;
