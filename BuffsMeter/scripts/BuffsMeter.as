@@ -571,6 +571,7 @@ package
                processEvents();
                isSortReversed = false;
                loadingTimeComp = 0;
+               timeSinceLastUpdate = 0;
                lastBuffMsgData = messageTextUncompressed;
             }
          }
@@ -717,6 +718,7 @@ package
                         processEvents();
                         isSortReversed = false;
                         loadingTimeComp = 0;
+                        timeSinceLastUpdate = 0;
                         lastBuffData = loader.data;
                      }
                   }
@@ -772,6 +774,12 @@ package
       public function get timeSinceLastUpdate() : Number
       {
          return (getTimer() - this._lastUpdateTime + this._lastUpdateTimeDelta) / 1000;
+      }
+      
+      public function set timeSinceLastUpdate(value:Number) : void
+      {
+         this._lastUpdateTime = getTimer();
+         this._lastUpdateTimeDelta = new Date().time - (this.BuffData ? this.BuffData.time : 0);
       }
       
       public function get timeSinceLastConfigUpdate() : Number
