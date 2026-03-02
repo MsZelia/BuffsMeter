@@ -65,8 +65,6 @@ package
       
       private static const SORT_BY_PROPERTY:String = "property";
       
-      private static const SORT_BY_DURATION:String = "duration";
-      
       private static const SORT_BY_DURATION_REMAINING:String = "durationRemaining";
       
       private static const STRING_TEXT:String = "{text}";
@@ -1240,7 +1238,7 @@ package
                var p:int = 0;
                while(p < config.sortOrder.length)
                {
-                  if(config.sortOrder[p] == SORT_BY_DURATION_REMAINING || config.sortOrder[p] == SORT_BY_DURATION)
+                  if(config.sortOrder[p] == SORT_BY_DURATION_REMAINING)
                   {
                      sortOptions[p] = Array.NUMERIC | Array.DESCENDING;
                   }
