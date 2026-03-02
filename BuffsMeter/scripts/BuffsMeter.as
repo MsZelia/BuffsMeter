@@ -135,10 +135,6 @@ package
       
       private var _isProcessEvents:Boolean = false;
       
-      private var _serverTime:Number = 0;
-      
-      private var _daysElapsed:int = 0;
-      
       private var topLevel:* = null;
       
       private var HPMeter:* = null;
@@ -198,8 +194,6 @@ package
       private var isHudMenu:Boolean = false;
       
       private var isInMainMenu:Boolean = true;
-      
-      private var isPipboyMenu:Boolean = false;
       
       private var toggleVisibility:Boolean = false;
       
@@ -300,7 +294,6 @@ package
             if(getQualifiedClassName(this.topLevel) == "HUDMenu")
             {
                this.isHudMenu = true;
-               this.isPipboyMenu = false;
                this.isInMainMenu = false;
                if(this.topLevel.LeftMeters_mc != null && this.topLevel.LeftMeters_mc.HPMeter_mc != null)
                {
@@ -319,21 +312,10 @@ package
             }
             else if(this.topLevel.numChildren > 0)
             {
-               if(getQualifiedClassName(this.topLevel.getChildAt(0)) == "PipboyMenu")
+               if(getQualifiedClassName(this.topLevel.getChildAt(0)) == "OverlayMenu")
                {
                   this.topLevel = this.topLevel.getChildAt(0);
                   this.isHudMenu = false;
-                  this.isPipboyMenu = true;
-                  this.isInMainMenu = false;
-                  stage.addEventListener(KeyboardEvent.KEY_DOWN,this.keyDownHandler,false,0,true);
-                  this.initConfigTimer();
-                  this.loadConfig();
-               }
-               else if(getQualifiedClassName(this.topLevel.getChildAt(0)) == "OverlayMenu")
-               {
-                  this.topLevel = this.topLevel.getChildAt(0);
-                  this.isHudMenu = false;
-                  this.isPipboyMenu = false;
                   this.isInMainMenu = true;
                   BSUIDataManager.Subscribe("MenuStackData",this.updateIsMainMenu);
                   BSUIDataManager.Subscribe("HUDModeData",this.onHUDModeUpdate);
@@ -586,7 +568,6 @@ package
             if(jsonData && jsonData.time && jsonData.activeEffects)
             {
                BuffData = jsonData;
-               ServerTime = Number(jsonData.serverTime) || 0;
                processEvents();
                isSortReversed = false;
                loadingTimeComp = 0;
@@ -711,10 +692,6 @@ package
          var loader:URLLoader = null;
          try
          {
-            if(this.isPipboyMenu)
-            {
-               return;
-            }
             loaderComplete = function(param1:Event):void
             {
                var jsonData:Object;
@@ -730,14 +707,13 @@ package
                         return;
                      }
                      jsonData = decoder.result;
-                     if(jsonData && jsonData.time && jsonData.serverTime && jsonData.activeEffects)
+                     if(jsonData && jsonData.time && jsonData.activeEffects)
                      {
                         if(lastBuffData == null && jsonData.time + 15000 < new Date().time)
                         {
                            return;
                         }
                         BuffData = jsonData;
-                        ServerTime = jsonData.serverTime;
                         processEvents();
                         isSortReversed = false;
                         loadingTimeComp = 0;
@@ -801,23 +777,6 @@ package
       public function get timeSinceLastConfigUpdate() : Number
       {
          return (getTimer() - this._lastConfigUpdateTime) / 1000;
-      }
-      
-      public function get ServerTime() : Number
-      {
-         return this._serverTime + this.timeSinceLastUpdate * 20;
-      }
-      
-      public function set ServerTime(value:Number) : void
-      {
-         this._daysElapsed = Math.floor(this.ServerTime / 86400);
-         if(this._serverTime == 0 && this._daysElapsed == 0)
-         {
-            this._daysElapsed = 1;
-         }
-         this._serverTime = this._daysElapsed * 86400 + value * 3600;
-         this._lastUpdateTime = getTimer();
-         this._lastUpdateTimeDelta = new Date().time - this.BuffData.time;
       }
       
       public function addExpiredBuff(text:String) : void
@@ -1395,7 +1354,6 @@ package
             {
                displayMessage("topLevel: " + getQualifiedClassName(this.topLevel));
                displayMessage("isHudMenu: " + this.isHudMenu);
-               displayMessage("isPipboyMenu: " + this.isPipboyMenu);
                displayMessage("isInMainMenu: " + this.isInMainMenu);
                displayMessage("isProcessEvents: " + this._isProcessEvents);
                displayMessage("BuffData: " + this.BuffData);
@@ -1426,7 +1384,6 @@ package
             if(config.displayData && config.displayData.length > 0)
             {
                date = new Date();
-               time = this.ServerTime % 43200 / 60;
                for each(add in config.displayData)
                {
                   if(add == "showHUDChildren")
@@ -1444,7 +1401,7 @@ package
                   }
                   else if(add == "showVersion")
                   {
-                     displayMessage(FULL_MOD_NAME + (this.isHudMenu ? "" : (this.isPipboyMenu ? " (pipMenu)" : " (overlay)")));
+                     displayMessage(FULL_MOD_NAME + (this.isHudMenu ? "" : " (overlay)"));
                      applyColor(add);
                   }
                   else if(add == "showLastUpdate")
@@ -1467,16 +1424,6 @@ package
                      displayMessage("ElapsedTime: " + GlobalFunc.FormatTimeString(this.elapsedTime));
                      applyColor(add);
                   }
-                  else if(add == "showServerTick")
-                  {
-                     displayMessage("ServerTick: " + this.ServerTime.toFixed(0));
-                     applyColor(add);
-                  }
-                  else if(add == "showServerTime")
-                  {
-                     displayMessage("ServerTime: " + GlobalFunc.FormatTimeString(this.ServerTime));
-                     applyColor(add);
-                  }
                   else if(add == "showLastExpiredBuff")
                   {
                      if(this.expiredBuffs.length - expiredBuffsIndex >= 0)
@@ -1494,16 +1441,6 @@ package
                   else if(add == "showRenderTime")
                   {
                      displayMessage("RenderTime: " + this.lastRenderTime + "ms");
-                     applyColor(add);
-                  }
-                  else if(add == "showServerTime12")
-                  {
-                     displayMessage("ServerTime: " + GlobalFunc.FormatTimeString(time < 60 ? time + 720 : time) + (this.ServerTime % 86400 > 43200 ? " PM" : " AM"));
-                     applyColor(add);
-                  }
-                  else if(add == "showServerTime24")
-                  {
-                     displayMessage("ServerTime: " + GlobalFunc.FormatTimeString(this.ServerTime % 86400 / 60));
                      applyColor(add);
                   }
                   else if(add == "showTime12")
