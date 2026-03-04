@@ -11,42 +11,42 @@ package
       
       public var GhostFill_mc:MovieClip;
       
-      private var _Value:Number;
+      private var m_Value:Number;
       
-      private var _GhostValue:Number;
+      private var m_GhostValue:Number;
       
-      private var _MaxValue:Number;
+      private var m_MaxValue:Number;
       
-      private var _InitialWidth:Number;
+      private var m_InitialWidth:Number;
       
       public function Pipboy_Meter()
       {
          super();
-         this._Value = 0;
-         this._GhostValue = 0;
-         this._MaxValue = 0;
-         this._InitialWidth = this.width;
+         this.m_Value = 0;
+         this.m_GhostValue = 0;
+         this.m_MaxValue = 0;
+         this.m_InitialWidth = this.width;
       }
       
       public function SetMeter(param1:Number, param2:Number, param3:Number) : *
       {
-         this._Value = Math.min(param1,param3);
-         this._GhostValue = param2;
-         this._MaxValue = param3;
+         this.m_Value = Math.min(param1,param3);
+         this.m_GhostValue = param2;
+         this.m_MaxValue = param3;
          if(this.Fill_mc != null)
          {
-            this.Fill_mc.visible = this._Value > 0 && this._MaxValue > 0;
+            this.Fill_mc.visible = this.m_Value > 0 && this.m_MaxValue > 0;
             if(this.Fill_mc.visible)
             {
-               this.Fill_mc.width = this._Value / this._MaxValue * (this._InitialWidth / this.scaleX);
+               this.Fill_mc.width = this.m_Value / this.m_MaxValue * (this.m_InitialWidth / this.scaleX);
             }
          }
          if(this.GhostFill_mc != null)
          {
-            this.GhostFill_mc.visible = this._GhostValue > 0 && this._MaxValue > 0;
+            this.GhostFill_mc.visible = this.m_GhostValue > 0 && this.m_MaxValue > 0;
             if(this.GhostFill_mc.visible)
             {
-               this.GhostFill_mc.width = this._GhostValue / this._MaxValue * (this._InitialWidth / this.scaleX);
+               this.GhostFill_mc.width = this.m_GhostValue / this.m_MaxValue * (this.m_InitialWidth / this.scaleX);
             }
          }
          SetIsDirty();

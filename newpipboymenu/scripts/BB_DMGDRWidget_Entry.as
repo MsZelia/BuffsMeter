@@ -15,6 +15,8 @@ package
       
       public var Value_tf:TextField;
       
+      private const IconOffset:uint = 10;
+      
       public function BB_DMGDRWidget_Entry()
       {
          super();
@@ -27,12 +29,21 @@ package
          this.Icon_mc.gotoAndStop(param1 ? param2 + GlobalFunc.NUM_DAMAGE_TYPES : param2);
          GlobalFunc.SetText(this.Value_tf,Math.round(param3).toString(),false);
          var _loc4_:TextLineMetrics = this.Value_tf.getLineMetrics(0);
-         this.Icon_mc.x = this.Value_tf.x + _loc4_.x - 10;
+         this.Icon_mc.x = this.Value_tf.x + _loc4_.x - this.IconOffset;
+         this.Icon_mc.visible = true;
+      }
+      
+      public function truncate() : *
+      {
+         GlobalFunc.SetText(this.Value_tf,"…",false);
+         var _loc1_:TextLineMetrics = this.Value_tf.getLineMetrics(0);
+         this.Icon_mc.x = this.Value_tf.x + _loc1_.x - this.IconOffset;
+         this.Icon_mc.visible = false;
       }
       
       public function get leftX() : Number
       {
-         return this.Icon_mc.x - this.Icon_mc.width / 2;
+         return this.Icon_mc.visible ? this.Icon_mc.x - this.Icon_mc.width / 2 : this.Icon_mc.x + this.Icon_mc.width / 2;
       }
    }
 }

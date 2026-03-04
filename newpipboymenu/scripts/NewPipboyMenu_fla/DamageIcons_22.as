@@ -1,12 +1,12 @@
-package PipboyMenu_fla
+package NewPipboyMenu_fla
 {
    import flash.display.MovieClip;
    
-   [Embed(source="/_assets/assets.swf", symbol="symbol49")]
-   public dynamic class WeaponArmorHolder_11 extends MovieClip
+   [Embed(source="/_assets/assets.swf", symbol="symbol29")]
+   public dynamic class DamageIcons_22 extends MovieClip
    {
       
-      public function WeaponArmorHolder_11()
+      public function DamageIcons_22()
       {
          super();
          addFrameScript(0,this.frame1);
