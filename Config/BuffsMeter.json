@@ -35,7 +35,7 @@
 	
 	"disableRealTimeEdit": false, // Update 1.0.8
 	
-	"hideSFEMessage": false,
+	"prioritizeHUDToolsSyncOverSFE": false, // 1.4.1, HUDMODLOADER ONLY, DO NOT ENABLE THIS IF YOUR WIDGET IS LOADED IN OVERLAY LAYER - IT WILL STOP WORKING
 	
 	
 	// PIPBOY SETTINGS (Update 1.1.6)
@@ -268,7 +268,8 @@
 	Data will show in order in which it is listed here, remove anything unnecessary: */
 	"displayData": [
 		"showVersion",
-		"showHUDMode"
+		"showHUDMode",
+		"showTime24"
 		
 		//"showRenderTime",
 		//"showLastUpdate",
