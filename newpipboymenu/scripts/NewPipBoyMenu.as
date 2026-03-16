@@ -74,6 +74,8 @@ package
       
       public var quickEffectsHotkey:int = 0;
       
+      public var prioritizeHUDToolsSyncOverSFE:Boolean = false;
+      
       public var __SFCodeObj:Object = new Object();
       
       public var modLoaderCSL:Loader;
@@ -180,6 +182,7 @@ package
                {
                   jsonData = new JSONDecoder(loader.data,true).getValue();
                   quickEffectsHotkey = Buttons.parseValue(jsonData.quickEffectsTabHotkey);
+                  prioritizeHUDToolsSyncOverSFE = Boolean(jsonData.prioritizeHUDToolsSyncOverSFE);
                   NewPipboy_Header.SHOW_ALL_TABS = Boolean(jsonData.showAllPipboyTabs);
                   if(jsonData.pipInventoryTabNames != null && jsonData.pipInventoryTabNames && jsonData.pipInventoryTabNames.length == 12)
                   {
@@ -215,7 +218,7 @@ package
          }
          this.lastPipboyChangeData = {};
          this.lastPipboyChangeData.data = param1.data;
-         if(this.__SFCodeObj == null || this.__SFCodeObj.call == null)
+         if(this.__SFCodeObj == null || this.__SFCodeObj.call == null || this.prioritizeHUDToolsSyncOverSFE)
          {
             this.syncPipBuffDataHUDTools();
          }
