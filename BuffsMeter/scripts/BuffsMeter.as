@@ -1507,8 +1507,16 @@ package
                                  return false;
                               }))
                               {
-                                 displayMessage(config.formats[FORMAT_CHECKLIST].replace(STRING_TEXT,checkName.length == 0 || config.checklistDisplay[checkName[0]] == null ? checkName : config.checklistDisplay[checkName[0]]));
-                                 applyColor(add);
+                                 checklistName = checkName.length == 0 || config.checklistDisplay[checkName[0]] == null ? checkName : config.checklistDisplay[checkName[0]];
+                                 displayMessage(config.formats[FORMAT_CHECKLIST].replace(STRING_TEXT,checklistName));
+                                 if(config.customChecklistColors[checklistName] != null)
+                                 {
+                                    LastDisplayEffect.textColor = config.customChecklistColors[checklistName];
+                                 }
+                                 else
+                                 {
+                                    applyColor(add);
+                                 }
                               }
                            }
                         }
@@ -1526,8 +1534,16 @@ package
                                  return false;
                               }))
                               {
-                                 displayMessage(config.formats[FORMAT_CHECKLIST].replace(STRING_TEXT,checkName.length == 0 || config.checklistDisplay[checkName[0]] == null ? checkName : config.checklistDisplay[checkName[0]]));
-                                 applyColor(add);
+                                 checklistName = checkName.length == 0 || config.checklistDisplay[checkName[0]] == null ? checkName : config.checklistDisplay[checkName[0]];
+                                 displayMessage(config.formats[FORMAT_CHECKLIST].replace(STRING_TEXT,checklistName));
+                                 if(config.customChecklistColors[checklistName] != null)
+                                 {
+                                    LastDisplayEffect.textColor = config.customChecklistColors[checklistName];
+                                 }
+                                 else
+                                 {
+                                    applyColor(add);
+                                 }
                               }
                            }
                         }
