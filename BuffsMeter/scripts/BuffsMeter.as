@@ -25,7 +25,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.4.1";
+      public static const MOD_VERSION:String = "1.4.2";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -1259,7 +1259,7 @@ package
                   for each(effect in this.BuffData.activeEffects[i].EffectEntriesA)
                   {
                      this.BuffData.activeEffects[i].SubEffects.push({
-                        "text":(effect.MagnitudeText.length == 0 || effect.Label.indexOf(effect.MagnitudeText) != -1 ? effect.Label : effect.MagnitudeText + " " + effect.Label),
+                        "text":(effect.MagnitudeText.length == 0 || effect.Label.search(/\d/) != -1 ? effect.Label : effect.MagnitudeText + " " + effect.Label),
                         "durationRemaining":this.BuffData.activeEffects[i].textDuration
                      });
                   }
