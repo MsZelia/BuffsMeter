@@ -82,12 +82,9 @@ package
       
       private var hudTools:SharedHUDTools;
       
-      public var BGSCodeObj:Object;
-      
       public function NewPipBoyMenu()
       {
          super();
-         this.BGSCodeObj = new Object();
          stage.stageFocusRect = false;
          this.m_IsLoadingPage = false;
          this.m_HoldProcessor = new BSButtonHintHoldProcessor(this);
@@ -660,7 +657,7 @@ package
       
       public function onButtonPressEvent(param1:String, param2:String, param3:Boolean = false) : Boolean
       {
-         var _loc4_:Boolean = Boolean(this.m_CurrentPage) && this.m_CurrentPage.ProcessUserEvent(param1,false);
+         var _loc4_:Boolean = Boolean(this.m_CurrentPage) && this.m_CurrentPage.ProcessUserEvent(param1);
          if(!_loc4_)
          {
             if(param3 && param2 != "")

@@ -32,43 +32,50 @@ package Shared.AS3
       
       public function processButtonHold(param1:Object) : BSButtonHintData
       {
+         var button:BSButtonHintData;
+         var func:Function = null;
+         var aData:Object = param1;
          if(!(this.m_Owner is IHoldHandler))
          {
             trace("ERROR: BSButtonHintHoldProcessor requires",this.m_Owner.name,"to implement IHoldHandler to process the completion of a hold.");
             return null;
          }
-         var _loc2_:BSButtonHintData = param1.buttonsOrBar is Vector.<BSButtonHintData> ? this.findButtonHintDataForUserEvent(param1.buttonsOrBar,param1.eventName,false) : (param1.buttonsOrBar as BSButtonHintBar).FindButtonHintDataForUserEvent(param1.eventName,false);
-         if(_loc2_ != null && _loc2_.canHold)
+         button = aData.buttonsOrBar is Vector.<BSButtonHintData> ? this.findButtonHintDataForUserEvent(aData.buttonsOrBar,aData.eventName,false) : (aData.buttonsOrBar as BSButtonHintBar).FindButtonHintDataForUserEvent(aData.eventName,false);
+         if(button != null && button.canHold)
          {
-            if(Boolean(param1.pressed) && this.m_CurrentHoldButton == null)
+            if(Boolean(aData.pressed) && this.m_CurrentHoldButton == null)
             {
-               this.m_CurrentHoldButton = _loc2_;
+               this.m_CurrentHoldButton = button;
                if(this.m_ButtonHoldStartTimeout == -1)
                {
-                  this.m_ButtonHoldStartTimeout = setTimeout(this.startButtonHold,GlobalFunc.HOLD_METER_DELAY);
-                  param1.handled = true;
+                  func = button.ButtonEnabled ? this.startButtonHold : function():*
+                  {
+                     m_ButtonHolding = true;
+                  };
+                  this.m_ButtonHoldStartTimeout = setTimeout(func,GlobalFunc.HOLD_METER_DELAY);
+                  aData.handled = true;
                }
             }
-            else if(!param1.pressed && this.m_CurrentHoldButton == _loc2_)
+            else if(!aData.pressed && this.m_CurrentHoldButton == button)
             {
                this.stopButtonHold();
                this.m_CurrentHoldButton = null;
                if(this.m_ButtonHolding)
                {
                   this.m_ButtonHolding = false;
-                  param1.handled = true;
+                  aData.handled = true;
                }
                else
                {
-                  _loc2_ = param1.buttonsOrBar is Vector.<BSButtonHintData> ? this.findButtonHintDataForUserEvent(param1.buttonsOrBar,param1.eventName,true) : (param1.buttonsOrBar as BSButtonHintBar).FindButtonHintDataForUserEvent(param1.eventName,true);
+                  button = aData.buttonsOrBar is Vector.<BSButtonHintData> ? this.findButtonHintDataForUserEvent(aData.buttonsOrBar,aData.eventName,true) : (aData.buttonsOrBar as BSButtonHintBar).FindButtonHintDataForUserEvent(aData.eventName,true);
                }
             }
             else
             {
-               param1.handled = true;
+               aData.handled = true;
             }
          }
-         return _loc2_;
+         return button;
       }
       
       private function startButtonHold() : void

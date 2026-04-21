@@ -40,7 +40,7 @@ package
       {
       }
       
-      public function ProcessUserEvent(param1:String, param2:Boolean) : Boolean
+      public function ProcessUserEvent(param1:String) : Boolean
       {
          return false;
       }

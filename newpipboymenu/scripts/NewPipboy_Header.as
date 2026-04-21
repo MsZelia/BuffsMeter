@@ -178,7 +178,6 @@ package
          this.m_CurrTabIndex = param3;
          this.m_TabNames = param1;
          var useCustomTabNames:Boolean = this.m_CurrPageIndex == 2 && INV_TAB_NAMES.length == 12;
-         var TODO:* = "Check if live version has empty name as each LIST TAB NAMES in NewPipBoyShared: +1 -1 below";
          var tabNamesLen:int = int(Boolean(this.m_TabNames) ? this.m_TabNames.length - 1 : 0);
          var xPos:int = -75;
          var xDelta:int = 860 / Math.max(tabNamesLen,1);
