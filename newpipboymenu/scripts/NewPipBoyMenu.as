@@ -576,41 +576,47 @@ package
       
       private function UpdateButtonBar(param1:Object) : void
       {
-         var i:uint = 0;
-         var entry:Object = null;
-         var dispatchEvent:String = null;
-         var buttonHint:BSButtonHintData = null;
-         var aData:Object = param1;
-         if(aData)
+         var _loc2_:uint = 0;
+         var _loc3_:Object = null;
+         var _loc4_:String = null;
+         var _loc5_:BSButtonHintData = null;
+         if(param1)
          {
             this.m_Buttons = new Vector.<BSButtonHintData>();
-            i = 0;
-            while(i < aData.EntryList.length)
+            _loc2_ = 0;
+            while(_loc2_ < param1.EntryList.length)
             {
-               if(aData.EntryList[i].IsEnabled)
+               if(param1.EntryList[_loc2_].IsEnabled)
                {
-                  entry = aData.EntryList[i];
-                  dispatchEvent = entry.ScriptFunc != "" ? entry.ScriptFunc : entry.Event;
-                  buttonHint = new BSButtonHintData(entry.Name,entry.Mappings.PCButton,entry.Mappings.PSNButton,entry.Mappings.XboxButton,1,function():*
-                  {
-                     onButtonClicked(dispatchEvent);
-                  },dispatchEvent,entry.Event);
-                  buttonHint.canHold = entry.IsHold;
-                  buttonHint.ButtonVisible = entry.IsVisible;
-                  buttonHint.ButtonEnabled = entry.IsButtonEnabled;
-                  buttonHint.ButtonFlashing = entry.IsFlashing;
-                  this.m_Buttons.push(buttonHint);
+                  _loc3_ = param1.EntryList[_loc2_];
+                  _loc4_ = _loc3_.ScriptFunc != "" ? _loc3_.ScriptFunc : _loc3_.Event;
+                  _loc5_ = new BSButtonHintData(_loc3_.Name,_loc3_.Mappings.PCButton,_loc3_.Mappings.PSNButton,_loc3_.Mappings.XboxButton,1,this.onButtonClickedClosure(_loc3_.Event,_loc4_),_loc4_,_loc3_.Event);
+                  _loc5_.canHold = _loc3_.IsHold;
+                  _loc5_.ButtonVisible = _loc3_.IsVisible;
+                  _loc5_.ButtonEnabled = _loc3_.IsButtonEnabled;
+                  _loc5_.ButtonFlashing = _loc3_.IsFlashing;
+                  this.m_Buttons.push(_loc5_);
                }
-               i++;
+               _loc2_++;
             }
             this.ButtonHintBar_mc.SetButtonHintData(this.m_Buttons);
             this.m_HoldProcessor.reset();
          }
       }
       
-      private function onButtonClicked(param1:String) : void
+      private function onButtonClickedClosure(param1:String, param2:String) : Function
       {
-         this.onButtonPressEvent(param1,"",true);
+         var a:String = param1;
+         var b:String = param2;
+         return function():void
+         {
+            onButtonClicked(a,b);
+         };
+      }
+      
+      private function onButtonClicked(param1:String, param2:String) : void
+      {
+         this.onButtonPressEvent(param1,param2,true);
       }
       
       private function UpdateBottomBar() : void
@@ -655,10 +661,10 @@ package
          return _loc3_;
       }
       
-      public function onButtonPressEvent(param1:String, param2:String, param3:Boolean = false) : Boolean
+      public function onButtonPressEvent(param1:String, param2:String, param3:Boolean = false, param4:uint = 0) : Boolean
       {
-         var _loc4_:Boolean = Boolean(this.m_CurrentPage) && this.m_CurrentPage.ProcessUserEvent(param1);
-         if(!_loc4_)
+         var _loc5_:Boolean = Boolean(this.m_CurrentPage) && this.m_CurrentPage.ProcessUserEvent(param1);
+         if(!_loc5_)
          {
             if(param3 && param2 != "")
             {
@@ -669,12 +675,12 @@ package
                case "Forward":
                case "LTrigger":
                   BSUIDataManager.dispatchEvent(new CustomEvent(NewPipBoyShared.PAGE_CYCLE,{"direction":-1}));
-                  _loc4_ = true;
+                  _loc5_ = true;
                   break;
                case "Back":
                case "RTrigger":
                   BSUIDataManager.dispatchEvent(new CustomEvent(NewPipBoyShared.PAGE_CYCLE,{"direction":1}));
-                  _loc4_ = true;
+                  _loc5_ = true;
                   break;
                case "StrafeLeft":
                case "Left":
@@ -682,7 +688,7 @@ package
                   {
                      BSUIDataManager.dispatchEvent(new CustomEvent(NewPipBoyShared.TAB_CYCLE,{"direction":-1}));
                   }
-                  _loc4_ = true;
+                  _loc5_ = true;
                   break;
                case "StrafeRight":
                case "Right":
@@ -690,28 +696,28 @@ package
                   {
                      BSUIDataManager.dispatchEvent(new CustomEvent(NewPipBoyShared.TAB_CYCLE,{"direction":1}));
                   }
-                  _loc4_ = true;
+                  _loc5_ = true;
                   break;
                case "MoveCamp":
                   if(!this.isCampPlaceProtected())
                   {
                      BSUIDataManager.dispatchEvent(new Event(NewPipBoyShared.REQUEST_PLACE_CAMP));
                   }
-                  _loc4_ = true;
+                  _loc5_ = true;
                   break;
                case "ViewPerks":
                   BSUIDataManager.dispatchEvent(new Event(NewPipBoyShared.VIEW_PERKS));
-                  _loc4_ = true;
+                  _loc5_ = true;
                   break;
                default:
                   if(Boolean(this.m_CurrentPage) && param3)
                   {
                      BSUIDataManager.dispatchEvent(new CustomEvent(this.m_CurrentPage.EventPrefix + param2,{"ID":this.m_CurrentPage.SelectedID}));
-                     _loc4_ = true;
+                     _loc5_ = true;
                   }
             }
          }
-         return _loc4_;
+         return _loc5_;
       }
       
       public function ProcessLeftThumbstickInput(param1:uint) : Boolean

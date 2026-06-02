@@ -23,7 +23,7 @@ package Shared.AS3
          this.m_Owner = param1;
       }
       
-      public function reset() : *
+      public function reset() : void
       {
          this.stopButtonHold();
          this.m_CurrentHoldButton = null;
@@ -105,7 +105,10 @@ package Shared.AS3
             this.m_CurrentHoldButton.holdPercent = GlobalFunc.Clamp(this.m_CurrentHoldButton.holdPercent + GlobalFunc.HOLD_METER_TICK_AMOUNT,0,1);
             if(this.m_CurrentHoldButton.holdPercent >= 1)
             {
-               (this.m_Owner as IHoldHandler).onButtonPressEvent(this.m_CurrentHoldButton.UserEvent,this.m_CurrentHoldButton.DispatchEvent,true);
+               if(this.m_Owner)
+               {
+                  (this.m_Owner as IHoldHandler).onButtonPressEvent(this.m_CurrentHoldButton.UserEvent,this.m_CurrentHoldButton.DispatchEvent,true,this.m_CurrentHoldButton.DispatchDataID);
+               }
                this.stopButtonHold();
             }
          }
