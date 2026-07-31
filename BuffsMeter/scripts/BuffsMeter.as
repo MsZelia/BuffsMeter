@@ -25,7 +25,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.4.5";
+      public static const MOD_VERSION:String = "1.4.6";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -268,7 +268,10 @@ package
          var syncLen:int;
          try
          {
-            ShowHUDMessage("Received message from " + sender + ": len " + msg.length);
+            if(false)
+            {
+               ShowHUDMessage("Received message from " + sender + ": len " + msg.length);
+            }
             if(sender == "BuffsMeter_Pipboy")
             {
                syncLen = BUFF_MSG_SYNC.length;

@@ -52,7 +52,7 @@ package
             }
             _loc2_++;
          }
-         this.m_MaxDisplayText = this.m_MaxDisplayCaps + " ($MAX)";
+         this.m_MaxDisplayText = GlobalFunc.LocalizeFormattedString("$MAX_WITH_CAPS",this.m_MaxDisplayCaps);
       }
       
       public function SetInfo(param1:uint, param2:uint, param3:Object) : void

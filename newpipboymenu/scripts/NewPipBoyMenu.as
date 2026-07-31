@@ -188,7 +188,7 @@ package
                }
                catch(e:Error)
                {
-                  GlobalFunc.ShowHUDMessage("error parsing config");
+                  GlobalFunc.ShowHUDMessage("[BuffsMeter] Error parsing config");
                }
             };
             url = new URLRequest(CONFIG_FILE);
@@ -198,13 +198,13 @@ package
          }
          catch(e:Error)
          {
-            GlobalFunc.ShowHUDMessage("Error loading config: " + e);
+            GlobalFunc.ShowHUDMessage("[BuffsMeter] Error loading config: " + e);
          }
       }
       
       public function uncaughtErrorHandler(param1:UncaughtErrorEvent) : *
       {
-         GlobalFunc.ShowHUDMessage(param1.toString());
+         GlobalFunc.ShowHUDMessage("[BuffsMeter] " + param1.toString());
       }
       
       private function onEffectsChangeEvent(param1:*) : void
@@ -284,7 +284,7 @@ package
          }
          catch(e:*)
          {
-            GlobalFunc.ShowHUDMessage("Error syncPipBuffData " + errorCode + ", " + e);
+            GlobalFunc.ShowHUDMessage("[BuffsMeter] Error syncPipBuffData " + errorCode + ", " + e);
          }
       }
       
