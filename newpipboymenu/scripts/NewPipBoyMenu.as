@@ -177,7 +177,7 @@ package
                var jsonData:Object;
                try
                {
-                  jsonData = new JSONDecoder(loader.data,true).getValue();
+                  jsonData = new JSONDecoder(loader.data,false).getValue();
                   quickEffectsHotkey = Buttons.parseValue(jsonData.quickEffectsTabHotkey);
                   prioritizeHUDToolsSyncOverSFE = Boolean(jsonData.prioritizeHUDToolsSyncOverSFE);
                   NewPipboy_Header.SHOW_ALL_TABS = Boolean(jsonData.showAllPipboyTabs);
