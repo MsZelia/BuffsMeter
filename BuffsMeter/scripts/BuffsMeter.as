@@ -25,7 +25,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.4.6";
+      public static const MOD_VERSION:String = "1.4.7";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -289,6 +289,7 @@ package
       
       public function addedToStageHandler(param1:Event) : *
       {
+         this.updateVisibility();
          removeEventListener(Event.ADDED_TO_STAGE,this.addedToStageHandler);
          addEventListener(Event.REMOVED_FROM_STAGE,this.removedFromStageHandler,false,0,true);
          this.topLevel = stage.getChildAt(0);
@@ -310,6 +311,7 @@ package
                this.hudTools = new SharedHUDTools(MOD_NAME);
                this.hudTools.RegisterMenu(this.onBuildMenu,this.onSelectMenu);
                this.hudTools.Register(this.onReceiveMessage);
+               BSUIDataManager.Subscribe("HUDModeData",this.updateVisibility);
                this.initConfigTimer();
                this.loadConfig();
             }
@@ -322,6 +324,7 @@ package
                   this.isInMainMenu = true;
                   BSUIDataManager.Subscribe("MenuStackData",this.updateIsMainMenu);
                   BSUIDataManager.Subscribe("HUDModeData",this.onHUDModeUpdate);
+                  BSUIDataManager.Subscribe("HUDModeData",this.updateVisibility);
                   stage.addEventListener(KeyboardEvent.KEY_DOWN,this.keyDownHandler,false,0,true);
                   stage.addEventListener(KeyboardEvent.KEY_UP,this.keyUpHandler,false,0,true);
                   this.initConfigTimer();
@@ -341,6 +344,7 @@ package
       {
          BSUIDataManager.Unsubscribe("MenuStackData",this.updateIsMainMenu);
          BSUIDataManager.Unsubscribe("HUDModeData",this.onHUDModeUpdate);
+         BSUIDataManager.Unsubscribe("HUDModeData",this.updateVisibility);
          removeEventListener(Event.REMOVED_FROM_STAGE,this.removedFromStageHandler);
          if(stage)
          {
@@ -403,10 +407,12 @@ package
             else if(selectItem == HUDTOOLS_MENU_TOGGLE_VISIBILITY)
             {
                this.toggleVisibility = !this.toggleVisibility;
+               this.updateVisibility();
             }
             else if(selectItem == HUDTOOLS_MENU_HIDE)
             {
                this.forceHide = !this.forceHide;
+               this.updateVisibility();
             }
             else if(selectItem == HUDTOOLS_MENU_RELOAD_CONFIG)
             {
@@ -471,6 +477,7 @@ package
          if(event.keyCode == config.toggleVisibilityHotkey)
          {
             this.toggleVisibility = !this.toggleVisibility;
+            this.updateVisibility();
          }
          if(event.keyCode == config.toggleChecklistHotkey)
          {
@@ -479,6 +486,7 @@ package
          if(event.keyCode == config.forceHideHotkey)
          {
             this.forceHide = !this.forceHide;
+            this.updateVisibility();
          }
       }
       
@@ -533,6 +541,17 @@ package
             onHUDModeUpdate(HUDModeData);
          },false,0,true);
          this.loadingCheckTimer.start();
+      }
+      
+      private function updateVisibility() : void
+      {
+         try
+         {
+            this.visible = !this.forceHide && Boolean(this.isValidHUDMode() ^ this.toggleVisibility);
+         }
+         catch(e:Error)
+         {
+         }
       }
       
       private function clearHUDMessages() : void
@@ -1353,7 +1372,6 @@ package
                this.BuffData = null;
             }
             errorCode = "visible";
-            this.visible = !this.forceHide && Boolean(this.isValidHUDMode() ^ this.toggleVisibility);
             if(!this.visible)
             {
                return;
