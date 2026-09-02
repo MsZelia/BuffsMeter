@@ -25,7 +25,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.4.7";
+      public static const MOD_VERSION:String = "1.4.8";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -1500,11 +1500,7 @@ package
                            {
                               if(!this.BuffData.activeEffects.some(function(buff:Object):Boolean
                               {
-                                 if(buff.isValid)
-                                 {
-                                    return ArrayUtil.indexOfCaseInsensitiveStringStarts(checkName,buff.text) != -1;
-                                 }
-                                 return false;
+                                 return ArrayUtil.indexOfCaseInsensitiveStringStarts(checkName,buff.text) != -1;
                               }))
                               {
                                  checklistName = checkName.length == 0 || config.checklistDisplay[checkName[0]] == null ? checkName : config.checklistDisplay[checkName[0]];
@@ -1527,11 +1523,7 @@ package
                            {
                               if(!this.BuffData.activeEffects.some(function(buff:Object):Boolean
                               {
-                                 if(buff.isValid)
-                                 {
-                                    return checkName.indexOf(buff.text.toLowerCase()) != -1;
-                                 }
-                                 return false;
+                                 return checkName.indexOf(buff.text.toLowerCase()) != -1;
                               }))
                               {
                                  checklistName = checkName.length == 0 || config.checklistDisplay[checkName[0]] == null ? checkName : config.checklistDisplay[checkName[0]];
@@ -1554,11 +1546,7 @@ package
                            {
                               if(!this.BuffData.activeEffects.some(function(buff:Object):Boolean
                               {
-                                 if(buff.isValid)
-                                 {
-                                    return ArrayUtil.indexOfCaseInsensitiveString(checkName,buff.text) != -1;
-                                 }
-                                 return false;
+                                 return ArrayUtil.indexOfCaseInsensitiveString(checkName,buff.text) != -1;
                               }))
                               {
                                  checklistName = checkName.length == 0 || config.checklistDisplay[checkName[0]] == null ? checkName : config.checklistDisplay[checkName[0]];
