@@ -36,7 +36,7 @@ package
       {
       }
       
-      public function processProvider(param1:Object) : void
+      public function processProvider(param1:Object, param2:uint) : void
       {
       }
       

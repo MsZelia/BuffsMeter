@@ -319,24 +319,6 @@ package
                UpdateBottomBar();
             }
          });
-         BSUIDataManager.Subscribe("PipBoyINVSelectionProvider",function(param1:FromClientDataEvent):*
-         {
-            var event:FromClientDataEvent = param1;
-            if(Boolean(m_CurrentPage) && m_CurrentPageIndex == NewPipBoyShared.INV_PAGE)
-            {
-               m_CurrentPage.processProvider(event.data,1);
-            }
-            else
-            {
-               BSAsync.Await(Header_mc,BSAsync.AWAIT_MILLISECONDS,function():*
-               {
-                  if(Boolean(m_CurrentPage) && m_CurrentPageIndex == NewPipBoyShared.INV_PAGE)
-                  {
-                     m_CurrentPage.processProvider(event.data,1);
-                  }
-               },200);
-            }
-         });
          BSUIDataManager.Subscribe("PageTabData",function(param1:FromClientDataEvent):*
          {
             SetActivePageTab(param1.data.PageIndex,param1.data.TabIndex);
@@ -356,8 +338,9 @@ package
       private function onMenuChange(param1:FromClientDataEvent) : *
       {
          var _loc9_:String = null;
-         var _loc10_:uint = 0;
+         var _loc10_:String = null;
          var _loc11_:uint = 0;
+         var _loc12_:uint = 0;
          var _loc2_:Array = param1.data.changes.sortOn(["type"]);
          var _loc3_:Vector.<String> = new Vector.<String>();
          var _loc4_:Object = null;
@@ -370,7 +353,10 @@ package
             switch(_loc2_[_loc8_].type)
             {
                case CHANGE_REMOVE_WATCH:
-                  _loc3_.push(NewPipBoyShared.GetProviderForPageTab(_loc2_[_loc8_].primaryValue,_loc2_[_loc8_].secondaryValue));
+                  for each(_loc10_ in NewPipBoyShared.GetProvidersForPageTab(_loc2_[_loc8_].primaryValue,_loc2_[_loc8_].secondaryValue))
+                  {
+                     _loc3_.push(_loc10_);
+                  }
                   break;
                case CHANGE_PAGE:
                   if(!_loc4_)
@@ -402,9 +388,9 @@ package
          }
          if(Boolean(_loc4_) || Boolean(_loc5_))
          {
-            _loc10_ = _loc4_ ? uint(_loc4_.primaryValue) : this.m_CurrentPageIndex;
-            _loc11_ = _loc5_ ? uint(_loc5_.primaryValue) : this.m_CurrentTabIndex;
-            this.SetActivePageTab(_loc10_,_loc11_);
+            _loc11_ = _loc4_ ? uint(_loc4_.primaryValue) : this.m_CurrentPageIndex;
+            _loc12_ = _loc5_ ? uint(_loc5_.primaryValue) : this.m_CurrentTabIndex;
+            this.SetActivePageTab(_loc11_,_loc12_);
          }
          if(!this.m_AwaitingPageTabChange)
          {
@@ -413,8 +399,7 @@ package
             {
                if(_loc6_[_loc8_].primaryValue == this.m_CurrentPageIndex && _loc6_[_loc8_].secondaryValue == this.m_CurrentTabIndex)
                {
-                  this.HandleDataUpdate();
-                  break;
+                  this.HandleDataUpdate(_loc6_[_loc8_].ternaryValue);
                }
                _loc8_++;
             }
@@ -482,19 +467,39 @@ package
          }
       }
       
-      private function HandleDataUpdate() : void
+      private function HandleDataUpdate(param1:uint = 4294967295) : void
       {
+         var aProviderIndex:uint = param1;
          BSAsync.Await(this,BSAsync.AWAIT_MILLISECONDS,function():*
          {
-            var _loc1_:UIDataFromClient = BSUIDataManager.GetDataFromClient(NewPipBoyShared.GetProviderForPageTab(m_CurrentPageIndex,m_CurrentTabIndex));
-            if(Boolean(_loc1_) && Boolean(m_CurrentPage))
+            var _loc1_:uint = 0;
+            var _loc2_:String = null;
+            var _loc3_:UIDataFromClient = null;
+            var _loc4_:String = null;
+            var _loc5_:UIDataFromClient = null;
+            if(m_CurrentPage)
             {
                if(m_AwaitingPageTabChange)
                {
                   UpdatePageVisibility();
                   m_AwaitingPageTabChange = false;
                }
-               m_CurrentPage.processProvider(_loc1_.data);
+               if(aProviderIndex == uint.MAX_VALUE)
+               {
+                  _loc1_ = 0;
+                  for each(_loc2_ in NewPipBoyShared.GetProvidersForPageTab(m_CurrentPageIndex,m_CurrentTabIndex))
+                  {
+                     _loc3_ = BSUIDataManager.GetDataFromClient(_loc2_);
+                     m_CurrentPage.processProvider(_loc3_.data,_loc1_);
+                     _loc1_++;
+                  }
+               }
+               else
+               {
+                  _loc4_ = NewPipBoyShared.GetProvidersForPageTab(m_CurrentPageIndex,m_CurrentTabIndex)[aProviderIndex];
+                  _loc5_ = BSUIDataManager.GetDataFromClient(_loc4_);
+                  m_CurrentPage.processProvider(_loc5_.data,aProviderIndex);
+               }
             }
          },80);
       }
@@ -544,7 +549,7 @@ package
             this.m_CurrentPage.SharedData = this.m_CurrentBottomBarData;
             this.m_CurrentPage.OnEntry();
             this.m_CurrentPage.refreshCurrentTab();
-            this.HandleDataUpdate();
+            this.HandleDataUpdate(uint.MAX_VALUE);
             this.UpdateBottomBar();
          }
          else
@@ -707,6 +712,14 @@ package
                   break;
                case "ViewPerks":
                   BSUIDataManager.dispatchEvent(new Event(NewPipBoyShared.VIEW_PERKS));
+                  _loc5_ = true;
+                  break;
+               case "ToggleView":
+                  BSUIDataManager.dispatchEvent(new Event(NewPipBoyShared.TOGGLE_VIEW));
+                  _loc5_ = true;
+                  break;
+               case "CloseMenu":
+                  BSUIDataManager.dispatchEvent(new Event(NewPipBoyShared.CLOSE));
                   _loc5_ = true;
                   break;
                default:
