@@ -55,6 +55,7 @@ package
          config.toggleVisibilityHotkey = Buttons.parseValue(config.toggleVisibilityHotkey);
          config.forceHideHotkey = Buttons.parseValue(config.forceHideHotkey);
          config.toggleChecklistHotkey = Buttons.parseValue(config.toggleChecklistHotkey);
+         config.checklistHiddenByDefault = Parser.parseBoolean(config.checklistHiddenByDefault,false);
          if(!config.formats)
          {
             config.formats = {};

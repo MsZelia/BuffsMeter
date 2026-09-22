@@ -25,7 +25,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.4.9";
+      public static const MOD_VERSION:String = "1.4.10";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -681,6 +681,7 @@ package
                      initTextField();
                      initTimers();
                      _lastConfigUpdateTime = getTimer();
+                     checklistVisibility = !config.checklistHiddenByDefault;
                      if(BuffData && BuffData.activeEffects)
                      {
                         processEvents();
