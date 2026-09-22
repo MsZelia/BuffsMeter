@@ -156,6 +156,7 @@
 		"the woopsies"
 	],
 	
+	"checklistHiddenByDefault": false, // 1.4.10
 	"checklistCompareMode": "contains", // Options: starts, exact, contains (Update 1.2.4)
 	"checklist": [ // Update 1.0.7
 		["Int food", "Brain Bombs", "brain fungus soup", "Broiled Scorchbeast Brain"],
