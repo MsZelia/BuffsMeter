@@ -263,6 +263,14 @@ package
          return -1;
       }
       
+      public function ShowOverlayMessage(param1:String) : void
+      {
+         if(this.topLevel && this.topLevel.displayMessage)
+         {
+            this.topLevel.displayMessage("[" + FULL_MOD_NAME + "] " + param1);
+         }
+      }
+      
       public function onReceiveMessage(sender:String, msg:String) : void
       {
          var syncLen:int;
@@ -363,9 +371,9 @@ package
          {
             this.buffsTimer.removeEventListener(TimerEvent.TIMER,this.loadEffects);
          }
-         if(this.hudtools)
+         if(this.hudTools && this.hudTools.Shutdown)
          {
-            this.hudtools.Shutdown();
+            this.hudTools.Shutdown();
          }
       }
       
@@ -501,6 +509,7 @@ package
          }
          catch(e:Error)
          {
+            ShowOverlayMessage("updateIsMainMenu error: " + e);
          }
       }
       
