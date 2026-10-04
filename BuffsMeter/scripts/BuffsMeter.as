@@ -1490,7 +1490,7 @@ package
                   }
                   else if(add == "showTime12")
                   {
-                     displayMessage("Time: " + (date.hours == 0 ? 12 : date.hours % 12) + ":" + (date.minutes < 10 ? "0" + date.minutes : date.minutes) + (date.hours > 12 ? " PM" : " AM"));
+                     displayMessage("Time: " + (date.hours % 12 || 12) + ":" + (date.minutes < 10 ? "0" + date.minutes : date.minutes) + (date.hours >= 12 ? " PM" : " AM"));
                      applyColor(add);
                   }
                   else if(add == "showTime24")
