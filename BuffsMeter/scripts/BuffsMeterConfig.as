@@ -142,6 +142,14 @@ package
             {
                config.formats.showLastDataProcessTime = DEFAULT_LAST_DATA_PROCESSING_FORMAT;
             }
+            if(!config.formats.showTime12)
+            {
+               config.formats.showTime12 = DEFAULT_TIME_12_FORMAT;
+            }
+            if(!config.formats.showTime24)
+            {
+               config.formats.showTime24 = DEFAULT_TIME_24_FORMAT;
+            }
          }
          if(!config.sortOrder)
          {
