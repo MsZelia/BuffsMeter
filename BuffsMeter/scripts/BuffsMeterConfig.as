@@ -13,15 +13,15 @@ package
       
       public static const DEFAULT_FORMAT:String = "{duration} | {text}";
       
-      public static const DEFAULT_EXPIRED_BUFF_FORMAT:String = "Expired: {text} {time}ago";
+      public static const DEFAULT_EXPIRED_BUFF_FORMAT:String = "Expired: {text} ({timeInMinutes}m)";
       
-      public static const DEFAULT_SUB_EFFECT_FORMAT:String = "   {text} {duration}";
+      public static const DEFAULT_SUB_EFFECT_FORMAT:String = "   {text}";
       
       public static const DEFAULT_CHECKLIST_FORMAT:String = "Not active: {text}";
       
       public static const DEFAULT_RAID_XP_FORMAT:String = "Raid XP: {xp}";
       
-      public static const DEFAULT_XP_BAR_FORMAT:String = "{text} {progress}% ({lastChangeValue})";
+      public static const DEFAULT_XP_BAR_FORMAT:String = "{text} [{currentLevel}] {currentValue}/{thresholdValue} {progress}% ({lastChangeValue})";
       
       public static const DEFAULT_SCORE_BAR_FORMAT:String = "SCORE [{currentRank}] {currentValue}/{thresholdValue} +{currentBoost}%";
       
