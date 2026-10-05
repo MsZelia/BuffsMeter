@@ -85,6 +85,16 @@ package
       
       private static const STRING_TIME_IN_MINUTES:String = "{timeInMinutes}";
       
+      private static const STRING_TIME_ZERO:String = "00:00";
+      
+      private static const STRING_DAYS:String = "{d}";
+      
+      private static const STRING_HOURS:String = "{h}";
+      
+      private static const STRING_MINUTES:String = "{m}";
+      
+      private static const STRING_SECONDS:String = "{s}";
+      
       private static const STRING_PROGRESS:String = "{progress}";
       
       private static const STRING_LAST_CHANGE_VALUE:String = "{lastChangeValue}";
@@ -1619,12 +1629,12 @@ package
                   }
                   else if(add == "showLastUpdate")
                   {
-                     displayMessage(config.formats.showLastUpdate.replace(STRING_TIME,GlobalFunc.FormatTimeString(this.timeSinceLastUpdate)));
+                     displayMessage(config.formats.showLastUpdate.replace(STRING_TIME,FormatTimeStringCustom(this.timeSinceLastUpdate)));
                      applyColor(add);
                   }
                   else if(add == "showLastConfigUpdate")
                   {
-                     displayMessage(config.formats.showLastConfigUpdate.replace(STRING_TIME,GlobalFunc.FormatTimeString(this.timeSinceLastConfigUpdate)));
+                     displayMessage(config.formats.showLastConfigUpdate.replace(STRING_TIME,FormatTimeStringCustom(this.timeSinceLastConfigUpdate)));
                      applyColor(add);
                   }
                   else if(add == "showLastDataProcessTime")
@@ -1634,7 +1644,7 @@ package
                   }
                   else if(add == "showElapsedTime")
                   {
-                     displayMessage(config.formats.showElapsedTime.replace(STRING_TIME,GlobalFunc.FormatTimeString(this.elapsedTime)));
+                     displayMessage(config.formats.showElapsedTime.replace(STRING_TIME,FormatTimeStringCustom(this.elapsedTime)));
                      applyColor(add);
                   }
                   else if(add == "showLastExpiredBuff")
@@ -1802,25 +1812,34 @@ package
          }
       }
       
-      public function formatTimeString(time:Number) : String
+      public function FormatTimeStringCustom(param1:Number) : String
       {
+         if(isNaN(param1))
+         {
+            return STRING_TIME_ZERO;
+         }
          var remainingTime:Number = 0;
-         var nDays:Number = Math.floor(time / 86400);
-         remainingTime = time % 86400;
+         var nDays:Number = Math.floor(param1 / 86400);
+         remainingTime = param1 % 86400;
          var nHours:Number = Math.floor(remainingTime / 3600);
-         remainingTime = time % 3600;
+         remainingTime = param1 % 3600;
          var nMinutes:Number = Math.floor(remainingTime / 60);
-         remainingTime = time % 60;
+         remainingTime = param1 % 60;
          var nSeconds:Number = Math.floor(remainingTime);
-         var isValueSet:Boolean = false;
          var timeString:* = "";
          if(nDays > 0)
          {
-            timeString = GlobalFunc.PadNumber(nDays,2) + ":";
+            timeString = config.formats.timeLong.replace(STRING_DAYS,nDays).replace(STRING_HOURS,GlobalFunc.PadNumber(nHours,2));
          }
-         timeString += GlobalFunc.PadNumber(nHours,2) + ":";
-         timeString += GlobalFunc.PadNumber(nMinutes,2) + ":";
-         return timeString + GlobalFunc.PadNumber(nSeconds,2);
+         else if(nHours > 0)
+         {
+            timeString = config.formats.timeMid.replace(STRING_DAYS,"").replace(STRING_HOURS,GlobalFunc.PadNumber(nHours,2));
+         }
+         else
+         {
+            timeString = config.formats.timeShort.replace(STRING_DAYS,"").replace(STRING_HOURS,"");
+         }
+         return timeString.replace(STRING_MINUTES,GlobalFunc.PadNumber(nMinutes,2)).replace(STRING_SECONDS,GlobalFunc.PadNumber(nSeconds,2));
       }
       
       public function formatXPBarText() : String
@@ -1839,35 +1858,23 @@ package
          {
             return "ERROR: null formatEffect0";
          }
+         var text:String = config.format.replace(STRING_DURATION_FULL,"").replace(STRING_DURATION_IN_MINUTES,"").replace(STRING_DURATION_IN_SECONDS,"");
          if(effect.isPermanentEffect)
          {
-            return StringUtil.trim(config.format.replace(STRING_TEXT,effect.text).replace(STRING_TYPE,effect.type).replace(STRING_DURATION,"").replace(STRING_DURATION_FULL,"").replace(STRING_DURATION_IN_SECONDS,"").replace(STRING_DURATION_IN_MINUTES,""));
+            return StringUtil.trim(text.replace(STRING_TEXT,effect.text).replace(STRING_TYPE,effect.type).replace(STRING_DURATION,""));
          }
          var duration:Number = Math.max(effect.durationRemaining,0);
-         return config.format.replace(STRING_TEXT,effect.text).replace(STRING_TYPE,effect.type).replace(STRING_DURATION,GlobalFunc.FormatTimeString(duration)).replace(STRING_DURATION_FULL,formatTimeString(duration)).replace(STRING_DURATION_IN_SECONDS,Math.floor(duration) + "s").replace(STRING_DURATION_IN_MINUTES,(duration < 60 ? "<" : "") + Math.ceil(duration / 60) + "m");
-      }
-      
-      public function formatEffectWithText(effect:Object, text:String) : String
-      {
-         if(!effect)
-         {
-            return "ERROR: null formatEffect1";
-         }
-         if(effect.isPermanentEffect)
-         {
-            return StringUtil.trim(config.format.replace(STRING_TEXT,text).replace(STRING_TYPE,effect.type).replace(STRING_DURATION,"").replace(STRING_DURATION_FULL,"").replace(STRING_DURATION_IN_SECONDS,"").replace(STRING_DURATION_IN_MINUTES,""));
-         }
-         var duration:Number = Math.max(effect.durationRemaining,0);
-         return config.format.replace(STRING_TEXT,text).replace(STRING_TYPE,effect.type).replace(STRING_DURATION,GlobalFunc.FormatTimeString(duration)).replace(STRING_DURATION_FULL,formatTimeString(duration)).replace(STRING_DURATION_IN_SECONDS,Math.floor(duration) + "s").replace(STRING_DURATION_IN_MINUTES,(duration < 60 ? "<" : "") + Math.ceil(duration / 60) + "m");
+         return text.replace(STRING_TEXT,effect.text).replace(STRING_TYPE,effect.type).replace(STRING_DURATION,FormatTimeStringCustom(duration));
       }
       
       public function formatSubEffect(text:String, duration:Number) : String
       {
+         text = config.formats[FORMAT_SUBEFFECT].replace(STRING_DURATION_FULL,"").replace(STRING_DURATION_IN_MINUTES,"").replace(STRING_DURATION_IN_SECONDS,"");
          if(duration < 0)
          {
-            return config.formats[FORMAT_SUBEFFECT].replace(STRING_TEXT,text).replace(STRING_DURATION,"").replace(STRING_DURATION_FULL,"").replace(STRING_DURATION_IN_SECONDS,"").replace(STRING_DURATION_IN_MINUTES,"");
+            return text.replace(STRING_TEXT,text).replace(STRING_DURATION,"");
          }
-         return config.formats[FORMAT_SUBEFFECT].replace(STRING_TEXT,text).replace(STRING_DURATION,GlobalFunc.FormatTimeString(duration)).replace(STRING_DURATION_FULL,formatTimeString(duration)).replace(STRING_DURATION_IN_SECONDS,Math.floor(duration) + "s").replace(STRING_DURATION_IN_MINUTES,(duration < 60 ? "<" : "") + Math.ceil(duration / 60) + "m");
+         return text.replace(STRING_TEXT,text).replace(STRING_DURATION,FormatTimeStringCustom(duration));
       }
       
       public function formatExpiredBuff(buff:Object, index:int) : String
@@ -1877,7 +1884,7 @@ package
             return "ERROR: null formatExpiredBuff " + index;
          }
          var time:Number = (getTimer() - buff.time) / 1000;
-         return config.formats[FORMAT_EXPIRED_BUFF].replace(STRING_TEXT,buff.text).replace(STRING_TIME,GlobalFunc.FormatTimeString(time)).replace(STRING_TIME_IN_SECONDS,Math.floor(time)).replace(STRING_TIME_IN_MINUTES,Math.floor(time / 60));
+         return config.formats[FORMAT_EXPIRED_BUFF].replace(STRING_TEXT,buff.text).replace(STRING_TIME,FormatTimeStringCustom(time)).replace(STRING_TIME_IN_SECONDS,Math.floor(time)).replace(STRING_TIME_IN_MINUTES,Math.floor(time / 60));
       }
       
       public function getRandomColor() : String

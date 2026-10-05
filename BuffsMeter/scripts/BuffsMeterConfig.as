@@ -37,6 +37,12 @@ package
       
       public static const DEFAULT_TIME_24_FORMAT:String = "Time: {time}";
       
+      public static const DEFAULT_TIME_FORMAT_LONG:String = "{d}:{h}:{m}:{s}";
+      
+      public static const DEFAULT_TIME_FORMAT_MID:String = "{h}:{m}:{s}";
+      
+      public static const DEFAULT_TIME_FORMAT_SHORT:String = "{m}:{s}";
+      
       public static const DEFAULT_XP_BAR_FORMAT:String = "{text} [{currentLevel}] {currentValue}/{thresholdValue} {progress}% ({lastChangeValue})";
       
       public static const DEFAULT_SCORE_BAR_FORMAT:String = "SCORE [{currentRank}] {currentValue}/{thresholdValue} +{currentBoost}%";
@@ -99,6 +105,9 @@ package
             config.formats.showLastDataProcessTime = DEFAULT_LAST_DATA_PROCESSING_FORMAT;
             config.formats.showTime12 = DEFAULT_TIME_12_FORMAT;
             config.formats.showTime24 = DEFAULT_TIME_24_FORMAT;
+            config.formats.timeLong = DEFAULT_TIME_FORMAT_LONG;
+            config.formats.timeMid = DEFAULT_TIME_FORMAT_MID;
+            config.formats.timeShort = DEFAULT_TIME_FORMAT_SHORT;
          }
          else
          {
@@ -149,6 +158,18 @@ package
             if(!config.formats.showTime24)
             {
                config.formats.showTime24 = DEFAULT_TIME_24_FORMAT;
+            }
+            if(!config.formats.timeLong)
+            {
+               config.formats.timeLong = DEFAULT_TIME_FORMAT_LONG;
+            }
+            if(!config.formats.timeMid)
+            {
+               config.formats.timeMid = DEFAULT_TIME_FORMAT_MID;
+            }
+            if(!config.formats.timeShort)
+            {
+               config.formats.timeShort = DEFAULT_TIME_FORMAT_SHORT;
             }
          }
          if(!config.sortOrder)
