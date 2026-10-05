@@ -1869,12 +1869,12 @@ package
       
       public function formatSubEffect(text:String, duration:Number) : String
       {
-         text = config.formats[FORMAT_SUBEFFECT].replace(STRING_DURATION_FULL,"").replace(STRING_DURATION_IN_MINUTES,"").replace(STRING_DURATION_IN_SECONDS,"");
+         var _text:String = config.formats[FORMAT_SUBEFFECT].replace(STRING_DURATION_FULL,"").replace(STRING_DURATION_IN_MINUTES,"").replace(STRING_DURATION_IN_SECONDS,"");
          if(duration < 0)
          {
-            return text.replace(STRING_TEXT,text).replace(STRING_DURATION,"");
+            return _text.replace(STRING_TEXT,text).replace(STRING_DURATION,"");
          }
-         return text.replace(STRING_TEXT,text).replace(STRING_DURATION,FormatTimeStringCustom(duration));
+         return _text.replace(STRING_TEXT,text).replace(STRING_DURATION,FormatTimeStringCustom(duration));
       }
       
       public function formatExpiredBuff(buff:Object, index:int) : String
