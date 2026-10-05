@@ -21,6 +21,22 @@ package
       
       public static const DEFAULT_RAID_XP_FORMAT:String = "Raid XP: {xp}";
       
+      public static const DEFAULT_HUD_MODE_FORMAT:String = "HUDMode: {HUDMode}";
+      
+      public static const DEFAULT_RENDER_TIME_FORMAT:String = "RenderTime: {time}ms";
+      
+      public static const DEFAULT_ELAPSED_TIME_FORMAT:String = "ElapsedTime: {time}";
+      
+      public static const DEFAULT_LAST_UPDATE_FORMAT:String = "LastUpdate: {time} ago";
+      
+      public static const DEFAULT_LAST_CONFIG_UPDATE_FORMAT:String = "ConfigUpdated: {time} ago";
+      
+      public static const DEFAULT_LAST_DATA_PROCESSING_FORMAT:String = "DataProcessing: {time}ms";
+      
+      public static const DEFAULT_TIME_12_FORMAT:String = "Time: {time}";
+      
+      public static const DEFAULT_TIME_24_FORMAT:String = "Time: {time}";
+      
       public static const DEFAULT_XP_BAR_FORMAT:String = "{text} [{currentLevel}] {currentValue}/{thresholdValue} {progress}% ({lastChangeValue})";
       
       public static const DEFAULT_SCORE_BAR_FORMAT:String = "SCORE [{currentRank}] {currentValue}/{thresholdValue} +{currentBoost}%";
@@ -75,6 +91,14 @@ package
             config.formats.expiredBuff = DEFAULT_EXPIRED_BUFF_FORMAT;
             config.formats.checklist = DEFAULT_CHECKLIST_FORMAT;
             config.formats.showRaidXP = DEFAULT_RAID_XP_FORMAT;
+            config.formats.showHUDMode = DEFAULT_HUD_MODE_FORMAT;
+            config.formats.showRenderTime = DEFAULT_RENDER_TIME_FORMAT;
+            config.formats.showElapsedTime = DEFAULT_ELAPSED_TIME_FORMAT;
+            config.formats.showLastUpdate = DEFAULT_LAST_UPDATE_FORMAT;
+            config.formats.showLastConfigUpdate = DEFAULT_LAST_CONFIG_UPDATE_FORMAT;
+            config.formats.showLastDataProcessTime = DEFAULT_LAST_DATA_PROCESSING_FORMAT;
+            config.formats.showTime12 = DEFAULT_TIME_12_FORMAT;
+            config.formats.showTime24 = DEFAULT_TIME_24_FORMAT;
          }
          else
          {
@@ -93,6 +117,30 @@ package
             if(!config.formats.showRaidXP)
             {
                config.formats.showRaidXP = DEFAULT_RAID_XP_FORMAT;
+            }
+            if(!config.formats.showHUDMode)
+            {
+               config.formats.showHUDMode = DEFAULT_HUD_MODE_FORMAT;
+            }
+            if(!config.formats.showRenderTime)
+            {
+               config.formats.showRenderTime = DEFAULT_RENDER_TIME_FORMAT;
+            }
+            if(!config.formats.showElapsedTime)
+            {
+               config.formats.showElapsedTime = DEFAULT_ELAPSED_TIME_FORMAT;
+            }
+            if(!config.formats.showLastUpdate)
+            {
+               config.formats.showLastUpdate = DEFAULT_LAST_UPDATE_FORMAT;
+            }
+            if(!config.formats.showLastConfigUpdate)
+            {
+               config.formats.showLastConfigUpdate = DEFAULT_LAST_CONFIG_UPDATE_FORMAT;
+            }
+            if(!config.formats.showLastDataProcessTime)
+            {
+               config.formats.showLastDataProcessTime = DEFAULT_LAST_DATA_PROCESSING_FORMAT;
             }
          }
          if(!config.sortOrder)

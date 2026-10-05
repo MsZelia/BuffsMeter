@@ -103,6 +103,8 @@ package
       
       private static const STRING_XP:String = "{xp}";
       
+      private static const STRING_HUDMODE:String = "{HUDMode}";
+      
       private static const STRING_SUBEFFECTS:String = "{subEffects}";
       
       private static const FORMAT_SUBEFFECT:String = "subEffect";
@@ -1617,22 +1619,22 @@ package
                   }
                   else if(add == "showLastUpdate")
                   {
-                     displayMessage("LastUpdate: " + GlobalFunc.FormatTimeString(this.timeSinceLastUpdate) + " ago");
+                     displayMessage(config.formats.showLastUpdate.replace(STRING_TIME,GlobalFunc.FormatTimeString(this.timeSinceLastUpdate)));
                      applyColor(add);
                   }
                   else if(add == "showLastConfigUpdate")
                   {
-                     displayMessage("ConfigUpdate: " + GlobalFunc.FormatTimeString(this.timeSinceLastConfigUpdate) + " ago");
+                     displayMessage(config.formats.showLastConfigUpdate.replace(STRING_TIME,GlobalFunc.FormatTimeString(this.timeSinceLastConfigUpdate)));
                      applyColor(add);
                   }
                   else if(add == "showLastDataProcessTime")
                   {
-                     displayMessage("DataProcessing: " + this._lastProcessEventsTime + "ms");
+                     displayMessage(config.formats.showLastDataProcessTime.replace(STRING_TIME,this._lastProcessEventsTime));
                      applyColor(add);
                   }
                   else if(add == "showElapsedTime")
                   {
-                     displayMessage("ElapsedTime: " + GlobalFunc.FormatTimeString(this.elapsedTime));
+                     displayMessage(config.formats.showElapsedTime.replace(STRING_TIME,GlobalFunc.FormatTimeString(this.elapsedTime)));
                      applyColor(add);
                   }
                   else if(add == "showLastExpiredBuff")
@@ -1646,22 +1648,22 @@ package
                   }
                   else if(add == "showHUDMode")
                   {
-                     displayMessage("HUDMode: " + (!this.isInMainMenu ? this.HUDModeData.data.hudMode : MAIN_MENU));
+                     displayMessage(config.formats.showHUDMode.replace(STRING_HUDMODE,!this.isInMainMenu ? this.HUDModeData.data.hudMode : MAIN_MENU));
                      applyColor(add);
                   }
                   else if(add == "showRenderTime")
                   {
-                     displayMessage("RenderTime: " + this.lastRenderTime + "ms");
+                     displayMessage(config.formats.showRenderTime.replace(STRING_TIME,this.lastRenderTime));
                      applyColor(add);
                   }
                   else if(add == "showTime12")
                   {
-                     displayMessage("Time: " + (date.hours % 12 || 12) + ":" + (date.minutes < 10 ? "0" + date.minutes : date.minutes) + (date.hours >= 12 ? " PM" : " AM"));
+                     displayMessage(config.formats.showTime12.replace(STRING_TIME,(date.hours % 12 || 12) + ":" + (date.minutes < 10 ? "0" + date.minutes : date.minutes) + (date.hours >= 12 ? " PM" : " AM")));
                      applyColor(add);
                   }
                   else if(add == "showTime24")
                   {
-                     displayMessage("Time: " + date.hours + ":" + (date.minutes < 10 ? "0" + date.minutes : date.minutes));
+                     displayMessage(config.formats.showTime24.replace(STRING_TIME,date.hours + ":" + (date.minutes < 10 ? "0" + date.minutes : date.minutes)));
                      applyColor(add);
                   }
                   else if(add == "showChecklist")
