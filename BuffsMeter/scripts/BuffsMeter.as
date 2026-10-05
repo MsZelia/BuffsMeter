@@ -25,7 +25,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.4.10";
+      public static const MOD_VERSION:String = "1.5.0";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -1354,23 +1354,13 @@ package
       
       public function display() : void
       {
-         var updated:Boolean;
          var i:int;
          var j:int;
-         var time:Number;
          var date:Date;
-         var effectInitTime:Number;
-         var effectDuration:Number;
          var effectDurationRemaining:Number;
-         var maxEffectDurationRemaining:Number;
-         var maxEffectDuration:Number;
-         var effectDurationBars:Array;
          var xpBar:Object;
          var scoreBar:Object;
-         var teamBonus:int;
-         var parts:Array;
          var sub:Object;
-         var t2:Number;
          var _timeSinceLastUpdate:Number;
          var isInlineSubEffects:Boolean;
          var isEffectShown:Boolean;
@@ -1378,9 +1368,12 @@ package
          var subEffectIndexStart:int;
          var subEffectLenAfter:int;
          var inlineTextFormats:Array;
+         var add:String;
+         var effectDurationBars:Array = [];
          var expiredBuffsIndex:* = 1;
          var t1:* = getTimer();
          var errorCode:String = "init";
+         var buffsShown:Boolean = false;
          try
          {
             if(this.isInMainMenu)
@@ -1411,27 +1404,200 @@ package
                   }
                }
             }
-            errorCode = "buffData";
-            if(this.BuffData == null || this.BuffData.activeEffects == null)
-            {
-               displayMessage(FULL_MOD_NAME + (this.isHudMenu ? "" : " (overlay)"));
-               if(this.isHudMenu && !this.isSFEDefined())
-               {
-                  displayMessage("SFE not found!");
-                  LastDisplayEffect.textColor = 16711680;
-               }
-               displayMessage("Effects not found, sync in pipboy!");
-               LastDisplayEffect.textColor = 16711680;
-               drawBackground();
-               return;
-            }
             errorCode = "displayData";
             if(config.displayData && config.displayData.length > 0)
             {
                date = new Date();
                for each(add in config.displayData)
                {
-                  if(add == "showHUDChildren")
+                  if(add == "showBuffs")
+                  {
+                     errorCode = "buffData";
+                     if(!buffsShown)
+                     {
+                        buffsShown = true;
+                        if(this.BuffData == null || this.BuffData.activeEffects == null)
+                        {
+                           displayMessage("Effects not found, sync in pipboy!");
+                           LastDisplayEffect.textColor = 16711680;
+                        }
+                        else
+                        {
+                           _timeSinceLastUpdate = this.timeSinceLastUpdate;
+                           errorCode = "durationRemaining";
+                           i = 0;
+                           while(i < this.BuffData.activeEffects.length)
+                           {
+                              if(this.BuffData.activeEffects[i].isValid)
+                              {
+                                 effectDurationRemaining = this.BuffData.activeEffects[i].textDuration - _timeSinceLastUpdate + this.loadingTimeComp;
+                                 this.BuffData.activeEffects[i].durationRemaining = effectDurationRemaining;
+                                 j = 0;
+                                 while(j < this.BuffData.activeEffects[i].EffectEntriesA.length)
+                                 {
+                                    if(!this.BuffData.activeEffects[i].isPermanentEffect)
+                                    {
+                                       this.BuffData.activeEffects[i].SubEffects[j].durationRemaining = effectDurationRemaining;
+                                    }
+                                    j++;
+                                 }
+                              }
+                              else
+                              {
+                                 this.BuffData.activeEffects[i].durationRemaining = -1;
+                              }
+                              i++;
+                           }
+                           errorCode = "sort";
+                           this.BuffData.activeEffects = sortEffects(this.BuffData.activeEffects);
+                           errorCode = "debugBuffs";
+                           if(config.debugBuffs)
+                           {
+                              dispatchEvent(new HUDModError(toString(this.BuffData.activeEffects)));
+                           }
+                           errorCode = "display";
+                           i = 0;
+                           while(i < this.BuffData.activeEffects.length)
+                           {
+                              if(this.BuffData.activeEffects[i].isValid)
+                              {
+                                 isEffectShown = false;
+                                 if(this.BuffData.activeEffects[i].isPermanentEffect)
+                                 {
+                                    if(!config.hidePermanentEffects)
+                                    {
+                                       isEffectShown = true;
+                                       displayMessage(formatEffect(this.BuffData.activeEffects[i]));
+                                       if(this.BuffData.activeEffects[i].isDebuff)
+                                       {
+                                          LastDisplayEffect.textColor = getCustomColor(DATA_DEBUFF);
+                                       }
+                                       else
+                                       {
+                                          applyEffectColor(this.BuffData.activeEffects[i].text);
+                                       }
+                                    }
+                                 }
+                                 else if(this.BuffData.activeEffects[i].durationRemaining < 1)
+                                 {
+                                    isEffectShown = true;
+                                    displayMessage(formatEffect(this.BuffData.activeEffects[i]));
+                                    LastDisplayEffect.textColor = getCustomColor(DATA_EXPIRED);
+                                 }
+                                 else if(config.hideEffectsAboveDuration == 0 || config.hideEffectsAboveDuration > 0 && this.BuffData.activeEffects[i].durationRemaining <= config.hideEffectsAboveDuration)
+                                 {
+                                    isEffectShown = true;
+                                    displayMessage(formatEffect(this.BuffData.activeEffects[i]));
+                                    if(this.BuffData.activeEffects[i].durationRemaining < config.warningBelowDuration)
+                                    {
+                                       LastDisplayEffect.textColor = getCustomColor(DATA_WARNING);
+                                    }
+                                    else if(this.BuffData.activeEffects[i].isDebuff)
+                                    {
+                                       LastDisplayEffect.textColor = getCustomColor(DATA_DEBUFF);
+                                    }
+                                    else
+                                    {
+                                       applyEffectColor(this.BuffData.activeEffects[i].text);
+                                    }
+                                    effectDurationBars.push({
+                                       "id":effects_index - 1,
+                                       "duration":this.BuffData.activeEffects[i].durationRemaining,
+                                       "durationMax":config.durationBar.maxDuration
+                                    });
+                                 }
+                                 if(isEffectShown)
+                                 {
+                                    subEffectIndexStart = int(LastDisplayEffect.text.indexOf(STRING_SUBEFFECTS));
+                                    subEffectLenAfter = LastDisplayEffect.text.length - subEffectIndexStart - STRING_SUBEFFECTS.length;
+                                    isInlineSubEffects = subEffectIndexStart >= 0;
+                                    inlineTextFormats = [];
+                                    if(config.showSubEffects && !isHiddenSubEffectFor(this.BuffData.activeEffects[i].type,this.BuffData.activeEffects[i].text))
+                                    {
+                                       for each(sub in this.BuffData.activeEffects[i].SubEffects)
+                                       {
+                                          if(!isHiddenSubEffect(sub.text))
+                                          {
+                                             if(!this.BuffData.activeEffects[i].isPermanentEffect)
+                                             {
+                                                if(config.showExpiredSubEffects || sub.durationRemaining >= config.hideEffectsBelowDuration)
+                                                {
+                                                   if(isInlineSubEffects)
+                                                   {
+                                                      LastDisplayEffect.text = LastDisplayEffect.text.replace(STRING_SUBEFFECTS,formatSubEffect(sub.text,Math.max(sub.durationRemaining,0)) + STRING_SUBEFFECTS);
+                                                      if(config.customSubEffectColors[sub.text] != null)
+                                                      {
+                                                         inlineTextFormats.push({
+                                                            "start":subEffectIndexStart,
+                                                            "end":LastDisplayEffect.text.length - STRING_SUBEFFECTS.length - subEffectLenAfter,
+                                                            "format":new TextFormat(null,null,config.customSubEffectColors[sub.text])
+                                                         });
+                                                      }
+                                                      subEffectIndexStart = int(LastDisplayEffect.text.indexOf(STRING_SUBEFFECTS));
+                                                   }
+                                                   else
+                                                   {
+                                                      displayMessage(formatSubEffect(sub.text,Math.max(sub.durationRemaining,0)));
+                                                      if(sub.durationRemaining < 0)
+                                                      {
+                                                         LastDisplayEffect.textColor = getCustomColor(DATA_EXPIRED);
+                                                      }
+                                                      else if(sub.durationRemaining < config.warningBelowDuration)
+                                                      {
+                                                         LastDisplayEffect.textColor = getCustomColor(DATA_WARNING);
+                                                      }
+                                                      else
+                                                      {
+                                                         applySubEffectColor(sub.text);
+                                                      }
+                                                   }
+                                                }
+                                             }
+                                             else if(isInlineSubEffects)
+                                             {
+                                                LastDisplayEffect.text = LastDisplayEffect.text.replace(STRING_SUBEFFECTS,formatSubEffect(sub.text,-1) + STRING_SUBEFFECTS);
+                                                if(config.customSubEffectColors[sub.text] != null)
+                                                {
+                                                   inlineTextFormats.push({
+                                                      "start":subEffectIndexStart,
+                                                      "end":LastDisplayEffect.text.length - STRING_SUBEFFECTS.length - subEffectLenAfter,
+                                                      "format":new TextFormat(null,null,config.customSubEffectColors[sub.text])
+                                                   });
+                                                }
+                                                subEffectIndexStart = int(LastDisplayEffect.text.indexOf(STRING_SUBEFFECTS));
+                                             }
+                                             else
+                                             {
+                                                displayMessage(formatSubEffect(sub.text,-1));
+                                                applySubEffectColor(sub.text);
+                                             }
+                                          }
+                                       }
+                                    }
+                                    if(isInlineSubEffects)
+                                    {
+                                       LastDisplayEffect.text = LastDisplayEffect.text.replace(STRING_SUBEFFECTS,"");
+                                       for(format in inlineTextFormats)
+                                       {
+                                          LastDisplayEffect.setTextFormat(inlineTextFormats[format].format,inlineTextFormats[format].start,inlineTextFormats[format].end);
+                                       }
+                                    }
+                                 }
+                              }
+                              if(!this.BuffData.activeEffects[i].isPermanentEffect && this.BuffData.activeEffects[i].durationRemaining < config.hideEffectsBelowDuration)
+                              {
+                                 this.addExpiredBuff(BuffData.activeEffects[i].text);
+                                 this.BuffData.activeEffects.splice(i,1);
+                              }
+                              else
+                              {
+                                 i++;
+                              }
+                           }
+                        }
+                     }
+                  }
+                  else if(add == "showHUDChildren")
                   {
                      showHUDChildren();
                   }
@@ -1501,7 +1667,7 @@ package
                   else if(add == "showChecklist")
                   {
                      errorCode = "Checklist";
-                     if(Boolean(checklistVisibility))
+                     if(checklistVisibility && this.BuffData && this.BuffData.activeEffects)
                      {
                         if(config.checklistCompareMode == 0)
                         {
@@ -1616,178 +1782,6 @@ package
                   {
                      addCustomText(add);
                   }
-               }
-            }
-            _timeSinceLastUpdate = this.timeSinceLastUpdate;
-            errorCode = "durationRemaining";
-            i = 0;
-            while(i < this.BuffData.activeEffects.length)
-            {
-               if(this.BuffData.activeEffects[i].isValid)
-               {
-                  effectDurationRemaining = this.BuffData.activeEffects[i].textDuration - _timeSinceLastUpdate + this.loadingTimeComp;
-                  this.BuffData.activeEffects[i].durationRemaining = effectDurationRemaining;
-                  j = 0;
-                  while(j < this.BuffData.activeEffects[i].EffectEntriesA.length)
-                  {
-                     if(!this.BuffData.activeEffects[i].isPermanentEffect)
-                     {
-                        this.BuffData.activeEffects[i].SubEffects[j].durationRemaining = effectDurationRemaining;
-                     }
-                     j++;
-                  }
-               }
-               else
-               {
-                  this.BuffData.activeEffects[i].durationRemaining = -1;
-               }
-               i++;
-            }
-            errorCode = "sort";
-            effectDurationBars = [];
-            this.BuffData.activeEffects = sortEffects(this.BuffData.activeEffects);
-            errorCode = "debugBuffs";
-            if(config.debugBuffs)
-            {
-               dispatchEvent(new HUDModError(toString(this.BuffData.activeEffects)));
-            }
-            errorCode = "display";
-            i = 0;
-            while(i < this.BuffData.activeEffects.length)
-            {
-               if(this.BuffData.activeEffects[i].isValid)
-               {
-                  isEffectShown = false;
-                  if(this.BuffData.activeEffects[i].isPermanentEffect)
-                  {
-                     if(!config.hidePermanentEffects)
-                     {
-                        isEffectShown = true;
-                        displayMessage(formatEffect(this.BuffData.activeEffects[i]));
-                        if(this.BuffData.activeEffects[i].isDebuff)
-                        {
-                           LastDisplayEffect.textColor = getCustomColor(DATA_DEBUFF);
-                        }
-                        else
-                        {
-                           applyEffectColor(this.BuffData.activeEffects[i].text);
-                        }
-                     }
-                  }
-                  else if(this.BuffData.activeEffects[i].durationRemaining < 1)
-                  {
-                     isEffectShown = true;
-                     displayMessage(formatEffect(this.BuffData.activeEffects[i]));
-                     LastDisplayEffect.textColor = getCustomColor(DATA_EXPIRED);
-                  }
-                  else if(config.hideEffectsAboveDuration == 0 || config.hideEffectsAboveDuration > 0 && this.BuffData.activeEffects[i].durationRemaining <= config.hideEffectsAboveDuration)
-                  {
-                     isEffectShown = true;
-                     displayMessage(formatEffect(this.BuffData.activeEffects[i]));
-                     if(this.BuffData.activeEffects[i].durationRemaining < config.warningBelowDuration)
-                     {
-                        LastDisplayEffect.textColor = getCustomColor(DATA_WARNING);
-                     }
-                     else if(this.BuffData.activeEffects[i].isDebuff)
-                     {
-                        LastDisplayEffect.textColor = getCustomColor(DATA_DEBUFF);
-                     }
-                     else
-                     {
-                        applyEffectColor(this.BuffData.activeEffects[i].text);
-                     }
-                     effectDurationBars.push({
-                        "id":effects_index - 1,
-                        "duration":this.BuffData.activeEffects[i].durationRemaining,
-                        "durationMax":config.durationBar.maxDuration
-                     });
-                  }
-                  if(isEffectShown)
-                  {
-                     subEffectIndexStart = int(LastDisplayEffect.text.indexOf(STRING_SUBEFFECTS));
-                     subEffectLenAfter = LastDisplayEffect.text.length - subEffectIndexStart - STRING_SUBEFFECTS.length;
-                     isInlineSubEffects = subEffectIndexStart >= 0;
-                     inlineTextFormats = [];
-                     if(config.showSubEffects && !isHiddenSubEffectFor(this.BuffData.activeEffects[i].type,this.BuffData.activeEffects[i].text))
-                     {
-                        for each(sub in this.BuffData.activeEffects[i].SubEffects)
-                        {
-                           if(!isHiddenSubEffect(sub.text))
-                           {
-                              if(!this.BuffData.activeEffects[i].isPermanentEffect)
-                              {
-                                 if(config.showExpiredSubEffects || sub.durationRemaining >= config.hideEffectsBelowDuration)
-                                 {
-                                    if(isInlineSubEffects)
-                                    {
-                                       LastDisplayEffect.text = LastDisplayEffect.text.replace(STRING_SUBEFFECTS,formatSubEffect(sub.text,Math.max(sub.durationRemaining,0)) + STRING_SUBEFFECTS);
-                                       if(config.customSubEffectColors[sub.text] != null)
-                                       {
-                                          inlineTextFormats.push({
-                                             "start":subEffectIndexStart,
-                                             "end":LastDisplayEffect.text.length - STRING_SUBEFFECTS.length - subEffectLenAfter,
-                                             "format":new TextFormat(null,null,config.customSubEffectColors[sub.text])
-                                          });
-                                       }
-                                       subEffectIndexStart = int(LastDisplayEffect.text.indexOf(STRING_SUBEFFECTS));
-                                    }
-                                    else
-                                    {
-                                       displayMessage(formatSubEffect(sub.text,Math.max(sub.durationRemaining,0)));
-                                       if(sub.durationRemaining < 0)
-                                       {
-                                          LastDisplayEffect.textColor = getCustomColor(DATA_EXPIRED);
-                                       }
-                                       else if(sub.durationRemaining < config.warningBelowDuration)
-                                       {
-                                          LastDisplayEffect.textColor = getCustomColor(DATA_WARNING);
-                                       }
-                                       else
-                                       {
-                                          applySubEffectColor(sub.text);
-                                       }
-                                    }
-                                 }
-                              }
-                              else if(isInlineSubEffects)
-                              {
-                                 LastDisplayEffect.text = LastDisplayEffect.text.replace(STRING_SUBEFFECTS,formatSubEffect(sub.text,-1) + STRING_SUBEFFECTS);
-                                 if(config.customSubEffectColors[sub.text] != null)
-                                 {
-                                    inlineTextFormats.push({
-                                       "start":subEffectIndexStart,
-                                       "end":LastDisplayEffect.text.length - STRING_SUBEFFECTS.length - subEffectLenAfter,
-                                       "format":new TextFormat(null,null,config.customSubEffectColors[sub.text])
-                                    });
-                                 }
-                                 subEffectIndexStart = int(LastDisplayEffect.text.indexOf(STRING_SUBEFFECTS));
-                              }
-                              else
-                              {
-                                 displayMessage(formatSubEffect(sub.text,-1));
-                                 applySubEffectColor(sub.text);
-                              }
-                           }
-                        }
-                     }
-                     if(isInlineSubEffects)
-                     {
-                        LastDisplayEffect.text = LastDisplayEffect.text.replace(STRING_SUBEFFECTS,"");
-                        for(format in inlineTextFormats)
-                        {
-                           LastDisplayEffect.setTextFormat(inlineTextFormats[format].format,inlineTextFormats[format].start,inlineTextFormats[format].end);
-                        }
-                     }
-                  }
-               }
-               if(!this.BuffData.activeEffects[i].isPermanentEffect && this.BuffData.activeEffects[i].durationRemaining < config.hideEffectsBelowDuration)
-               {
-                  this.addExpiredBuff(BuffData.activeEffects[i].text);
-                  this.BuffData.activeEffects.splice(i,1);
-               }
-               else
-               {
-                  i++;
                }
             }
             errorCode = "bg";

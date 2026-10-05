@@ -11,7 +11,19 @@ package
       
       public static const STATE_SHOWN:String = "shown";
       
-      public static const DEFAULT_RAID_XP_FORMAT:* = "Raid XP: {xp}";
+      public static const DEFAULT_FORMAT:String = "{duration} | {text}";
+      
+      public static const DEFAULT_EXPIRED_BUFF_FORMAT:String = "Expired: {text} {time}ago";
+      
+      public static const DEFAULT_SUB_EFFECT_FORMAT:String = "   {text} {duration}";
+      
+      public static const DEFAULT_CHECKLIST_FORMAT:String = "Not active: {text}";
+      
+      public static const DEFAULT_RAID_XP_FORMAT:String = "Raid XP: {xp}";
+      
+      public static const DEFAULT_XP_BAR_FORMAT:String = "{text} {progress}% ({lastChangeValue})";
+      
+      public static const DEFAULT_SCORE_BAR_FORMAT:String = "SCORE [{currentRank}] {currentValue}/{thresholdValue} +{currentBoost}%";
       
       public function BuffsMeterConfig()
       {
@@ -49,7 +61,7 @@ package
          config.warningBelowDuration = Parser.parseNumber(config.warningBelowDuration,30);
          config.showSubEffects = Parser.parseBoolean(config.showSubEffects,true);
          config.showExpiredSubEffects = Parser.parseBoolean(config.showExpiredSubEffects,false);
-         config.format = Boolean(config.format) ? config.format : "{duration} {text}";
+         config.format = Boolean(config.format) ? config.format : DEFAULT_FORMAT;
          config.sortBy = Boolean(config.sortBy) ? config.sortBy.toLowerCase() : "default";
          config.reverseSort = Parser.parseBoolean(config.reverseSort,false);
          config.toggleVisibilityHotkey = Buttons.parseValue(config.toggleVisibilityHotkey);
@@ -59,24 +71,24 @@ package
          if(!config.formats)
          {
             config.formats = {};
-            config.formats.subEffect = "   {text} {duration}";
-            config.formats.expiredBuff = "Expired: {text} {time}ago";
-            config.formats.checklist = "Not active: {text}";
+            config.formats.subEffect = DEFAULT_SUB_EFFECT_FORMAT;
+            config.formats.expiredBuff = DEFAULT_EXPIRED_BUFF_FORMAT;
+            config.formats.checklist = DEFAULT_CHECKLIST_FORMAT;
             config.formats.showRaidXP = DEFAULT_RAID_XP_FORMAT;
          }
          else
          {
             if(!config.formats.subEffect)
             {
-               config.formats.subEffect = "   {text} {duration}";
+               config.formats.subEffect = DEFAULT_SUB_EFFECT_FORMAT;
             }
             if(!config.formats.expiredBuff)
             {
-               config.formats.expiredBuff = "Expired: {text} {time}ago";
+               config.formats.expiredBuff = DEFAULT_EXPIRED_BUFF_FORMAT;
             }
             if(!config.formats.checklist)
             {
-               config.formats.checklist = "Not active: {text}";
+               config.formats.checklist = DEFAULT_CHECKLIST_FORMAT;
             }
             if(!config.formats.showRaidXP)
             {
@@ -115,7 +127,7 @@ package
          {
             config.xpBar = {};
             config.xpBar.enabled = true;
-            config.xpBar.text = "{text} {progress}% ({lastChangeValue})";
+            config.xpBar.text = DEFAULT_XP_BAR_FORMAT;
             config.xpBar.alignVertical = "bottom";
             config.xpBar.alignHorizontal = "left";
             config.xpBar.height = 4;
@@ -123,7 +135,7 @@ package
          else
          {
             config.xpBar.enabled = Parser.parseBoolean(config.xpBar.enabled,true);
-            config.xpBar.text = Boolean(config.xpBar.text) ? config.xpBar.text : "{text} {progress}% ({lastChangeValue})";
+            config.xpBar.text = Boolean(config.xpBar.text) ? config.xpBar.text : DEFAULT_XP_BAR_FORMAT;
             config.xpBar.alignVertical = Boolean(config.xpBar.alignVertical) ? config.xpBar.alignVertical.toLowerCase() : "bottom";
             config.xpBar.alignHorizontal = Boolean(config.xpBar.alignHorizontal) ? config.xpBar.alignHorizontal.toLowerCase() : "left";
             config.xpBar.height = Parser.parseNumber(config.xpBar.height,4);
@@ -132,7 +144,7 @@ package
          {
             config.scoreBar = {};
             config.scoreBar.enabled = true;
-            config.scoreBar.text = "SCORE [{currentRank}] {currentValue}/{thresholdValue} +{currentBoost}%";
+            config.scoreBar.text = DEFAULT_SCORE_BAR_FORMAT;
             config.scoreBar.alignVertical = "bottom";
             config.scoreBar.alignHorizontal = "left";
             config.scoreBar.height = 4;
@@ -140,7 +152,7 @@ package
          else
          {
             config.scoreBar.enabled = Parser.parseBoolean(config.scoreBar.enabled,true);
-            config.scoreBar.text = Boolean(config.scoreBar.text) ? config.scoreBar.text : "SCORE [{currentRank}] {currentValue}/{thresholdValue} +{currentBoost}%";
+            config.scoreBar.text = Boolean(config.scoreBar.text) ? config.scoreBar.text : DEFAULT_SCORE_BAR_FORMAT;
             config.scoreBar.alignVertical = Boolean(config.scoreBar.alignVertical) ? config.scoreBar.alignVertical.toLowerCase() : "bottom";
             config.scoreBar.alignHorizontal = Boolean(config.scoreBar.alignHorizontal) ? config.scoreBar.alignHorizontal.toLowerCase() : "left";
             config.scoreBar.height = Parser.parseNumber(config.scoreBar.height,4);
@@ -151,7 +163,11 @@ package
          }
          if(!config.displayData)
          {
-            config.displayData = [];
+            config.displayData = ["showBuffs"];
+         }
+         else if(config.displayData.indexOf("showBuffs") == -1)
+         {
+            config.displayData.push("showBuffs");
          }
          if(!config.customGroups)
          {
