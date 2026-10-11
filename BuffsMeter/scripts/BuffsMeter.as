@@ -25,7 +25,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.5.0";
+      public static const MOD_VERSION:String = "1.5.1";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -1861,7 +1861,7 @@ package
          var text:String = config.format.replace(STRING_DURATION_FULL,"").replace(STRING_DURATION_IN_MINUTES,"").replace(STRING_DURATION_IN_SECONDS,"");
          if(effect.isPermanentEffect)
          {
-            return StringUtil.trim(text.replace(STRING_TEXT,effect.text).replace(STRING_TYPE,effect.type).replace(STRING_DURATION,""));
+            return text.replace(STRING_TEXT,effect.text).replace(STRING_TYPE,effect.type).replace(STRING_DURATION,config.formats.timeNone);
          }
          var duration:Number = Math.max(effect.durationRemaining,0);
          return text.replace(STRING_TEXT,effect.text).replace(STRING_TYPE,effect.type).replace(STRING_DURATION,FormatTimeStringCustom(duration));
@@ -1872,7 +1872,7 @@ package
          var _text:String = config.formats[FORMAT_SUBEFFECT].replace(STRING_DURATION_FULL,"").replace(STRING_DURATION_IN_MINUTES,"").replace(STRING_DURATION_IN_SECONDS,"");
          if(duration < 0)
          {
-            return _text.replace(STRING_TEXT,text).replace(STRING_DURATION,"");
+            return _text.replace(STRING_TEXT,text).replace(STRING_DURATION,config.formats.timeNone);
          }
          return _text.replace(STRING_TEXT,text).replace(STRING_DURATION,FormatTimeStringCustom(duration));
       }

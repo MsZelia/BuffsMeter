@@ -108,6 +108,7 @@ package
             config.formats.timeLong = DEFAULT_TIME_FORMAT_LONG;
             config.formats.timeMid = DEFAULT_TIME_FORMAT_MID;
             config.formats.timeShort = DEFAULT_TIME_FORMAT_SHORT;
+            config.formats.timeNone = "";
          }
          else
          {
@@ -170,6 +171,10 @@ package
             if(!config.formats.timeShort)
             {
                config.formats.timeShort = DEFAULT_TIME_FORMAT_SHORT;
+            }
+            if(!config.formats.timeNone)
+            {
+               config.formats.timeNone = "";
             }
          }
          if(!config.sortOrder)
