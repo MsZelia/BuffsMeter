@@ -227,6 +227,8 @@ package
       
       private var isKeyDownDetected:Object = {};
       
+      private var temporaryEffects:Object = {};
+      
       public function BuffsMeter()
       {
          super();
@@ -1301,6 +1303,14 @@ package
                   this.BuffData.activeEffects[i].textDuration = getTimeFromName(this.BuffData.activeEffects[i].TimeRemainingLabel);
                   errorCode = "isPermanentEffect";
                   this.BuffData.activeEffects[i].isPermanentEffect = this.BuffData.activeEffects[i].TimeRemainingLabel.length == 0;
+                  if(!this.BuffData.activeEffects[i].isPermanentEffect)
+                  {
+                     this.temporaryEffects[this.BuffData.activeEffects[i].text] = true;
+                  }
+                  else if(this.temporaryEffects[this.BuffData.activeEffects[i].text])
+                  {
+                     this.BuffData.activeEffects[i].isPermanentEffect = false;
+                  }
                   errorCode = "isValid";
                   this.BuffData.activeEffects[i].isValid = this.isValidEffect(this.BuffData.activeEffects[i].type,this.BuffData.activeEffects[i].text);
                   errorCode = "SubEffects";
