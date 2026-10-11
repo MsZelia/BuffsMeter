@@ -21,6 +21,8 @@ package
       
       public static var SHOW_ALL_TABS:Boolean = false;
       
+      public static var SHOW_TABS_FORMAT:String = "autosize";
+      
       public static var INV_TAB_NAMES:Array = [];
       
       public static var MAX_TABS:int = 13;
@@ -139,6 +141,7 @@ package
          selectedTabFormat.size = 24;
          tabFormat.underline = false;
          tabFormat.size = 24;
+         tabFormat.color = 10066329;
          var tf:TextField = new TextField();
          tf.visible = false;
          tf.setTextFormat(tabFormat);
@@ -177,26 +180,52 @@ package
          this.m_CurrPageIndex = param2;
          this.m_CurrTabIndex = param3;
          this.m_TabNames = param1;
-         var useCustomTabNames:Boolean = this.m_CurrPageIndex == 2 && INV_TAB_NAMES.length == 12;
-         var tabNamesLen:int = int(Boolean(this.m_TabNames) ? this.m_TabNames.length - 1 : 0);
-         var xPos:int = -75;
-         var xDelta:int = 860 / Math.max(tabNamesLen,1);
-         var i:int = 0;
-         while(i < this.customTabs.length)
+         if(SHOW_ALL_TABS)
          {
-            if(tabNamesLen > i)
+            var alignTabNames:Boolean = SHOW_TABS_FORMAT != "fixedsize";
+            var isInvPage:Boolean = this.m_CurrPageIndex == 2 && INV_TAB_NAMES.length == 12;
+            var tabNamesLen:int = int(Boolean(this.m_TabNames) ? this.m_TabNames.length - 1 : 0);
+            var xPos:int = -75;
+            var xDelta:int = 860 / Math.max(tabNamesLen,1);
+            var i:int = 0;
+            var totalWidth:int = 0;
+            while(i < this.customTabs.length)
             {
-               this.customTabs[i].text = useCustomTabNames ? INV_TAB_NAMES[i] : this.m_TabNames[i + 1];
-               this.customTabs[i].visible = SHOW_ALL_TABS;
-               this.customTabs[i].x = xPos;
-               this.customTabs[i].width = xDelta;
-               xPos += xDelta;
+               if(tabNamesLen > i)
+               {
+                  this.customTabs[i].y = 50;
+                  this.customTabs[i].text = isInvPage ? INV_TAB_NAMES[i] : this.m_TabNames[i + 1];
+                  this.customTabs[i].visible = true;
+                  if(!alignTabNames)
+                  {
+                     this.customTabs[i].x = xPos;
+                     this.customTabs[i].width = xDelta;
+                     xPos += xDelta;
+                  }
+                  else
+                  {
+                     this.customTabs[i].width = 300;
+                     totalWidth += this.customTabs[i].textWidth;
+                  }
+               }
+               else
+               {
+                  this.customTabs[i].visible = false;
+               }
+               i++;
             }
-            else
+            if(alignTabNames)
             {
-               this.customTabs[i].visible = false;
+               xDelta = (860 - totalWidth) / Math.max(tabNamesLen,1);
+               i = 0;
+               while(i < tabNamesLen)
+               {
+                  this.customTabs[i].x = xPos;
+                  this.customTabs[i].width = this.customTabs[i].textWidth + xDelta;
+                  xPos += this.customTabs[i].width;
+                  i++;
+               }
             }
-            i++;
          }
          this.updateDisplay();
       }
@@ -271,14 +300,14 @@ package
          var _loc2_:String = null;
          if(SHOW_ALL_TABS)
          {
-            var useCustomTabNames:Boolean = this.m_CurrPageIndex == 2 && INV_TAB_NAMES.length == 12;
+            var isInvPage:Boolean = this.m_CurrPageIndex == 2 && INV_TAB_NAMES.length == 12;
             this.TabHeader_mc.visible = false;
             var i:int = 0;
             while(i < this.customTabs.length)
             {
                if(this.m_TabNames && i < this.m_TabNames.length - 1)
                {
-                  this.customTabs[i].text = useCustomTabNames ? INV_TAB_NAMES[i] : this.m_TabNames[i + 1];
+                  this.customTabs[i].text = isInvPage ? INV_TAB_NAMES[i] : this.m_TabNames[i + 1];
                }
                if(i == this.m_CurrTabIndex - 1)
                {

@@ -181,6 +181,10 @@ package
                   quickEffectsHotkey = Buttons.parseValue(jsonData.quickEffectsTabHotkey);
                   prioritizeHUDToolsSyncOverSFE = Boolean(jsonData.prioritizeHUDToolsSyncOverSFE);
                   NewPipboy_Header.SHOW_ALL_TABS = Boolean(jsonData.showAllPipboyTabs);
+                  if(jsonData.showAllPipboyTabsFormat != null && jsonData.showAllPipboyTabsFormat is String)
+                  {
+                     NewPipboy_Header.SHOW_TABS_FORMAT = jsonData.showAllPipboyTabsFormat.toLowerCase();
+                  }
                   if(jsonData.pipInventoryTabNames != null && jsonData.pipInventoryTabNames && jsonData.pipInventoryTabNames.length == 12)
                   {
                      NewPipboy_Header.INV_TAB_NAMES = jsonData.pipInventoryTabNames;
