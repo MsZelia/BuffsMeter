@@ -146,25 +146,38 @@
 		"alignVertical": "bottom", // top, center, bottom
 		"alignHorizontal": "left", // left, center, right
 		"height": 3,
-		"maxDuration": 1200
+		"maxWidth": 300,
+		"maxDuration": 1800
 	},
 	
 	"xpBar": {
 		"enabled": true,
-		//text accepts: {text}, {progress}, {lastChangeValue}, {currentLevel}, {currentValue}, {thresholdValue}
-		"text": "{text} [{currentLevel}] {currentValue}/{thresholdValue} {progress}% ({lastChangeValue})",
-		"alignVertical": "center", // top, center, bottom
+		//text accepts: {text}, {currentLevel}, {progress}, {currentValue}, {thresholdValue}, {lastChangeValue}
+		"text": "{text} [{currentLevel}] {currentValue}/{thresholdValue} ({lastChangeValue})",
+		"alignVertical": "bottom", // top, center, bottom
 		"alignHorizontal": "left", // left, center, right
-		"height": 20
+		"height": 4,
+		"maxWidth": 300
+	},
+	
+	"petXpBar": {
+		"enabled": true,
+		//text accepts: {text}, {currentLevel}, {progress}, {currentValue}, {thresholdValue}, {lastChangeValue}
+		"text": "{text} [{currentLevel}] {currentValue}/{thresholdValue} ({lastChangeValue})",
+		"alignVertical": "bottom", // top, center, bottom
+		"alignHorizontal": "left", // left, center, right
+		"height": 4,
+		"maxWidth": 300
 	},
 	
 	"scoreBar": {
 		"enabled": true,
-		//text accepts: {progress}, {currentValue}, {thresholdValue}, {currentRank}, {currentBoost}
-		"text": "SCORE [{currentRank}] {currentValue}/{thresholdValue} +{currentBoost}%",
-		"alignVertical": "center", // top, center, bottom
+		//text accepts: {text}, {currentRank}, {progress}, {currentValue}, {thresholdValue}, {currentBoost}
+		"text": "{text} [{currentRank}] {currentValue}/{thresholdValue} (+{currentBoost}%)",
+		"alignVertical": "bottom", // top, center, bottom
 		"alignHorizontal": "left", // left, center, right
-		"height": 20
+		"height": 4,
+		"maxWidth": 300
 	},
 	
 	
@@ -240,6 +253,7 @@
 	//	"showChecklist" - show effects from "checklist" field if they are not active
 	//	"showLastDataProcessTime" - show processing time for effects saved in file
 	//	"showXPBar" - show xp bar showing progress to next level
+	//	"showPetXPBar" - show pet xp bar showing progress to next level
 	//	"showScoreBar" - show SCORE bar showing progress to next rank
 	//	"showRaidXP" - shows xp gained from last completed raid stage
 	
@@ -251,7 +265,12 @@
 		"showVersion",
 		"showHUDMode",
 		"showTime24",
+		//"showPetXPBar",
+		//"showXPBar",
+		//"showScoreBar",
+		
 		"showBuffs",
+		
 		//"showLastExpiredBuff",
 		//"showLastExpiredBuff",
 		//"showLastExpiredBuff",
@@ -291,6 +310,8 @@
 		"showChecklist": "0xf7a0b5",
 		"showXPBar": "0x99ff99",
 		"xpBar": "0x009900",
+		"showPetXPBar": "0xffffcb",
+		"petXpBar": "0xffffcb",
 		"showScoreBar": "0xffffff",
 		"scoreBar": "0x0066ff",
 		"showRaidXP": "0x99ff99"
