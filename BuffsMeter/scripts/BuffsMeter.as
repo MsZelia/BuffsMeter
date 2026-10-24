@@ -253,10 +253,6 @@ package
          this.SeasonWidgetData = BSUIDataManager.GetDataFromClient("SeasonWidgetData");
          this.UniversalRewardData = BSUIDataManager.GetDataFromClient("UniversalRewardData");
          this.PetMarkers = BSUIDataManager.GetDataFromClient("PetMarkers");
-         if(false)
-         {
-            BSUIDataManager.Subscribe("MessageEvents",this.onMessageEvent);
-         }
          this.buffsTimer = new Timer(BUFFS_RELOAD_TIME);
          this.buffsTimer.addEventListener(TimerEvent.TIMER,this.loadEffects,false,0,true);
          this.buffsTimer.start();
@@ -589,25 +585,6 @@ package
          }
       }
       
-      private function clearHUDMessages() : void
-      {
-         if(this.isHudMenu)
-         {
-            var messages_mc:* = topLevel.HUDNotificationsGroup_mc.Messages_mc;
-            var len:int = int(messages_mc.ShownMessageArray.length);
-            var i:int = 0;
-            while(i < len)
-            {
-               if(messages_mc.ShownMessageArray[i].data.messageID == id)
-               {
-                  messages_mc.ShownMessageArray[i].FadeOut();
-                  break;
-               }
-               i++;
-            }
-         }
-      }
-      
       private function parseSyncMessage(msg:String) : void
       {
          var b64decoder:Base64Decoder = new Base64Decoder();
@@ -631,63 +608,6 @@ package
                timeSinceLastUpdate = 0;
                lastBuffMsgData = messageTextUncompressed;
             }
-         }
-      }
-      
-      private function onMessageEvent(event:FromClientDataEvent) : void
-      {
-         var messageData:*;
-         var wornOffIndex:int;
-         var wornOffItem:String;
-         var syncLen:int;
-         var messageText:String;
-         var messageTextUncompressed:String;
-         var messageIndex:int = 0;
-         var errorCode:String = "init";
-         try
-         {
-            if(config == null || !config.enableManualPipBuffDataSync || this.HUDMessageProvider.data.messages == null)
-            {
-               return;
-            }
-            while(messageIndex < this.HUDMessageProvider.data.messages.length)
-            {
-               errorCode = "messageData";
-               messageData = this.HUDMessageProvider.data.messages[messageIndex];
-               errorCode = "syncLen";
-               syncLen = BUFF_MSG_SYNC.length;
-               if(messageData != null && messageData.messageText != null && messageData.messageText.substr(0,syncLen) == BUFF_MSG_SYNC)
-               {
-                  errorCode = "messageText.substr";
-                  messageText = messageData.messageText.substr(BUFF_MSG_SYNC.length);
-                  errorCode = "parseSyncMessage";
-                  parseSyncMessage(messageText);
-               }
-               if(false)
-               {
-                  wornOffIndex = this.getIsWornOffIndex(messageData.messageText);
-                  if(wornOffIndex != -1)
-                  {
-                     wornOffItem = String(messageData.messageText.substring(0,wornOffIndex));
-                     if(isValidEffectText(wornOffItem))
-                     {
-                        this.addExpiredBuff(wornOffItem);
-                     }
-                     if(this.BuffData && this.BuffData.activeEffects)
-                     {
-                        this.BuffData.activeEffects = this.BuffData.activeEffects.filter(function(element:*, index:int, array:Array):Boolean
-                        {
-                           return element.text.indexOf(wornOffItem) == -1;
-                        });
-                     }
-                  }
-               }
-               messageIndex++;
-            }
-         }
-         catch(e:Error)
-         {
-            ShowHUDMessage("Error onMessageEvent: " + errorCode + ", " + e);
          }
       }
       
@@ -1025,43 +945,6 @@ package
             }
             this.graphics.beginFill(barColor);
             this.graphics.drawRect(barX,barY,barWidth,config.durationBar.height);
-            this.graphics.endFill();
-         }
-      }
-      
-      public function drawXPBar(xpBar:Object) : void
-      {
-         if(xpBar != null && config.xpBar.enabled)
-         {
-            var lastEff:Object = effects_tf[xpBar.id];
-            var barWidth:Number = xpBar.progress * config.width;
-            switch(config.xpBar.alignVertical)
-            {
-               case "top":
-                  var barY:Number = Number(lastEff.y);
-                  break;
-               case "center":
-                  barY = lastEff.y + lastEff.height / 2 - config.xpBar.height / 2;
-                  break;
-               case "bottom":
-               default:
-                  barY = lastEff.y + lastEff.height - config.xpBar.height;
-            }
-            switch(config.xpBar.alignHorizontal)
-            {
-               case "right":
-                  var barX:Number = lastEff.x + config.width - barWidth;
-                  break;
-               case "center":
-                  barX = lastEff.x + config.width / 2 - barWidth / 2;
-                  break;
-               case "left":
-               default:
-                  barX = Number(lastEff.x);
-            }
-            var barColor:Number = getCustomColor("xpBar");
-            this.graphics.beginFill(barColor);
-            this.graphics.drawRect(barX,barY,barWidth,config.xpBar.height);
             this.graphics.endFill();
          }
       }
