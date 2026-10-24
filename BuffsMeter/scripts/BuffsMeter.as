@@ -169,6 +169,8 @@ package
       
       private var UniversalRewardData:*;
       
+      private var PetMarkers:*;
+      
       private var dummy_tf:TextField;
       
       private var textFormat:TextFormat;
@@ -229,6 +231,15 @@ package
       
       private var temporaryEffects:Object = {};
       
+      private var petData:Object = {
+         "level":0,
+         "currentXP":0,
+         "nextLevelXP":1,
+         "progress":0
+      };
+      
+      private var requiredLevelUpPetXPMap:Object = null;
+      
       public function BuffsMeter()
       {
          super();
@@ -241,6 +252,7 @@ package
          this.PartyMenuList = BSUIDataManager.GetDataFromClient("PartyMenuList");
          this.SeasonWidgetData = BSUIDataManager.GetDataFromClient("SeasonWidgetData");
          this.UniversalRewardData = BSUIDataManager.GetDataFromClient("UniversalRewardData");
+         this.PetMarkers = BSUIDataManager.GetDataFromClient("PetMarkers");
          if(false)
          {
             BSUIDataManager.Subscribe("MessageEvents",this.onMessageEvent);
@@ -978,7 +990,7 @@ package
          {
             var lastEff:Object = effects_tf[effect.id];
             var duration:Number = Math.min(effect.duration,effect.durationMax);
-            var barWidth:Number = duration / effect.durationMax * config.width;
+            var barWidth:Number = duration / effect.durationMax * config.durationBar.maxWidth;
             switch(config.durationBar.alignVertical)
             {
                case "top":
@@ -1059,7 +1071,7 @@ package
          if(bar != null && barConfig.enabled)
          {
             var lastEff:Object = effects_tf[bar.id];
-            var barWidth:Number = bar.progress * config.width;
+            var barWidth:Number = bar.progress * barConfig.maxWidth;
             switch(barConfig.alignVertical)
             {
                case "top":
@@ -1381,6 +1393,7 @@ package
          var date:Date;
          var effectDurationRemaining:Number;
          var xpBar:Object;
+         var petXpBar:Object;
          var scoreBar:Object;
          var sub:Object;
          var _timeSinceLastUpdate:Number;
@@ -1785,6 +1798,28 @@ package
                         }
                      }
                   }
+                  else if(add == "showPetXPBar")
+                  {
+                     if(this.XPMeter && this.XPMeter.PetLevelUPBar)
+                     {
+                        if(this.PetMarkers.data && this.PetMarkers.data.Markers && this.PetMarkers.data.Markers.length)
+                        {
+                           this.petData.level = this.PetMarkers.data.Markers[0].level;
+                        }
+                        petData.progress = this.XPMeter.PetLevelUPBar.Percent == 1 ? 0 : this.XPMeter.PetLevelUPBar.Percent;
+                        petData.nextLevelXP = this.requiredLevelUpPetXP;
+                        petData.currentXP = int(petData.progress * petData.nextLevelXP);
+                        displayMessage(formatPetXPBarText());
+                        applyColor(add);
+                        if(config.petXpBar.enabled)
+                        {
+                           petXpBar = {
+                              "id":effects_index - 1,
+                              "progress":petData.progress
+                           };
+                        }
+                     }
+                  }
                   else if(add == "showScoreBar")
                   {
                      if(this.SeasonWidgetData.data && this.SeasonWidgetData.data.currentRank)
@@ -1814,6 +1849,8 @@ package
             drawBar(xpBar,config.xpBar,"xpBar");
             errorCode = "scoreBar";
             drawBar(scoreBar,config.scoreBar,"scoreBar");
+            errorCode = "petXpbar";
+            drawBar(petXpBar,config.petXpBar,"petXpBar");
             this.lastRenderTime = getTimer() - t1;
          }
          catch(error:Error)
@@ -1854,7 +1891,12 @@ package
       
       public function formatXPBarText() : String
       {
-         return config.xpBar.text.replace(STRING_TEXT,this.XPMeter.xptext.text).replace(STRING_CURRENT_LEVEL,this.CharacterInfoData.data.level).replace(STRING_CURRENT_VALUE,int(this.requiredLevelUpXP * this.XPMeter.LevelUPBar.Percent)).replace(STRING_THRESHOLD_VALUE,this.requiredLevelUpXP).replace(STRING_PROGRESS,(100 * this.XPMeter.LevelUPBar.Percent).toFixed(1)).replace(STRING_LAST_CHANGE_VALUE,this.XPMeter.PlusSign.text + this.XPMeter.NumberText.text);
+         return config.xpBar.text.replace(STRING_CURRENT_LEVEL,this.CharacterInfoData.data.level).replace(STRING_CURRENT_VALUE,int(this.requiredLevelUpXP * this.XPMeter.LevelUPBar.Percent)).replace(STRING_THRESHOLD_VALUE,this.requiredLevelUpXP).replace(STRING_PROGRESS,(100 * this.XPMeter.LevelUPBar.Percent).toFixed(1)).replace(STRING_LAST_CHANGE_VALUE,this.XPMeter.PlusSign.text + this.XPMeter.NumberText.text);
+      }
+      
+      public function formatPetXPBarText() : String
+      {
+         return config.petXpBar.text.replace(STRING_CURRENT_LEVEL,this.petData.level).replace(STRING_CURRENT_VALUE,this.petData.currentXP).replace(STRING_THRESHOLD_VALUE,this.petData.nextLevelXP).replace(STRING_PROGRESS,(100 * this.petData.progress).toFixed(1)).replace(STRING_LAST_CHANGE_VALUE,this.XPMeter.PlusSign_pet.text + this.XPMeter.NumberText_pet.text);
       }
       
       public function formatScoreBarText() : String
@@ -2110,6 +2152,43 @@ package
             minutes = int(parseInt(parts[0]));
          }
          return (hours * 60 + minutes) * 60;
+      }
+      
+      public function get requiredLevelUpPetXP() : int
+      {
+         var petLevel:int = int(this.petData.level);
+         if(isNaN(petLevel))
+         {
+            return 0;
+         }
+         if(requiredLevelUpPetXPMap == null)
+         {
+            requiredLevelUpPetXPMap = {};
+            requiredLevelUpPetXPMap[1] = 0;
+            requiredLevelUpPetXPMap[2] = 5040;
+            var i:int = 3;
+            while(i <= 200)
+            {
+               if(i <= 5)
+               {
+                  requiredLevelUpPetXPMap[i] = 320 * i + 4400;
+               }
+               else if(i <= 50)
+               {
+                  requiredLevelUpPetXPMap[i] = 240 * i + 4800;
+               }
+               else if(i <= 150)
+               {
+                  requiredLevelUpPetXPMap[i] = 360 * i - 1200;
+               }
+               else
+               {
+                  requiredLevelUpPetXPMap[i] = 480 * i - 19200;
+               }
+               i++;
+            }
+         }
+         return int(requiredLevelUpPetXPMap[petLevel + 1]) || 0;
       }
       
       public function isValidHUDMode() : Boolean

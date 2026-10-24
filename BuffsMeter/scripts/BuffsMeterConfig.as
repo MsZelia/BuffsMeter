@@ -11,6 +11,8 @@ package
       
       public static const STATE_SHOWN:String = "shown";
       
+      public static const STRING_TEXT:String = "{text}";
+      
       public static const DEFAULT_FORMAT:String = "{duration} | {text}";
       
       public static const DEFAULT_EXPIRED_BUFF_FORMAT:String = "Expired: {text} ({timeInMinutes}m)";
@@ -43,9 +45,11 @@ package
       
       public static const DEFAULT_TIME_FORMAT_SHORT:String = "{m}:{s}";
       
-      public static const DEFAULT_XP_BAR_FORMAT:String = "{text} [{currentLevel}] {currentValue}/{thresholdValue} {progress}% ({lastChangeValue})";
+      public static const DEFAULT_XP_BAR_FORMAT:String = "$$XP [{currentLevel}] {currentValue}/{thresholdValue} ({lastChangeValue})";
       
-      public static const DEFAULT_SCORE_BAR_FORMAT:String = "SCORE [{currentRank}] {currentValue}/{thresholdValue} +{currentBoost}%";
+      public static const DEFAULT_PET_XP_FORMAT:String = "$$PETXP [{currentLevel}] {currentValue}/{thresholdValue} ({lastChangeValue})";
+      
+      public static const DEFAULT_SCORE_BAR_FORMAT:String = "$$SCORE [{currentRank}] {currentValue}/{thresholdValue} +{currentBoost}%";
       
       public function BuffsMeterConfig()
       {
@@ -196,6 +200,7 @@ package
             config.durationBar.alignHorizontal = "left";
             config.durationBar.height = 4;
             config.durationBar.maxDuration = 600;
+            config.durationBar.maxWidth = config.width;
          }
          else
          {
@@ -204,6 +209,7 @@ package
             config.durationBar.alignHorizontal = Boolean(config.durationBar.alignHorizontal) ? config.durationBar.alignHorizontal.toLowerCase() : "left";
             config.durationBar.height = Parser.parseNumber(config.durationBar.height,4);
             config.durationBar.maxDuration = Parser.parseNumber(config.durationBar.maxDuration,600);
+            config.durationBar.maxWidth = Parser.parseNumber(config.durationBar.maxWidth,config.width);
          }
          if(!config.xpBar)
          {
@@ -213,14 +219,35 @@ package
             config.xpBar.alignVertical = "bottom";
             config.xpBar.alignHorizontal = "left";
             config.xpBar.height = 4;
+            config.xpBar.maxWidth = config.width;
          }
          else
          {
             config.xpBar.enabled = Parser.parseBoolean(config.xpBar.enabled,true);
-            config.xpBar.text = Boolean(config.xpBar.text) ? config.xpBar.text : DEFAULT_XP_BAR_FORMAT;
+            config.xpBar.text = Boolean(config.xpBar.text) ? config.xpBar.text.replace(STRING_TEXT,"$$XP") : DEFAULT_XP_BAR_FORMAT;
             config.xpBar.alignVertical = Boolean(config.xpBar.alignVertical) ? config.xpBar.alignVertical.toLowerCase() : "bottom";
             config.xpBar.alignHorizontal = Boolean(config.xpBar.alignHorizontal) ? config.xpBar.alignHorizontal.toLowerCase() : "left";
             config.xpBar.height = Parser.parseNumber(config.xpBar.height,4);
+            config.xpBar.maxWidth = Parser.parseNumber(config.xpBar.maxWidth,config.width);
+         }
+         if(!config.petXpBar)
+         {
+            config.petXpBar = {};
+            config.petXpBar.enabled = true;
+            config.petXpBar.text = DEFAULT_PET_XP_FORMAT;
+            config.petXpBar.alignVertical = "bottom";
+            config.petXpBar.alignHorizontal = "left";
+            config.petXpBar.height = 4;
+            config.petXpBar.maxWidth = config.width;
+         }
+         else
+         {
+            config.petXpBar.enabled = Parser.parseBoolean(config.petXpBar.enabled,true);
+            config.petXpBar.text = Boolean(config.petXpBar.text) ? config.petXpBar.text.replace(STRING_TEXT,"$$PETXP") : DEFAULT_PET_XP_FORMAT;
+            config.petXpBar.alignVertical = Boolean(config.petXpBar.alignVertical) ? config.petXpBar.alignVertical.toLowerCase() : "bottom";
+            config.petXpBar.alignHorizontal = Boolean(config.petXpBar.alignHorizontal) ? config.petXpBar.alignHorizontal.toLowerCase() : "left";
+            config.petXpBar.height = Parser.parseNumber(config.petXpBar.height,4);
+            config.petXpBar.maxWidth = Parser.parseNumber(config.petXpBar.maxWidth,config.width);
          }
          if(!config.scoreBar)
          {
@@ -230,14 +257,16 @@ package
             config.scoreBar.alignVertical = "bottom";
             config.scoreBar.alignHorizontal = "left";
             config.scoreBar.height = 4;
+            config.scoreBar.maxWidth = config.width;
          }
          else
          {
             config.scoreBar.enabled = Parser.parseBoolean(config.scoreBar.enabled,true);
-            config.scoreBar.text = Boolean(config.scoreBar.text) ? config.scoreBar.text : DEFAULT_SCORE_BAR_FORMAT;
+            config.scoreBar.text = Boolean(config.scoreBar.text) ? config.scoreBar.text.replace(STRING_TEXT,"$$SCORE") : DEFAULT_SCORE_BAR_FORMAT;
             config.scoreBar.alignVertical = Boolean(config.scoreBar.alignVertical) ? config.scoreBar.alignVertical.toLowerCase() : "bottom";
             config.scoreBar.alignHorizontal = Boolean(config.scoreBar.alignHorizontal) ? config.scoreBar.alignHorizontal.toLowerCase() : "left";
             config.scoreBar.height = Parser.parseNumber(config.scoreBar.height,4);
+            config.scoreBar.maxWidth = Parser.parseNumber(config.scoreBar.maxWidth,config.width);
          }
          if(!config.sortOrder)
          {
