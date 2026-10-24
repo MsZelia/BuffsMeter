@@ -125,6 +125,8 @@ package
       
       private static const MAIN_MENU:String = "MainMenu";
       
+      private static const SOCIAL_MENU:String = "SocialMenu";
+      
       private static const LOADING:String = "Loading";
       
       private static const BUFF_MSG_SYNC:String = "syncPipBuffData:";
@@ -208,6 +210,8 @@ package
       private var isHudMenu:Boolean = false;
       
       private var isInMainMenu:Boolean = true;
+      
+      private var isSocialMenuShown:Boolean = false;
       
       private var toggleVisibility:Boolean = false;
       
@@ -342,6 +346,7 @@ package
                this.hudTools.RegisterMenu(this.onBuildMenu,this.onSelectMenu);
                this.hudTools.Register(this.onReceiveMessage);
                BSUIDataManager.Subscribe("HUDModeData",this.updateVisibility);
+               BSUIDataManager.Subscribe("SocialMenuData",this.updateIsSocialMenu);
                this.initConfigTimer();
                this.loadConfig();
             }
@@ -355,6 +360,7 @@ package
                   BSUIDataManager.Subscribe("MenuStackData",this.updateIsMainMenu);
                   BSUIDataManager.Subscribe("HUDModeData",this.onHUDModeUpdate);
                   BSUIDataManager.Subscribe("HUDModeData",this.updateVisibility);
+                  BSUIDataManager.Subscribe("SocialMenuData",this.updateIsSocialMenu);
                   stage.addEventListener(KeyboardEvent.KEY_DOWN,this.keyDownHandler,false,0,true);
                   stage.addEventListener(KeyboardEvent.KEY_UP,this.keyUpHandler,false,0,true);
                   this.initConfigTimer();
@@ -375,6 +381,7 @@ package
          BSUIDataManager.Unsubscribe("MenuStackData",this.updateIsMainMenu);
          BSUIDataManager.Unsubscribe("HUDModeData",this.onHUDModeUpdate);
          BSUIDataManager.Unsubscribe("HUDModeData",this.updateVisibility);
+         BSUIDataManager.Unsubscribe("SocialMenuData",this.updateIsSocialMenu);
          removeEventListener(Event.REMOVED_FROM_STAGE,this.removedFromStageHandler);
          if(stage)
          {
@@ -532,6 +539,18 @@ package
          catch(e:Error)
          {
             ShowOverlayMessage("updateIsMainMenu error: " + e);
+         }
+      }
+      
+      private function updateIsSocialMenu(event:FromClientDataEvent) : void
+      {
+         try
+         {
+            this.isSocialMenuShown = Boolean(event) && Boolean(event.data) && Boolean(event.data.showMenu);
+            this.updateVisibility();
+         }
+         catch(e:Error)
+         {
          }
       }
       
@@ -1564,7 +1583,7 @@ package
                   }
                   else if(add == "showHUDMode")
                   {
-                     displayMessage(config.formats.showHUDMode.replace(STRING_HUDMODE,!this.isInMainMenu ? this.HUDModeData.data.hudMode : MAIN_MENU));
+                     displayMessage(config.formats.showHUDMode.replace(STRING_HUDMODE,this.isSocialMenuShown ? SOCIAL_MENU : (this.isInMainMenu ? MAIN_MENU : this.HUDModeData.data.hudMode)));
                      applyColor(add);
                   }
                   else if(add == "showRenderTime")
@@ -2080,9 +2099,9 @@ package
          {
             if(config.HUDModesState == BuffsMeterConfig.STATE_HIDDEN)
             {
-               return this.isInMainMenu ? config.HUDModes.indexOf(MAIN_MENU) == -1 : config.HUDModes.indexOf(this.HUDModeData.data.hudMode) == -1;
+               return this.isSocialMenuShown ? !config.HUDModesMap[SOCIAL_MENU] : (this.isInMainMenu ? !config.HUDModesMap[MAIN_MENU] : !config.HUDModesMap[this.HUDModeData.data.hudMode]);
             }
-            return this.isInMainMenu ? config.HUDModes.indexOf(MAIN_MENU) != -1 : config.HUDModes.indexOf(this.HUDModeData.data.hudMode) != -1;
+            return this.isSocialMenuShown ? config.HUDModesMap[SOCIAL_MENU] : (this.isInMainMenu ? config.HUDModesMap[MAIN_MENU] : config.HUDModesMap[this.HUDModeData.data.hudMode]);
          }
          return true;
       }
