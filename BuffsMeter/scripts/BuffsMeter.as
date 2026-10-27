@@ -262,14 +262,14 @@ package
          this.buffsTimer.start();
       }
       
-      public static function toString(param1:Object) : String
+      public static function toString(data:Object) : String
       {
-         return new JSONEncoder(param1).getString();
+         return new JSONEncoder(data).getString();
       }
       
-      public static function ShowHUDMessage(param1:String) : void
+      public static function ShowHUDMessage(message:String) : void
       {
-         GlobalFunc.ShowHUDMessage("[" + FULL_MOD_NAME + "] " + param1);
+         GlobalFunc.ShowHUDMessage("[" + FULL_MOD_NAME + "] " + message);
       }
       
       public static function indexOfCaseInsensitiveStringStarts(arr:Array, searchingFor:String, fromIndex:uint = 0) : int
@@ -289,11 +289,11 @@ package
          return -1;
       }
       
-      public function ShowOverlayMessage(param1:String) : void
+      public function ShowOverlayMessage(message:String) : void
       {
          if(this.topLevel && this.topLevel.displayMessage)
          {
-            this.topLevel.displayMessage("[" + FULL_MOD_NAME + "] " + param1);
+            this.topLevel.displayMessage("[" + FULL_MOD_NAME + "] " + message);
          }
       }
       
@@ -321,7 +321,7 @@ package
          }
       }
       
-      public function addedToStageHandler(param1:Event) : *
+      public function addedToStageHandler(event:Event) : *
       {
          this.updateVisibility();
          removeEventListener(Event.ADDED_TO_STAGE,this.addedToStageHandler);
@@ -376,7 +376,7 @@ package
          }
       }
       
-      public function removedFromStageHandler(param1:Event) : *
+      public function removedFromStageHandler(event:Event) : *
       {
          BSUIDataManager.Unsubscribe("MenuStackData",this.updateIsMainMenu);
          BSUIDataManager.Unsubscribe("HUDModeData",this.onHUDModeUpdate);
@@ -642,7 +642,7 @@ package
             {
                return;
             }
-            loaderComplete = function(param1:Event):void
+            loaderComplete = function(event:Event):void
             {
                var jsonData:Object;
                var line:uint;
@@ -696,7 +696,7 @@ package
          var loader:URLLoader = null;
          try
          {
-            loaderComplete = function(param1:Event):void
+            loaderComplete = function(event:Event):void
             {
                var jsonData:Object;
                var decoder:JsonDecoderAsync;
@@ -1761,19 +1761,19 @@ package
          }
       }
       
-      public function FormatTimeStringCustom(param1:Number) : String
+      public function FormatTimeStringCustom(time:Number) : String
       {
-         if(isNaN(param1))
+         if(!time)
          {
             return STRING_TIME_ZERO;
          }
          var remainingTime:Number = 0;
-         var nDays:Number = Math.floor(param1 / 86400);
-         remainingTime = param1 % 86400;
+         var nDays:Number = Math.floor(time / 86400);
+         remainingTime = time % 86400;
          var nHours:Number = Math.floor(remainingTime / 3600);
-         remainingTime = param1 % 3600;
+         remainingTime = time % 3600;
          var nMinutes:Number = Math.floor(remainingTime / 60);
-         remainingTime = param1 % 60;
+         remainingTime = time % 60;
          var nSeconds:Number = Math.floor(remainingTime);
          var timeString:* = "";
          if(nDays > 0)

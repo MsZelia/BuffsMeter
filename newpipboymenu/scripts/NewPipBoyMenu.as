@@ -95,24 +95,24 @@ package
          this.loadCSL();
       }
       
-      private static function toString(param1:Object) : String
+      private static function toString(data:Object) : String
       {
-         return new JSONEncoder(param1).getString();
+         return new JSONEncoder(data).getString();
       }
       
-      public static function displayMessage(param1:*, clear:Boolean = false) : void
+      public static function displayMessage(data:*, clear:Boolean = false) : void
       {
          if(clear)
          {
             GlobalFunc.SetText(errorMessage,"");
          }
-         if(param1 is String)
+         if(data is String)
          {
-            var str:String = param1;
+            var str:String = data;
          }
          else
          {
-            str = toString(param1);
+            str = toString(data);
          }
          GlobalFunc.SetText(errorMessage,errorMessage.text + "\n" + str);
          errorMessage.visible = true;
@@ -172,7 +172,7 @@ package
             displayFormat();
             BSUIDataManager.Subscribe("PipBoySTATSEffectsProvider",this.onEffectsChangeEvent);
             stage.addEventListener(KeyboardEvent.KEY_DOWN,this.keyDownHandler);
-            loaderComplete = function(param1:Event):void
+            loaderComplete = function(event:Event):void
             {
                var jsonData:Object;
                try
@@ -206,19 +206,19 @@ package
          }
       }
       
-      public function uncaughtErrorHandler(param1:UncaughtErrorEvent) : *
+      public function uncaughtErrorHandler(error:UncaughtErrorEvent) : *
       {
-         GlobalFunc.ShowHUDMessage("[BuffsMeter] " + param1.toString());
+         GlobalFunc.ShowHUDMessage("[BuffsMeter] " + error.toString());
       }
       
-      private function onEffectsChangeEvent(param1:*) : void
+      private function onEffectsChangeEvent(event:*) : void
       {
-         if(!param1.data || !param1.data.EffectsA || !param1.data.EffectsA.length || param1.data.EffectsA[0].IconType == "PerkIcon")
+         if(!event.data || !event.data.EffectsA || !event.data.EffectsA.length || event.data.EffectsA[0].IconType == "PerkIcon")
          {
             return;
          }
          this.lastPipboyChangeData = {};
-         this.lastPipboyChangeData.data = param1.data;
+         this.lastPipboyChangeData.data = event.data;
          if(this.__SFCodeObj == null || this.__SFCodeObj.call == null || this.prioritizeHUDToolsSyncOverSFE)
          {
             this.syncPipBuffDataHUDTools();
