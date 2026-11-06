@@ -233,14 +233,14 @@ package
       {
          if(event.keyCode == this.quickEffectsHotkey)
          {
-            if(this.m_CurrentPageIndex != 1)
+            if(this.m_CurrentPageIndex != NewPipBoyShared.STATS_PAGE)
             {
-               BSUIDataManager.dispatchEvent(new CustomEvent(NewPipBoyShared.PAGE_SET,{"pageIndex":uint(1)}));
-               setTimeout(BSUIDataManager.dispatchEvent,200,new CustomEvent(NewPipBoyShared.TAB_SET,{"tabIndex":uint(2)}));
+               BSUIDataManager.dispatchEvent(new CustomEvent(NewPipBoyShared.PAGE_SET,{"pageIndex":NewPipBoyShared.STATS_PAGE}));
+               setTimeout(BSUIDataManager.dispatchEvent,200,new CustomEvent(NewPipBoyShared.TAB_SET,{"tabIndex":NewPipBoyShared.STATS_TAB_EFFECTS}));
             }
-            else if(this.m_CurrentTabIndex != 2)
+            else if(this.m_CurrentTabIndex != NewPipBoyShared.STATS_TAB_EFFECTS)
             {
-               BSUIDataManager.dispatchEvent(new CustomEvent(NewPipBoyShared.TAB_SET,{"tabIndex":uint(2)}));
+               BSUIDataManager.dispatchEvent(new CustomEvent(NewPipBoyShared.TAB_SET,{"tabIndex":NewPipBoyShared.STATS_TAB_EFFECTS}));
             }
          }
       }
