@@ -25,7 +25,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.5.2";
+      public static const MOD_VERSION:String = "1.5.3";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -84,8 +84,6 @@ package
       private static const STRING_TIME_IN_SECONDS:String = "{timeInSeconds}";
       
       private static const STRING_TIME_IN_MINUTES:String = "{timeInMinutes}";
-      
-      private static const STRING_TIME_ZERO:String = "00:00";
       
       private static const STRING_DAYS:String = "{d}";
       
@@ -1765,7 +1763,7 @@ package
       {
          if(!time)
          {
-            return STRING_TIME_ZERO;
+            return config.formats.timeZero;
          }
          var remainingTime:Number = 0;
          var nDays:Number = Math.floor(time / 86400);
@@ -1815,10 +1813,10 @@ package
          var text:String = config.format.replace(STRING_DURATION_FULL,"").replace(STRING_DURATION_IN_MINUTES,"").replace(STRING_DURATION_IN_SECONDS,"");
          if(effect.isPermanentEffect)
          {
-            return text.replace(STRING_TEXT,effect.text).replace(STRING_TYPE,effect.type).replace(STRING_DURATION,config.formats.timeNone);
+            return text.replace(STRING_TEXT,getMappedEffectName(effect.text)).replace(STRING_TYPE,effect.type).replace(STRING_DURATION,config.formats.timeNone);
          }
          var duration:Number = Math.max(effect.durationRemaining,0);
-         return text.replace(STRING_TEXT,effect.text).replace(STRING_TYPE,effect.type).replace(STRING_DURATION,FormatTimeStringCustom(duration));
+         return text.replace(STRING_TEXT,getMappedEffectName(effect.text)).replace(STRING_TYPE,effect.type).replace(STRING_DURATION,FormatTimeStringCustom(duration));
       }
       
       public function formatSubEffect(text:String, duration:Number) : String
@@ -1826,9 +1824,9 @@ package
          var _text:String = config.formats[FORMAT_SUBEFFECT].replace(STRING_DURATION_FULL,"").replace(STRING_DURATION_IN_MINUTES,"").replace(STRING_DURATION_IN_SECONDS,"");
          if(duration < 0)
          {
-            return _text.replace(STRING_TEXT,text).replace(STRING_DURATION,config.formats.timeNone);
+            return _text.replace(STRING_TEXT,getMappedEffectName(text)).replace(STRING_DURATION,config.formats.timeNone);
          }
-         return _text.replace(STRING_TEXT,text).replace(STRING_DURATION,FormatTimeStringCustom(duration));
+         return _text.replace(STRING_TEXT,getMappedEffectName(text)).replace(STRING_DURATION,FormatTimeStringCustom(duration));
       }
       
       public function formatExpiredBuff(buff:Object, index:int) : String
@@ -1838,7 +1836,12 @@ package
             return "ERROR: null formatExpiredBuff " + index;
          }
          var time:Number = (getTimer() - buff.time) / 1000;
-         return config.formats[FORMAT_EXPIRED_BUFF].replace(STRING_TEXT,buff.text).replace(STRING_TIME,FormatTimeStringCustom(time)).replace(STRING_TIME_IN_SECONDS,Math.floor(time)).replace(STRING_TIME_IN_MINUTES,Math.floor(time / 60));
+         return config.formats[FORMAT_EXPIRED_BUFF].replace(STRING_TEXT,getMappedEffectName(buff.text)).replace(STRING_TIME,FormatTimeStringCustom(time)).replace(STRING_TIME_IN_SECONDS,Math.floor(time)).replace(STRING_TIME_IN_MINUTES,Math.floor(time / 60));
+      }
+      
+      public function getMappedEffectName(effectName:String) : String
+      {
+         return config.mapEffectNames[effectName] != null ? config.mapEffectNames[effectName] : effectName;
       }
       
       public function getRandomColor() : String

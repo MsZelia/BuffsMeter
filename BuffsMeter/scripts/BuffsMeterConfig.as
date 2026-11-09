@@ -45,6 +45,8 @@ package
       
       public static const DEFAULT_TIME_FORMAT_SHORT:String = "{m}:{s}";
       
+      public static const DEFAULT_TIME_FORMAT_ZERO:String = "00:00";
+      
       public static const DEFAULT_XP_BAR_FORMAT:String = "$$XP [{currentLevel}] {currentValue}/{thresholdValue} ({lastChangeValue})";
       
       public static const DEFAULT_PET_XP_FORMAT:String = "$$PETXP [{currentLevel}] {currentValue}/{thresholdValue} ({lastChangeValue})";
@@ -94,6 +96,10 @@ package
          config.forceHideHotkey = Buttons.parseValue(config.forceHideHotkey);
          config.toggleChecklistHotkey = Buttons.parseValue(config.toggleChecklistHotkey);
          config.checklistHiddenByDefault = Parser.parseBoolean(config.checklistHiddenByDefault,false);
+         if(!config.mapEffectNames)
+         {
+            config.mapEffectNames = {};
+         }
          if(!config.formats)
          {
             config.formats = {};
@@ -112,6 +118,7 @@ package
             config.formats.timeLong = DEFAULT_TIME_FORMAT_LONG;
             config.formats.timeMid = DEFAULT_TIME_FORMAT_MID;
             config.formats.timeShort = DEFAULT_TIME_FORMAT_SHORT;
+            config.formats.timeZero = DEFAULT_TIME_FORMAT_ZERO;
             config.formats.timeNone = "";
          }
          else
@@ -175,6 +182,10 @@ package
             if(!config.formats.timeShort)
             {
                config.formats.timeShort = DEFAULT_TIME_FORMAT_SHORT;
+            }
+            if(!config.formats.timeZero)
+            {
+               config.formats.timeZero = DEFAULT_TIME_FORMAT_ZERO;
             }
             if(!config.formats.timeNone)
             {
