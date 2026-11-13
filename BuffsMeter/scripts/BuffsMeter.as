@@ -25,7 +25,7 @@ package
       
       public static const MOD_NAME:String = "BuffsMeter";
       
-      public static const MOD_VERSION:String = "1.6.0";
+      public static const MOD_VERSION:String = "2.0.0";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -137,6 +137,42 @@ package
       
       private static const HUDTOOLS_MENU_RELOAD_CONFIG:String = MOD_NAME + "_RELOAD_CONFIG";
       
+      private static const TYPE_ICONS:* = {
+         "adrenaline":"adrenaline",
+         "alcohol":"alcohol",
+         "ammo":"ammo",
+         "armor":"armor",
+         "book":"book",
+         "candybucket":"candy",
+         "healingfromitem":"candy",
+         "chems":"chem",
+         "clothes":"clothes",
+         "disease":"disease",
+         "encumbered":"encumbered",
+         "feral":"feral",
+         "food":"food",
+         "helmet":"helmet",
+         "hunger":"hunger",
+         "mutation":"mutation",
+         "perk":"perk",
+         "petcatbuff1":"petcat",
+         "petdcbuff1":"petdeathclaw",
+         "petdogbuff1":"petdog",
+         "petprowess1":"petprowess",
+         "petradhogbuff1":"petradhog",
+         "petrested":"petrested",
+         "radiation":"radiation",
+         "repairkit":"repair",
+         "sleep":"sleep",
+         "drinksoda":"soda",
+         "stealthboy":"stealth",
+         "stimpak":"stimpak",
+         "surgerykit":"surgerykit",
+         "drinktea":"tea",
+         "thirst":"thirst",
+         "drinkgeneric":"drink"
+      };
+      
       private var _lastUpdateTime:Number = 0;
       
       private var _lastUpdateTimeDelta:Number = 0;
@@ -242,6 +278,10 @@ package
       
       private var requiredLevelUpPetXPMap:Object = null;
       
+      private var EffectIconsHolder:MovieClip = new MovieClip();
+      
+      private var EffectIcons:Array = new Array();
+      
       public function BuffsMeter()
       {
          super();
@@ -327,6 +367,7 @@ package
          this.topLevel = stage.getChildAt(0);
          if(Boolean(this.topLevel))
          {
+            addChild(this.EffectIconsHolder);
             if(getQualifiedClassName(this.topLevel) == "HUDMenu")
             {
                this.isHudMenu = true;
@@ -1040,13 +1081,13 @@ package
          return textA.localeCompare(textB);
       }
       
-      public function getCustomColor(name:String) : Number
+      public function getCustomColor(name:String, overrideDefaultColor:uint = null) : uint
       {
          if(config.customColors[name] != null)
          {
             return config.customColors[name];
          }
-         return config.textColor;
+         return overrideDefaultColor != null ? overrideDefaultColor : config.textColor;
       }
       
       public function applyColor(name:String) : Boolean
@@ -1059,6 +1100,15 @@ package
          return false;
       }
       
+      public function getCustomSubEffectColor(name:String) : uint
+      {
+         if(config.customSubEffectColors[name] != null)
+         {
+            return config.customSubEffectColors[name];
+         }
+         return uint.MAX_VALUE;
+      }
+      
       public function applySubEffectColor(name:String) : Boolean
       {
          if(config.customSubEffectColors[name] != null)
@@ -1067,6 +1117,16 @@ package
             return true;
          }
          return false;
+      }
+      
+      public function getCustomEffectColor(name:String) : uint
+      {
+         var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(config.customEffectColors.keys,name));
+         if(index != -1)
+         {
+            return config.customEffectColors[config.customEffectColors.keys[index]];
+         }
+         return config.textColor;
       }
       
       public function applyEffectColor(name:String) : Boolean
@@ -1184,6 +1244,10 @@ package
             default:
                defaultSort = true;
          }
+         if(config.sortBy == SORT_BY_CUSTOM && !isInit)
+         {
+            return effects;
+         }
          if(!defaultSort && config.reverseSort || config.reverseSort ^ isSortReversed)
          {
             effects.reverse();
@@ -1196,6 +1260,8 @@ package
       {
          var i:int;
          var t1:*;
+         var effect:*;
+         var subeff:*;
          var errorCode:String = "processEvents";
          try
          {
@@ -1203,37 +1269,51 @@ package
             {
                i = 0;
                t1 = getTimer();
-               while(i < this.BuffData.activeEffects.length)
+               for each(effect in this.BuffData.activeEffects)
                {
                   errorCode = "text";
-                  this.BuffData.activeEffects[i].text = String(this.BuffData.activeEffects[i].Name);
+                  effect.text = String(effect.Name);
                   errorCode = "type";
-                  this.BuffData.activeEffects[i].type = String(this.BuffData.activeEffects[i].IconType.toLowerCase().replace("icon",""));
+                  effect.type = String(effect.IconType.toLowerCase().replace("icon",""));
                   errorCode = "isDebuff";
-                  this.BuffData.activeEffects[i].isDebuff = this.isTextInList(this.BuffData.activeEffects[i].Name,config ? config.debuffs : []);
+                  effect.isDebuff = this.isTextInList(effect.Name,config ? config.debuffs : []);
                   errorCode = "textDuration";
-                  this.BuffData.activeEffects[i].textDuration = getTimeFromName(this.BuffData.activeEffects[i].TimeRemainingLabel);
+                  effect.textDuration = getTimeFromName(effect.TimeRemainingLabel);
                   errorCode = "isPermanentEffect";
-                  this.BuffData.activeEffects[i].isPermanentEffect = this.BuffData.activeEffects[i].TimeRemainingLabel.length == 0;
-                  if(!this.BuffData.activeEffects[i].isPermanentEffect)
+                  effect.isPermanentEffect = effect.TimeRemainingLabel.length == 0;
+                  if(!effect.isPermanentEffect)
                   {
-                     this.temporaryEffects[this.BuffData.activeEffects[i].text] = true;
+                     this.temporaryEffects[effect.text] = true;
                   }
-                  else if(this.temporaryEffects[this.BuffData.activeEffects[i].text])
+                  else if(this.temporaryEffects[effect.text])
                   {
-                     this.BuffData.activeEffects[i].isPermanentEffect = false;
+                     effect.isPermanentEffect = false;
                   }
                   errorCode = "isValid";
-                  this.BuffData.activeEffects[i].isValid = this.isValidEffect(this.BuffData.activeEffects[i].type,this.BuffData.activeEffects[i].text);
+                  effect.isValid = this.isValidEffect(effect.type,effect.text);
+                  errorCode = "isShowSubEffects";
+                  effect.isShowSubEffects = !isHiddenSubEffectFor(effect.type,effect.text);
                   errorCode = "SubEffects";
-                  this.BuffData.activeEffects[i].SubEffects = [];
+                  effect.SubEffects = [];
                   errorCode = "effects";
-                  for each(effect in this.BuffData.activeEffects[i].EffectEntriesA)
+                  for each(subeff in effect.EffectEntriesA)
                   {
-                     this.BuffData.activeEffects[i].SubEffects.push({
-                        "text":(effect.MagnitudeText.length == 0 || effect.Label.search(/\d/) != -1 ? effect.Label : effect.MagnitudeText + " " + effect.Label),
-                        "durationRemaining":this.BuffData.activeEffects[i].textDuration
+                     effect.SubEffects.push({
+                        "text":(subeff.MagnitudeText.length == 0 || subeff.Label.search(/\d/) != -1 ? subeff.Label : subeff.MagnitudeText + " " + subeff.Label),
+                        "durationRemaining":effect.textDuration
                      });
+                     effect.SubEffects[effect.SubEffects.length - 1].isValid = !isHiddenSubEffect(effect.SubEffects[effect.SubEffects.length - 1].text);
+                  }
+                  if(effect.SubEffects.length == 0 || config && !config.showSubEffects || !effect.SubEffects.some(function(se:*):Boolean
+                  {
+                     return se.isValid;
+                  }))
+                  {
+                     effect.isShowSubEffects = false;
+                  }
+                  else
+                  {
+                     effect.SubEffects.sortOn("isValid",Array.DESCENDING | Array.NUMERIC);
                   }
                   i++;
                }
@@ -1286,6 +1366,116 @@ package
          }
       }
       
+      public function displayIcons() : void
+      {
+         var iconId:int = 0;
+         if(this.BuffData == null || this.BuffData.activeEffects == null)
+         {
+            return;
+         }
+         if(!config || !config.iconsWidget.enabled)
+         {
+            return;
+         }
+         for each(var effect in this.BuffData.activeEffects)
+         {
+            if(effect.isValid)
+            {
+               var eicon:EffectIcon = null;
+               if(iconId < this.EffectIcons.length)
+               {
+                  eicon = this.EffectIcons[iconId];
+                  eicon.x = iconId * config.iconsWidget.offsetX;
+                  eicon.y = iconId * config.iconsWidget.offsetY;
+                  eicon.applyConfig();
+                  eicon.visible = true;
+               }
+               else
+               {
+                  eicon = new EffectIcon();
+                  eicon.x = iconId * config.iconsWidget.offsetX;
+                  eicon.y = iconId * config.iconsWidget.offsetY;
+                  eicon.applyConfig();
+                  this.EffectIcons.push(eicon);
+                  this.EffectIconsHolder.addChild(eicon);
+               }
+               var text:String = "";
+               var duration:String = "";
+               var image:String = "";
+               var textColor:uint = 0;
+               var durationColor:uint = 0;
+               if(effect.isPermanentEffect)
+               {
+                  text = getMappedEffectName(effect.text);
+                  textColor = effect.isDebuff ? getCustomColor(DATA_DEBUFF) : getCustomEffectColor(effect.text);
+               }
+               else
+               {
+                  duration = FormatTimeStringCustom(Math.max(effect.durationRemaining,0),false);
+                  if(effect.durationRemaining < 1)
+                  {
+                     durationColor = getCustomColor(DATA_EXPIRED);
+                  }
+                  else if(effect.durationRemaining < config.warningBelowDuration)
+                  {
+                     durationColor = getCustomColor(DATA_WARNING);
+                  }
+                  else
+                  {
+                     durationColor = uint(config.textColor);
+                  }
+                  if(effect.isDebuff)
+                  {
+                     text = getMappedEffectName(effect.text);
+                     textColor = getCustomColor(DATA_DEBUFF);
+                  }
+                  else if(effect.isShowSubEffects)
+                  {
+                     text = getMappedEffectName(effect.SubEffects[0].text);
+                     textColor = getCustomSubEffectColor(effect.SubEffects[0].text);
+                     if(textColor == uint.MAX_VALUE)
+                     {
+                        textColor = getCustomEffectColor(effect.text);
+                     }
+                  }
+                  else
+                  {
+                     text = getMappedEffectName(effect.text);
+                     textColor = getCustomEffectColor(effect.text);
+                  }
+               }
+               image = config.iconsWidget.customIcons[effect.text];
+               if(image == null)
+               {
+                  image = config.iconsWidget.customIcons[effect.type];
+               }
+               if(image == null)
+               {
+                  if(TYPE_ICONS[effect.type] != null)
+                  {
+                     image = TYPE_ICONS[effect.type];
+                  }
+                  else
+                  {
+                     image = "unknown";
+                  }
+               }
+               eicon.setData(text,duration,textColor,durationColor);
+               eicon.setImage(image);
+               iconId++;
+            }
+         }
+         while(iconId < this.EffectIcons.length)
+         {
+            this.EffectIcons[iconId].visible = false;
+            iconId++;
+         }
+         this.EffectIconsHolder.x = config.iconsWidget.x;
+         this.EffectIconsHolder.y = config.iconsWidget.y;
+         this.EffectIconsHolder.scaleX = config.iconsWidget.scale;
+         this.EffectIconsHolder.scaleY = config.iconsWidget.scale;
+      }
+      
       public function display() : void
       {
          var i:int;
@@ -1322,6 +1512,46 @@ package
             }
             errorCode = "rst";
             this.resetMessages();
+            if(this.BuffData && this.BuffData.activeEffects)
+            {
+               _timeSinceLastUpdate = this.timeSinceLastUpdate;
+               errorCode = "durationRemaining-splice";
+               i = 0;
+               while(i < this.BuffData.activeEffects.length)
+               {
+                  if(!this.BuffData.activeEffects[i].isPermanentEffect && this.BuffData.activeEffects[i].durationRemaining < config.hideEffectsBelowDuration)
+                  {
+                     this.addExpiredBuff(BuffData.activeEffects[i].text);
+                     this.BuffData.activeEffects.splice(i,1);
+                  }
+                  else
+                  {
+                     if(this.BuffData.activeEffects[i].isValid)
+                     {
+                        effectDurationRemaining = this.BuffData.activeEffects[i].textDuration - _timeSinceLastUpdate + this.loadingTimeComp;
+                        this.BuffData.activeEffects[i].durationRemaining = effectDurationRemaining;
+                        j = 0;
+                        while(j < this.BuffData.activeEffects[i].SubEffects.length)
+                        {
+                           if(!this.BuffData.activeEffects[i].isPermanentEffect)
+                           {
+                              this.BuffData.activeEffects[i].SubEffects[j].durationRemaining = effectDurationRemaining;
+                           }
+                           j++;
+                        }
+                     }
+                     else
+                     {
+                        this.BuffData.activeEffects[i].durationRemaining = -1;
+                     }
+                     i++;
+                  }
+               }
+               errorCode = "sort";
+               this.BuffData.activeEffects = sortEffects(this.BuffData.activeEffects);
+            }
+            errorCode = "displayIcons";
+            this.displayIcons();
             errorCode = "dbg";
             if(config.displayData.indexOf("debug") != -1)
             {
@@ -1348,7 +1578,7 @@ package
                   if(add == "showBuffs")
                   {
                      errorCode = "buffData";
-                     if(!buffsShown)
+                     if(!buffsShown && !config.iconsWidget.disableDefaultBuffList)
                      {
                         buffsShown = true;
                         if(this.BuffData == null || this.BuffData.activeEffects == null)
@@ -1358,33 +1588,6 @@ package
                         }
                         else
                         {
-                           _timeSinceLastUpdate = this.timeSinceLastUpdate;
-                           errorCode = "durationRemaining";
-                           i = 0;
-                           while(i < this.BuffData.activeEffects.length)
-                           {
-                              if(this.BuffData.activeEffects[i].isValid)
-                              {
-                                 effectDurationRemaining = this.BuffData.activeEffects[i].textDuration - _timeSinceLastUpdate + this.loadingTimeComp;
-                                 this.BuffData.activeEffects[i].durationRemaining = effectDurationRemaining;
-                                 j = 0;
-                                 while(j < this.BuffData.activeEffects[i].EffectEntriesA.length)
-                                 {
-                                    if(!this.BuffData.activeEffects[i].isPermanentEffect)
-                                    {
-                                       this.BuffData.activeEffects[i].SubEffects[j].durationRemaining = effectDurationRemaining;
-                                    }
-                                    j++;
-                                 }
-                              }
-                              else
-                              {
-                                 this.BuffData.activeEffects[i].durationRemaining = -1;
-                              }
-                              i++;
-                           }
-                           errorCode = "sort";
-                           this.BuffData.activeEffects = sortEffects(this.BuffData.activeEffects);
                            errorCode = "debugBuffs";
                            if(config.debugBuffs)
                            {
@@ -1447,11 +1650,11 @@ package
                                     subEffectLenAfter = LastDisplayEffect.text.length - subEffectIndexStart - STRING_SUBEFFECTS.length;
                                     isInlineSubEffects = subEffectIndexStart >= 0;
                                     inlineTextFormats = [];
-                                    if(config.showSubEffects && !isHiddenSubEffectFor(this.BuffData.activeEffects[i].type,this.BuffData.activeEffects[i].text))
+                                    if(config.showSubEffects && this.BuffData.activeEffects[i].isShowSubEffects)
                                     {
                                        for each(sub in this.BuffData.activeEffects[i].SubEffects)
                                        {
-                                          if(!isHiddenSubEffect(sub.text))
+                                          if(sub.isValid)
                                           {
                                              if(!this.BuffData.activeEffects[i].isPermanentEffect)
                                              {
@@ -1519,15 +1722,7 @@ package
                                     }
                                  }
                               }
-                              if(!this.BuffData.activeEffects[i].isPermanentEffect && this.BuffData.activeEffects[i].durationRemaining < config.hideEffectsBelowDuration)
-                              {
-                                 this.addExpiredBuff(BuffData.activeEffects[i].text);
-                                 this.BuffData.activeEffects.splice(i,1);
-                              }
-                              else
-                              {
-                                 i++;
-                              }
+                              i++;
                            }
                         }
                      }
@@ -1759,7 +1954,7 @@ package
          }
       }
       
-      public function FormatTimeStringCustom(time:Number) : String
+      public function FormatTimeStringCustom(time:Number, pad:Boolean = true) : String
       {
          if(!time)
          {
@@ -1776,17 +1971,17 @@ package
          var timeString:* = "";
          if(nDays > 0)
          {
-            timeString = config.formats.timeLong.replace(STRING_DAYS,nDays).replace(STRING_HOURS,GlobalFunc.PadNumber(nHours,2));
+            timeString = config.formats.timeLong.replace(STRING_DAYS,nDays).replace(STRING_HOURS,pad ? GlobalFunc.PadNumber(nHours,2) : nHours);
          }
          else if(nHours > 0)
          {
-            timeString = config.formats.timeMid.replace(STRING_DAYS,"").replace(STRING_HOURS,GlobalFunc.PadNumber(nHours,2));
+            timeString = config.formats.timeMid.replace(STRING_DAYS,"").replace(STRING_HOURS,pad ? GlobalFunc.PadNumber(nHours,2) : nHours);
          }
          else
          {
             timeString = config.formats.timeShort.replace(STRING_DAYS,"").replace(STRING_HOURS,"");
          }
-         return timeString.replace(STRING_MINUTES,GlobalFunc.PadNumber(nMinutes,2)).replace(STRING_SECONDS,GlobalFunc.PadNumber(nSeconds,2));
+         return timeString.replace(STRING_MINUTES,pad ? GlobalFunc.PadNumber(nMinutes,2) : nMinutes).replace(STRING_SECONDS,GlobalFunc.PadNumber(nSeconds,2));
       }
       
       public function formatXPBarText() : String

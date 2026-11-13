@@ -483,6 +483,43 @@ package
                }
             }
          }
+         if(!config.iconsWidget)
+         {
+            config.iconsWidget = {"enabled":false};
+         }
+         else if(config.iconsWidget.enabled)
+         {
+            config.iconsWidget.x = Parser.parseNumber(config.iconsWidget.x,0);
+            config.iconsWidget.y = Parser.parseNumber(config.iconsWidget.y,0);
+            config.iconsWidget.scale = Parser.parseNumber(config.iconsWidget.scale,0.9);
+            config.iconsWidget.offsetX = Parser.parseNumber(config.iconsWidget.offsetX,0);
+            config.iconsWidget.offsetY = Parser.parseNumber(config.iconsWidget.offsetY,35);
+            config.iconsWidget.text = config.iconsWidget.text || {
+               "x":20,
+               "y":-5,
+               "size":18,
+               "align":"left",
+               "font":"$MAIN_Font_Bold"
+            };
+            config.iconsWidget.text.x = Parser.parseNumber(config.iconsWidget.text.x,20);
+            config.iconsWidget.text.y = Parser.parseNumber(config.iconsWidget.text.y,-5);
+            config.iconsWidget.text.size = Parser.parseNumber(config.iconsWidget.text.size,18);
+            config.iconsWidget.text.align = Boolean(config.iconsWidget.text.align) ? config.iconsWidget.text.align.toLowerCase() : "left";
+            config.iconsWidget.text.font = Boolean(config.iconsWidget.text.font) ? config.iconsWidget.text.font : "$MAIN_Font_Bold";
+            config.iconsWidget.duration = config.iconsWidget.duration || {
+               "x":20,
+               "y":12,
+               "size":15,
+               "align":"left",
+               "font":"$MAIN_Font"
+            };
+            config.iconsWidget.duration.x = Parser.parseNumber(config.iconsWidget.duration.x,20);
+            config.iconsWidget.duration.y = Parser.parseNumber(config.iconsWidget.duration.y,12);
+            config.iconsWidget.duration.size = Parser.parseNumber(config.iconsWidget.duration.size,15);
+            config.iconsWidget.duration.align = Boolean(config.iconsWidget.duration.align) ? config.iconsWidget.duration.align.toLowerCase() : "left";
+            config.iconsWidget.duration.font = Boolean(config.iconsWidget.duration.font) ? config.iconsWidget.duration.font : "$MAIN_Font";
+            config.iconsWidget.customIcons = config.iconsWidget.customIcons || {};
+         }
          config.HUDModesState = getState(config.HUDModesState);
          if(!config.HUDModes)
          {
