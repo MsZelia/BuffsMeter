@@ -108,6 +108,7 @@ package
       {
          tf.y = cnf.y;
          tf.x = 16 + cnf.x;
+         tf.width = 0;
          tf.autoSize = cnf.align;
          var format:TextFormat = new TextFormat();
          format.align = cnf.align;

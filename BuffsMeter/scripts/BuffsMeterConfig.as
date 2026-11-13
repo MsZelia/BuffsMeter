@@ -494,6 +494,9 @@ package
             config.iconsWidget.scale = Parser.parseNumber(config.iconsWidget.scale,0.9);
             config.iconsWidget.offsetX = Parser.parseNumber(config.iconsWidget.offsetX,0);
             config.iconsWidget.offsetY = Parser.parseNumber(config.iconsWidget.offsetY,35);
+            config.iconsWidget.splitInColumnsRows = Parser.parseNumber(config.iconsWidget.splitInColumnsRows,20);
+            config.iconsWidget.offsetColRowX = Parser.parseNumber(config.iconsWidget.offsetColRowX,250);
+            config.iconsWidget.offsetColRowY = Parser.parseNumber(config.iconsWidget.offsetColRowY,0);
             config.iconsWidget.text = config.iconsWidget.text || {
                "x":20,
                "y":-5,
@@ -511,7 +514,7 @@ package
                "y":12,
                "size":15,
                "align":"left",
-               "font":"$MAIN_Font"
+               "font":"$MAIN_Font_Bold"
             };
             config.iconsWidget.duration.x = Parser.parseNumber(config.iconsWidget.duration.x,20);
             config.iconsWidget.duration.y = Parser.parseNumber(config.iconsWidget.duration.y,12);

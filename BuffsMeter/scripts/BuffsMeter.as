@@ -661,6 +661,7 @@ package
             {
                BuffData = jsonData;
                processEvents();
+               refreshIconsConfig();
                isSortReversed = false;
                loadingTimeComp = 0;
                timeSinceLastUpdate = 0;
@@ -695,6 +696,7 @@ package
                      initTimers();
                      _lastConfigUpdateTime = getTimer();
                      checklistVisibility = !config.checklistHiddenByDefault;
+                     refreshIconsConfig();
                      if(BuffData && BuffData.activeEffects)
                      {
                         processEvents();
@@ -758,6 +760,7 @@ package
                         }
                         BuffData = jsonData;
                         processEvents();
+                        refreshIconsConfig();
                         isSortReversed = false;
                         loadingTimeComp = 0;
                         timeSinceLastUpdate = 0;
@@ -1366,6 +1369,14 @@ package
          }
       }
       
+      public function refreshIconsConfig() : void
+      {
+         for each(var icon in EffectIcons)
+         {
+            icon.applyConfig();
+         }
+      }
+      
       public function displayIcons() : void
       {
          var iconId:int = 0;
@@ -1391,19 +1402,24 @@ package
             if(effect.isValid)
             {
                var eicon:EffectIcon = null;
+               var x:int = Math.floor(iconId / config.iconsWidget.splitInColumnsRows) * config.iconsWidget.offsetColRowX + iconId % config.iconsWidget.splitInColumnsRows * config.iconsWidget.offsetX;
+               var y:int = Math.floor(iconId / config.iconsWidget.splitInColumnsRows) * config.iconsWidget.offsetColRowY + iconId % config.iconsWidget.splitInColumnsRows * config.iconsWidget.offsetY;
                if(iconId < this.EffectIcons.length)
                {
                   eicon = this.EffectIcons[iconId];
-                  eicon.x = iconId * config.iconsWidget.offsetX;
-                  eicon.y = iconId * config.iconsWidget.offsetY;
-                  eicon.applyConfig();
+                  eicon.x = x;
+                  eicon.y = y;
+                  if(!eicon.visible)
+                  {
+                     eicon.applyConfig();
+                  }
                   eicon.visible = true;
                }
                else
                {
                   eicon = new EffectIcon();
-                  eicon.x = iconId * config.iconsWidget.offsetX;
-                  eicon.y = iconId * config.iconsWidget.offsetY;
+                  eicon.x = x;
+                  eicon.y = y;
                   eicon.applyConfig();
                   this.EffectIcons.push(eicon);
                   this.EffectIconsHolder.addChild(eicon);
