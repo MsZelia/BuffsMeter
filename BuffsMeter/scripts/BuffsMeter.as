@@ -1373,8 +1373,17 @@ package
          {
             return;
          }
-         if(!config || !config.iconsWidget.enabled)
+         if(!config)
          {
+            return;
+         }
+         if(!config.iconsWidget.enabled)
+         {
+            while(iconId < this.EffectIcons.length)
+            {
+               this.EffectIcons[iconId].visible = false;
+               iconId++;
+            }
             return;
          }
          for each(var effect in this.BuffData.activeEffects)
@@ -1471,7 +1480,7 @@ package
             iconId++;
          }
          this.EffectIconsHolder.x = config.iconsWidget.x;
-         this.EffectIconsHolder.y = config.iconsWidget.y;
+         this.EffectIconsHolder.y = config.iconsWidget.y - this.y;
          this.EffectIconsHolder.scaleX = config.iconsWidget.scale;
          this.EffectIconsHolder.scaleY = config.iconsWidget.scale;
       }
@@ -1578,7 +1587,7 @@ package
                   if(add == "showBuffs")
                   {
                      errorCode = "buffData";
-                     if(!buffsShown && !config.iconsWidget.disableDefaultBuffList)
+                     if(!buffsShown && (!config.iconsWidget.enabled || !config.iconsWidget.disableDefaultBuffList))
                      {
                         buffsShown = true;
                         if(this.BuffData == null || this.BuffData.activeEffects == null)
