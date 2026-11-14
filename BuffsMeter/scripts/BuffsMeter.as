@@ -173,6 +173,8 @@ package
          "drinkgeneric":"drink"
       };
       
+      private static const ICON_UNKNOWN:String = "unknown";
+      
       private var _lastUpdateTime:Number = 0;
       
       private var _lastUpdateTimeDelta:Number = 0;
@@ -1397,13 +1399,19 @@ package
             }
             return;
          }
+         var splitInColRows:int = int(config.iconsWidget.splitInColumnsRows);
+         var offsetColRowX:int = int(config.iconsWidget.offsetColRowX);
+         var offsetColRowY:int = int(config.iconsWidget.offsetColRowY);
+         var offsetX:int = int(config.iconsWidget.offsetX);
+         var offsetY:int = int(config.iconsWidget.offsetY);
+         var maxTextLength:int = int(config.iconsWidget.maxTextLength);
          for each(var effect in this.BuffData.activeEffects)
          {
             if(effect.isValid)
             {
                var eicon:EffectIcon = null;
-               var x:int = Math.floor(iconId / config.iconsWidget.splitInColumnsRows) * config.iconsWidget.offsetColRowX + iconId % config.iconsWidget.splitInColumnsRows * config.iconsWidget.offsetX;
-               var y:int = Math.floor(iconId / config.iconsWidget.splitInColumnsRows) * config.iconsWidget.offsetColRowY + iconId % config.iconsWidget.splitInColumnsRows * config.iconsWidget.offsetY;
+               var x:int = Math.floor(iconId / splitInColRows) * offsetColRowX + iconId % splitInColRows * offsetX;
+               var y:int = Math.floor(iconId / splitInColRows) * offsetColRowY + iconId % splitInColRows * offsetY;
                if(iconId < this.EffectIcons.length)
                {
                   eicon = this.EffectIcons[iconId];
@@ -1482,8 +1490,12 @@ package
                   }
                   else
                   {
-                     image = "unknown";
+                     image = ICON_UNKNOWN;
                   }
+               }
+               if(text.length > maxTextLength)
+               {
+                  text = text.substr(0,maxTextLength);
                }
                eicon.setData(text,duration,textColor,durationColor);
                eicon.setImage(image);
@@ -1603,7 +1615,7 @@ package
                   if(add == "showBuffs")
                   {
                      errorCode = "buffData";
-                     if(!buffsShown && (!config.iconsWidget.enabled || !config.iconsWidget.disableDefaultBuffList))
+                     if(!buffsShown)
                      {
                         buffsShown = true;
                         if(this.BuffData == null || this.BuffData.activeEffects == null)
@@ -1611,7 +1623,7 @@ package
                            displayMessage("Effects not found, sync in pipboy!");
                            LastDisplayEffect.textColor = 16711680;
                         }
-                        else
+                        else if(!config.iconsWidget.enabled || !config.iconsWidget.disableDefaultBuffList)
                         {
                            errorCode = "debugBuffs";
                            if(config.debugBuffs)

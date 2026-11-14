@@ -497,6 +497,7 @@ package
             config.iconsWidget.splitInColumnsRows = Parser.parseNumber(config.iconsWidget.splitInColumnsRows,20);
             config.iconsWidget.offsetColRowX = Parser.parseNumber(config.iconsWidget.offsetColRowX,250);
             config.iconsWidget.offsetColRowY = Parser.parseNumber(config.iconsWidget.offsetColRowY,0);
+            config.iconsWidget.maxTextLength = Math.max(0,Parser.parseNumber(config.iconsWidget.maxTextLength,64));
             config.iconsWidget.text = config.iconsWidget.text || {
                "x":20,
                "y":-5,
