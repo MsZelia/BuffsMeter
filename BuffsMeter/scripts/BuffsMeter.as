@@ -170,6 +170,7 @@ package
          "surgerykit":"surgerykit",
          "drinktea":"tea",
          "thirst":"thirst",
+         "thrist":"thirst",
          "drinkgeneric":"drink"
       };
       
