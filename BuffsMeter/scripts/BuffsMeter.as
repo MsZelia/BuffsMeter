@@ -155,6 +155,7 @@ package
          "hunger":"hunger",
          "mutation":"mutation",
          "perk":"perk",
+         "petbuff":"petbuff",
          "petcatbuff1":"petcat",
          "petdcbuff1":"petdeathclaw",
          "petdogbuff1":"petdog",
