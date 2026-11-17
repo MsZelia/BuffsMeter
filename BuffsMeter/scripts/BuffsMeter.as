@@ -323,15 +323,28 @@ package
          GlobalFunc.ShowHUDMessage("[" + FULL_MOD_NAME + "] " + message);
       }
       
-      public static function indexOfCaseInsensitiveStringStarts(arr:Array, searchingFor:String, fromIndex:uint = 0) : int
+      public static function indexOfCaseSensitiveStringStarts(arr:Array, searchingFor:String, fromIndex:uint = 0) : int
       {
-         var lowercaseSearchString:String = searchingFor.toLowerCase();
-         var arrayLength:uint = arr.length;
+         var len:uint = arr.length;
          var index:uint = fromIndex;
-         while(index < arrayLength)
+         while(index < len)
          {
-            var element:* = arr[index];
-            if(element is String && lowercaseSearchString.indexOf(element.toLowerCase()) == 0)
+            if(searchingFor.indexOf(arr[index]) == 0)
+            {
+               return index;
+            }
+            index++;
+         }
+         return -1;
+      }
+      
+      public static function indexOfCaseSensitiveString(arr:Array, searchingFor:String, fromIndex:uint = 0) : int
+      {
+         var len:uint = arr.length;
+         var index:uint = fromIndex;
+         while(index < len)
+         {
+            if(searchingFor.indexOf(arr[index]) != -1)
             {
                return index;
             }
@@ -1165,23 +1178,37 @@ package
       
       public function getCustomEffectColor(name:String) : uint
       {
-         var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(config.customEffectColors.keys,name));
+         var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(config.customEffectColors.__KEYS__,name));
          if(index != -1)
          {
-            return config.customEffectColors[config.customEffectColors.keys[index]];
+            return config.customEffectColors[config.customEffectColors.__KEYS__[index]];
          }
          return config.textColor;
       }
       
       public function applyEffectColor(name:String) : Boolean
       {
-         var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(config.customEffectColors.keys,name));
+         var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(config.customEffectColors.__KEYS__,name));
          if(index != -1)
          {
-            LastDisplayEffect.textColor = config.customEffectColors[config.customEffectColors.keys[index]];
+            LastDisplayEffect.textColor = config.customEffectColors[config.customEffectColors.__KEYS__[index]];
             return true;
          }
          return false;
+      }
+      
+      public function getCustomIcon(name:String) : *
+      {
+         var lowerCaseName:String = name.toLowerCase();
+         for each(var iconType in config.iconsWidget.customIcons.__KEYS__)
+         {
+            var index:int = indexOfCaseSensitiveString(config.iconsWidget.customIcons[iconType],lowerCaseName);
+            if(index != -1)
+            {
+               return iconType;
+            }
+         }
+         return null;
       }
       
       public function addSeparator(data:String) : void
@@ -1320,7 +1347,7 @@ package
                   errorCode = "type";
                   effect.type = String(effect.IconType.toLowerCase().replace("icon",""));
                   errorCode = "isDebuff";
-                  effect.isDebuff = this.isTextInList(effect.Name,config ? config.debuffs : []);
+                  effect.isDebuff = indexOfCaseSensitiveString(config ? config.debuffs : [],effect.Name.toLowerCase()) != -1;
                   errorCode = "textDuration";
                   effect.textDuration = getTimeFromName(effect.TimeRemainingLabel);
                   errorCode = "isPermanentEffect";
@@ -1444,6 +1471,7 @@ package
          var offsetX:int = int(config.iconsWidget.offsetX);
          var offsetY:int = int(config.iconsWidget.offsetY);
          var maxTextLength:int = int(config.iconsWidget.text.maxLength);
+         var showItemCounts:Boolean = Boolean(config.iconsWidget.itemCount.enabled);
          var mapCountableEffectNames:* = config.iconsWidget.itemCount.mapCountableEffectNames;
          for each(var effect in this.BuffData.activeEffects)
          {
@@ -1519,7 +1547,7 @@ package
                      text = getMappedEffectName(effect.text);
                      textColor = getCustomEffectColor(effect.text);
                   }
-                  if(this.isHudMenu && !effect.isDebuff && (COUNTABLE_EFFECT_TYPES[effect.type] || effect.type == "chems" && ArrayUtil.indexOfCaseInsensitiveString(config.iconsWidget.itemCount.countChems,effect.text) != -1))
+                  if(showItemCounts && this.isHudMenu && !effect.isDebuff && (COUNTABLE_EFFECT_TYPES[effect.type] || effect.type == "chems" && indexOfCaseSensitiveString(config.iconsWidget.itemCount.countChems,effect.text.toLowerCase()) != -1))
                   {
                      if(mapCountableEffectNames[effect.text] != null)
                      {
@@ -1531,11 +1559,7 @@ package
                      }
                   }
                }
-               image = config.iconsWidget.customIcons[effect.text];
-               if(image == null)
-               {
-                  image = config.iconsWidget.customIcons[effect.type];
-               }
+               image = getCustomIcon(effect.text);
                if(image == null)
                {
                   if(TYPE_ICONS[effect.type] != null)
@@ -1913,7 +1937,7 @@ package
                            {
                               if(!this.BuffData.activeEffects.some(function(buff:Object):Boolean
                               {
-                                 return ArrayUtil.indexOfCaseInsensitiveStringStarts(checkName,buff.text) != -1;
+                                 return indexOfCaseSensitiveStringStarts(checkName,buff.text.toLowerCase()) != -1;
                               }))
                               {
                                  checklistName = checkName.length == 0 || config.checklistDisplay[checkName[0]] == null ? checkName : config.checklistDisplay[checkName[0]];
@@ -1959,7 +1983,7 @@ package
                            {
                               if(!this.BuffData.activeEffects.some(function(buff:Object):Boolean
                               {
-                                 return ArrayUtil.indexOfCaseInsensitiveString(checkName,buff.text) != -1;
+                                 return indexOfCaseSensitiveString(checkName,buff.text.toLowerCase()) != -1;
                               }))
                               {
                                  checklistName = checkName.length == 0 || config.checklistDisplay[checkName[0]] == null ? checkName : config.checklistDisplay[checkName[0]];
@@ -2154,7 +2178,7 @@ package
       
       public function getIsWornOffIndex(message:String) : int
       {
-         var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(EFFECT_WORN_OFF_LOCALIZED,message));
+         var index:int = ArrayUtil.indexOfCaseInsensitiveString(EFFECT_WORN_OFF_LOCALIZED,message);
          if(index != -1)
          {
             return index;
@@ -2164,7 +2188,7 @@ package
       
       public function isTextInList(text:String, list:Array) : Boolean
       {
-         var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(list,text));
+         var index:int = indexOfCaseSensitiveString(list,text.toLowerCase());
          return index != -1;
       }
       
@@ -2172,7 +2196,7 @@ package
       {
          if(this.HPMeter && this.HPMeter.MeterBar_mc)
          {
-            var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(EFFECT_NERD_RAGE_LOCALIZED,message));
+            var index:int = ArrayUtil.indexOfCaseInsensitiveString(EFFECT_NERD_RAGE_LOCALIZED,message);
             return index != -1;
          }
          return false;
@@ -2236,7 +2260,7 @@ package
          }
          if(config.hideTypes.length > 0)
          {
-            var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(config.hideTypes,type));
+            var index:int = indexOfCaseSensitiveString(config.hideTypes,type.toLowerCase());
             if(index != -1)
             {
                return false;
@@ -2244,14 +2268,14 @@ package
          }
          if(config.showTypes.length > 0)
          {
-            index = int(ArrayUtil.indexOfCaseInsensitiveString(config.showTypes,type));
+            index = indexOfCaseSensitiveString(config.showTypes,type.toLowerCase());
             if(index != -1)
             {
                return true;
             }
          }
          var isStateHidden:Boolean = config.hideEffectsState == BuffsMeterConfig.STATE_HIDDEN;
-         index = int(ArrayUtil.indexOfCaseInsensitiveString(config.hideEffects,text));
+         index = indexOfCaseSensitiveString(config.hideEffects,text.toLowerCase());
          if(isStateHidden)
          {
             return index == -1;
@@ -2268,7 +2292,7 @@ package
          var isStateHidden:Boolean = config.hideTypesState == BuffsMeterConfig.STATE_HIDDEN;
          if(config.hideTypes.length > 0)
          {
-            var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(config.hideTypes,type));
+            var index:int = indexOfCaseSensitiveString(config.hideTypes,type.toLowerCase());
             if(isStateHidden)
             {
                return index == -1;
@@ -2287,7 +2311,7 @@ package
          var isStateHidden:Boolean = config.hideEffectsState == BuffsMeterConfig.STATE_HIDDEN;
          if(config.hideEffects.length > 0)
          {
-            var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(config.hideEffects,text));
+            var index:int = indexOfCaseSensitiveString(config.hideEffects,text.toLowerCase());
             if(isStateHidden)
             {
                return index == -1;
@@ -2301,7 +2325,7 @@ package
       {
          if(config.shownSubEffects.length > 0)
          {
-            var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(config.shownSubEffects,name));
+            var index:int = indexOfCaseSensitiveString(config.shownSubEffects,name.toLowerCase());
             if(index != -1)
             {
                return false;
@@ -2309,7 +2333,7 @@ package
          }
          if(config.hideSubEffects.length > 0)
          {
-            index = int(ArrayUtil.indexOfCaseInsensitiveString(config.hideSubEffects,name));
+            index = indexOfCaseSensitiveString(config.hideSubEffects,name.toLowerCase());
             if(index != -1)
             {
                return true;
@@ -2324,7 +2348,7 @@ package
       
       public function isHiddenSubEffectFor(type:String, name:String) : Boolean
       {
-         var index:int = int(ArrayUtil.indexOfCaseInsensitiveString(config.hideSubEffectsFor,name + "|" + type));
+         var index:int = indexOfCaseSensitiveString(config.hideSubEffectsFor,(name + "|" + type).toLowerCase());
          return index != -1;
       }
       

@@ -65,8 +65,15 @@ package
       
       public static function init(jsonObject:*) : Object
       {
+         var i:*;
+         var j:*;
          var keys:Array;
          var checklistItem:*;
+         var color:*;
+         var effect:*;
+         var group:*;
+         var icon:*;
+         var item:*;
          var mode:*;
          var config:* = jsonObject;
          config.x = Parser.parseNumber(config.x,0);
@@ -327,7 +334,7 @@ package
          if(!config.customEffectColors)
          {
             config.customEffectColors = {};
-            config.customEffectColors.keys = [];
+            config.customEffectColors.__KEYS__ = [];
          }
          else
          {
@@ -337,7 +344,7 @@ package
                config.customEffectColors[color] = Parser.parseNumber(config.customEffectColors[color],config.textColor);
                keys.push(color);
             }
-            config.customEffectColors.keys = keys;
+            config.customEffectColors.__KEYS__ = keys;
          }
          if(!config.customChecklistColors)
          {
@@ -545,9 +552,22 @@ package
             config.iconsWidget.itemCount.countChems = config.iconsWidget.itemCount.countChems.filter(function(chem:*):Boolean
             {
                return chem is String && Boolean(chem.length);
+            }).map(function(chem:*):String
+            {
+               return chem.toLowerCase();
             });
             config.iconsWidget.itemCount.mapCountableEffectNames = config.iconsWidget.itemCount.mapCountableEffectNames || {};
             config.iconsWidget.customIcons = config.iconsWidget.customIcons || {};
+            keys = [];
+            for(icon in config.iconsWidget.customIcons)
+            {
+               for(effect in config.iconsWidget.customIcons[icon])
+               {
+                  config.iconsWidget.customIcons[icon][effect] = config.iconsWidget.customIcons[icon][effect].toLowerCase();
+               }
+               keys.push(icon);
+            }
+            config.iconsWidget.customIcons.__KEYS__ = keys;
          }
          config.HUDModesState = getState(config.HUDModesState);
          if(!config.HUDModes)
