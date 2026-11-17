@@ -527,8 +527,8 @@ package
             config.iconsWidget.duration.align = Boolean(config.iconsWidget.duration.align) ? config.iconsWidget.duration.align.toLowerCase() : "left";
             config.iconsWidget.duration.font = Boolean(config.iconsWidget.duration.font) ? config.iconsWidget.duration.font : "$MAIN_Font";
             config.iconsWidget.itemCount = config.iconsWidget.itemCount || {
-               "x":20,
-               "y":12,
+               "x":100,
+               "y":13,
                "size":15,
                "align":"left",
                "font":"$MAIN_Font_Bold"

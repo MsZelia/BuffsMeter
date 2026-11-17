@@ -621,7 +621,7 @@ package
                {
                   if(item.filterFlag & 0x60)
                   {
-                     newItemCounts[item.text.replace(/\s*¢/,"")] = item.count;
+                     newItemCounts[item.text.replace(/\s*¢$/,"")] = item.count;
                   }
                }
                this.itemCounts = newItemCounts;
