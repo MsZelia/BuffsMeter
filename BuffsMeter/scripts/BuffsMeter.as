@@ -1347,7 +1347,7 @@ package
                   errorCode = "type";
                   effect.type = String(effect.IconType.toLowerCase().replace("icon",""));
                   errorCode = "isDebuff";
-                  effect.isDebuff = indexOfCaseSensitiveString(config ? config.debuffs : [],effect.Name.toLowerCase()) != -1;
+                  effect.isDebuff = effect.type == "disease" || indexOfCaseSensitiveString(config ? config.debuffs : [],effect.Name.toLowerCase()) != -1;
                   errorCode = "textDuration";
                   effect.textDuration = getTimeFromName(effect.TimeRemainingLabel);
                   errorCode = "isPermanentEffect";
