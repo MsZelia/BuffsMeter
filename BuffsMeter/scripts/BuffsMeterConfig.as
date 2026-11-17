@@ -65,6 +65,9 @@ package
       
       public static function init(jsonObject:*) : Object
       {
+         var keys:Array;
+         var checklistItem:*;
+         var mode:*;
          var config:* = jsonObject;
          config.x = Parser.parseNumber(config.x,0);
          config.y = Parser.parseNumber(config.y,0);
@@ -328,7 +331,7 @@ package
          }
          else
          {
-            var keys:Array = [];
+            keys = [];
             for(color in config.customEffectColors)
             {
                config.customEffectColors[color] = Parser.parseNumber(config.customEffectColors[color],config.textColor);
@@ -462,7 +465,7 @@ package
             config.checklistDisplay = {};
             for(i in config.checklist)
             {
-               var checklistItem:* = config.checklist[i];
+               checklistItem = config.checklist[i];
                if(checklistItem is String)
                {
                   config.checklist[i] = [].concat(checklistItem.toLowerCase());
@@ -497,19 +500,20 @@ package
             config.iconsWidget.splitInColumnsRows = Parser.parseNumber(config.iconsWidget.splitInColumnsRows,20);
             config.iconsWidget.offsetColRowX = Parser.parseNumber(config.iconsWidget.offsetColRowX,250);
             config.iconsWidget.offsetColRowY = Parser.parseNumber(config.iconsWidget.offsetColRowY,0);
-            config.iconsWidget.maxTextLength = Math.max(0,Parser.parseNumber(config.iconsWidget.maxTextLength,64));
             config.iconsWidget.text = config.iconsWidget.text || {
                "x":20,
                "y":-5,
                "size":18,
                "align":"left",
-               "font":"$MAIN_Font_Bold"
+               "font":"$MAIN_Font_Bold",
+               "maxLength":64
             };
             config.iconsWidget.text.x = Parser.parseNumber(config.iconsWidget.text.x,20);
             config.iconsWidget.text.y = Parser.parseNumber(config.iconsWidget.text.y,-5);
             config.iconsWidget.text.size = Parser.parseNumber(config.iconsWidget.text.size,18);
             config.iconsWidget.text.align = Boolean(config.iconsWidget.text.align) ? config.iconsWidget.text.align.toLowerCase() : "left";
             config.iconsWidget.text.font = Boolean(config.iconsWidget.text.font) ? config.iconsWidget.text.font : "$MAIN_Font_Bold";
+            config.iconsWidget.text.maxLength = Math.max(0,Parser.parseNumber(config.iconsWidget.text.maxLength,64));
             config.iconsWidget.duration = config.iconsWidget.duration || {
                "x":20,
                "y":12,
@@ -522,6 +526,27 @@ package
             config.iconsWidget.duration.size = Parser.parseNumber(config.iconsWidget.duration.size,15);
             config.iconsWidget.duration.align = Boolean(config.iconsWidget.duration.align) ? config.iconsWidget.duration.align.toLowerCase() : "left";
             config.iconsWidget.duration.font = Boolean(config.iconsWidget.duration.font) ? config.iconsWidget.duration.font : "$MAIN_Font";
+            config.iconsWidget.itemCount = config.iconsWidget.itemCount || {
+               "x":20,
+               "y":12,
+               "size":15,
+               "align":"left",
+               "font":"$MAIN_Font_Bold"
+            };
+            config.iconsWidget.itemCount.x = Parser.parseNumber(config.iconsWidget.itemCount.x,100);
+            config.iconsWidget.itemCount.y = Parser.parseNumber(config.iconsWidget.itemCount.y,13);
+            config.iconsWidget.itemCount.size = Parser.parseNumber(config.iconsWidget.itemCount.size,15);
+            config.iconsWidget.itemCount.align = Boolean(config.iconsWidget.itemCount.align) ? config.iconsWidget.itemCount.align.toLowerCase() : "right";
+            config.iconsWidget.itemCount.font = Boolean(config.iconsWidget.itemCount.font) ? config.iconsWidget.itemCount.font : "$MAIN_Font";
+            config.iconsWidget.itemCount.lowCount = Parser.parseNumber(config.iconsWidget.itemCount.lowCount,3);
+            config.iconsWidget.itemCount.lowCountColor = Parser.parseNumber(config.iconsWidget.itemCount.lowCountColor,config.textColor);
+            config.iconsWidget.itemCount.noItemsColor = Parser.parseNumber(config.iconsWidget.itemCount.noItemsColor,config.textColor);
+            config.iconsWidget.itemCount.countChems = config.iconsWidget.itemCount.countChems || [];
+            config.iconsWidget.itemCount.countChems = config.iconsWidget.itemCount.countChems.filter(function(chem:*):Boolean
+            {
+               return chem is String && Boolean(chem.length);
+            });
+            config.iconsWidget.itemCount.mapCountableEffectNames = config.iconsWidget.itemCount.mapCountableEffectNames || {};
             config.iconsWidget.customIcons = config.iconsWidget.customIcons || {};
          }
          config.HUDModesState = getState(config.HUDModesState);
@@ -530,7 +555,7 @@ package
             config.HUDModes = [];
          }
          config.HUDModesMap = {};
-         for each(var mode in config.HUDModes)
+         for each(mode in config.HUDModes)
          {
             config.HUDModesMap[mode] = true;
          }

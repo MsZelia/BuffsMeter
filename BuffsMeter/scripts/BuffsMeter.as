@@ -175,6 +175,13 @@ package
          "drinkgeneric":"drink"
       };
       
+      private static const COUNTABLE_EFFECT_TYPES:* = {
+         "alcohol":true,
+         "food":true,
+         "drinkgeneric":true,
+         "drinktea":true
+      };
+      
       private static const ICON_UNKNOWN:String = "unknown";
       
       private var _lastUpdateTime:Number = 0;
@@ -286,6 +293,8 @@ package
       
       private var EffectIcons:Array = new Array();
       
+      private var itemCounts:* = {};
+      
       public function BuffsMeter()
       {
          super();
@@ -390,6 +399,7 @@ package
                this.hudTools.Register(this.onReceiveMessage);
                BSUIDataManager.Subscribe("HUDModeData",this.updateVisibility);
                BSUIDataManager.Subscribe("SocialMenuData",this.updateIsSocialMenu);
+               BSUIDataManager.Subscribe("PlayerInventoryData",this.updateItemCounts);
                this.initConfigTimer();
                this.loadConfig();
             }
@@ -425,6 +435,7 @@ package
          BSUIDataManager.Unsubscribe("HUDModeData",this.onHUDModeUpdate);
          BSUIDataManager.Unsubscribe("HUDModeData",this.updateVisibility);
          BSUIDataManager.Unsubscribe("SocialMenuData",this.updateIsSocialMenu);
+         BSUIDataManager.Unsubscribe("PlayerInventoryData",this.updateItemCounts);
          removeEventListener(Event.REMOVED_FROM_STAGE,this.removedFromStageHandler);
          if(stage)
          {
@@ -594,6 +605,31 @@ package
          }
          catch(e:Error)
          {
+         }
+      }
+      
+      private function updateItemCounts(event:FromClientDataEvent) : void
+      {
+         var newItemCounts:*;
+         var item:*;
+         try
+         {
+            if(event.data != null && event.data.InventoryList != null)
+            {
+               newItemCounts = {};
+               for each(item in event.data.InventoryList)
+               {
+                  if(item.filterFlag & 0x60)
+                  {
+                     newItemCounts[item.text.replace(/\s*¢/,"")] = item.count;
+                  }
+               }
+               this.itemCounts = newItemCounts;
+            }
+         }
+         catch(e:Error)
+         {
+            ShowHUDMessage("updateItemCounts error: " + e);
          }
       }
       
@@ -1407,7 +1443,8 @@ package
          var offsetColRowY:int = int(config.iconsWidget.offsetColRowY);
          var offsetX:int = int(config.iconsWidget.offsetX);
          var offsetY:int = int(config.iconsWidget.offsetY);
-         var maxTextLength:int = int(config.iconsWidget.maxTextLength);
+         var maxTextLength:int = int(config.iconsWidget.text.maxLength);
+         var mapCountableEffectNames:* = config.iconsWidget.itemCount.mapCountableEffectNames;
          for each(var effect in this.BuffData.activeEffects)
          {
             if(effect.isValid)
@@ -1437,9 +1474,12 @@ package
                }
                var text:String = "";
                var duration:String = "";
+               var itemCountStr:String = "";
                var image:String = "";
                var textColor:uint = 0;
                var durationColor:uint = 0;
+               var itemCountColor:uint = 0;
+               var itemCount:int = -1;
                if(effect.isPermanentEffect)
                {
                   text = getMappedEffectName(effect.text);
@@ -1479,6 +1519,17 @@ package
                      text = getMappedEffectName(effect.text);
                      textColor = getCustomEffectColor(effect.text);
                   }
+                  if(this.isHudMenu && !effect.isDebuff && (COUNTABLE_EFFECT_TYPES[effect.type] || effect.type == "chems" && ArrayUtil.indexOfCaseInsensitiveString(config.iconsWidget.itemCount.countChems,effect.text) != -1))
+                  {
+                     if(mapCountableEffectNames[effect.text] != null)
+                     {
+                        itemCount = int(this.itemCounts[mapCountableEffectNames[effect.text]] || 0);
+                     }
+                     else
+                     {
+                        itemCount = int(this.itemCounts[effect.text] || 0);
+                     }
+                  }
                }
                image = config.iconsWidget.customIcons[effect.text];
                if(image == null)
@@ -1500,7 +1551,23 @@ package
                {
                   text = text.substr(0,maxTextLength);
                }
-               eicon.setData(text,duration,textColor,durationColor);
+               if(itemCount != -1)
+               {
+                  itemCountStr = "(" + itemCount + ")";
+                  if(itemCount == 0)
+                  {
+                     itemCountColor = uint(config.iconsWidget.itemCount.noItemsColor);
+                  }
+                  else if(itemCount > config.iconsWidget.itemCount.lowCount)
+                  {
+                     itemCountColor = uint(config.textColor);
+                  }
+                  else
+                  {
+                     itemCountColor = uint(config.iconsWidget.itemCount.lowCountColor);
+                  }
+               }
+               eicon.setData(text,duration,itemCountStr,textColor,durationColor,itemCountColor);
                eicon.setImage(image);
                iconId++;
             }

@@ -13,6 +13,8 @@ package
       
       public var Text_tf:TextField;
       
+      public var Count_tf:TextField;
+      
       public var ImageHolder:MovieClip = new MovieClip();
       
       public var Image:ImageFixture;
@@ -35,6 +37,7 @@ package
          addChild(this.ImageHolder);
          this.Image = initImage();
          this.Text_tf = initTextfield("effect");
+         this.Count_tf = initTextfield();
          this.Duration_tf = initTextfield("1h 0m");
          this.Duration_tf.y += 20;
          this.imageScale = 0.5;
@@ -90,18 +93,21 @@ package
          this.Image.LoadExternal(this.getImageLocation(imageName),GlobalFunc.STORE_IMAGE_TEXTURE_BUFFER);
       }
       
-      public function setData(text:String, duration:String, textColor:uint, durationColor:uint) : void
+      public function setData(text:String, duration:String, count:String, textColor:uint, durationColor:uint, countColor:uint) : void
       {
          this.Text_tf.text = text;
          this.Duration_tf.text = duration;
+         this.Count_tf.text = count;
          this.Text_tf.textColor = textColor;
          this.Duration_tf.textColor = durationColor;
+         this.Count_tf.textColor = countColor;
       }
       
       public function applyConfig() : void
       {
          applyTextfieldConfig(this.Duration_tf,config.iconsWidget.duration);
          applyTextfieldConfig(this.Text_tf,config.iconsWidget.text);
+         applyTextfieldConfig(this.Count_tf,config.iconsWidget.itemCount);
       }
       
       private function applyTextfieldConfig(tf:TextField, cnf:Object) : void
