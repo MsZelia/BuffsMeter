@@ -962,6 +962,7 @@ package
          if(config.anchor == "bottom")
          {
             this.y = -(LastDisplayEffect.y + LastDisplayEffect.height - config.y);
+            this.EffectIconsHolder.y = config.iconsWidget.y - this.y;
          }
          else if(this.y != 0)
          {
