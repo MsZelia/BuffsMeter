@@ -324,12 +324,17 @@ package
             config.customColors.durationBar = 39168;
             config.customColors.durationBarWarning = 10027161;
          }
-         else
+         config.customColors.xpBar = config.xpBar.barColor != null ? config.xpBar.barColor : config.customColors.xpBar;
+         config.customColors.showXPBar = config.xpBar.textColor != null ? config.xpBar.textColor : config.customColors.showXPBar;
+         config.customColors.petXpBar = config.petXpBar.barColor != null ? config.petXpBar.barColor : config.customColors.petXpBar;
+         config.customColors.showPetXPBar = config.petXpBar.textColor != null ? config.petXpBar.textColor : config.customColors.showPetXPBar;
+         config.customColors.scoreBar = config.scoreBar.barColor != null ? config.scoreBar.barColor : config.customColors.scoreBar;
+         config.customColors.showScoreBar = config.scoreBar.textColor != null ? config.scoreBar.textColor : config.customColors.showScoreBar;
+         config.customColors.durationBar = config.durationBar.color != null ? config.durationBar.color : config.customColors.durationBar;
+         config.customColors.durationBarWarning = config.durationBar.warningColor != null ? config.durationBar.warningColor : config.customColors.durationBarWarning;
+         for(color in config.customColors)
          {
-            for(color in config.customColors)
-            {
-               config.customColors[color] = Parser.parseNumber(config.customColors[color],config.textColor);
-            }
+            config.customColors[color] = Parser.parseNumber(config.customColors[color],config.textColor);
          }
          if(!config.customEffectColors)
          {
