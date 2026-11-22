@@ -4,10 +4,13 @@ package
    import flash.display.*;
    import flash.filters.*;
    import flash.text.*;
+   import flash.utils.*;
    import scaleform.gfx.*;
    
    public class EffectIcon extends MovieClip
    {
+      
+      public static var ImageFixtureRef:Class = null;
       
       public var Duration_tf:TextField;
       
@@ -17,12 +20,16 @@ package
       
       public var ImageHolder:MovieClip = new MovieClip();
       
-      public var Image:ImageFixture;
+      public var Image:*;
       
       private var loadedImageLocation:String = "";
       
       public function EffectIcon()
       {
+         if(!ImageFixtureRef)
+         {
+            ImageFixtureRef = getDefinitionByName("ImageFixture") as Class;
+         }
          super();
          this.init();
       }
@@ -43,9 +50,9 @@ package
          this.imageScale = 0.5;
       }
       
-      private function initImage() : ImageFixture
+      private function initImage() : *
       {
-         var img:ImageFixture = new ImageFixture();
+         var img:* = new ImageFixtureRef();
          img.visible = true;
          ImageHolder.addChild(img);
          return img;
