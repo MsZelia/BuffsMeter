@@ -276,9 +276,9 @@ package
       
       private var hudTools:SharedHUDTools;
       
-      private var isKeyDownDetected:Object = {};
+      private var isKeyDownDetected:Object = new Dictionary();
       
-      private var temporaryEffects:Object = {};
+      private var temporaryEffects:Object = new Dictionary();
       
       private var petData:Object = {
          "level":0,
@@ -287,13 +287,13 @@ package
          "progress":0
       };
       
-      private var requiredLevelUpPetXPMap:Object = null;
+      private var requiredLevelUpPetXPMap:* = null;
       
       private var EffectIconsHolder:MovieClip = new MovieClip();
       
       private var EffectIcons:Array = new Array();
       
-      private var itemCounts:* = {};
+      private var itemCounts:* = new Dictionary();
       
       public function BuffsMeter()
       {
@@ -629,7 +629,7 @@ package
          {
             if(event.data != null && event.data.InventoryList != null)
             {
-               newItemCounts = {};
+               newItemCounts = new Dictionary();
                for each(item in event.data.InventoryList)
                {
                   if(item.filterFlag & 0x60)
@@ -2425,7 +2425,7 @@ package
          }
          if(requiredLevelUpPetXPMap == null)
          {
-            requiredLevelUpPetXPMap = {};
+            requiredLevelUpPetXPMap = new Dictionary();
             requiredLevelUpPetXPMap[1] = 0;
             requiredLevelUpPetXPMap[2] = 1320;
             var i:int = 3;

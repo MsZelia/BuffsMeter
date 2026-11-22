@@ -1,5 +1,6 @@
 package
 {
+   import flash.utils.*;
    import utils.*;
    
    public class BuffsMeterConfig
@@ -604,7 +605,7 @@ package
          {
             config.HUDModes = [];
          }
-         config.HUDModesMap = {};
+         config.HUDModesMap = new Dictionary();
          for each(mode in config.HUDModes)
          {
             config.HUDModesMap[mode] = true;
