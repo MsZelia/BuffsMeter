@@ -1397,12 +1397,15 @@ package
                            effect.icon = ICON_UNKNOWN;
                         }
                      }
+                     errorCode = "textColor";
+                     effect.textColor = getCustomEffectColor(effect.text);
                   }
                   else
                   {
                      errorCode = "maxDuration&icon";
                      effect.maxDuration = 0;
                      effect.icon = ICON_UNKNOWN;
+                     effect.textColor = 16777215;
                   }
                   errorCode = "isShowSubEffects";
                   effect.isShowSubEffects = !isHiddenSubEffectFor(effect.type,effect.text);
@@ -1552,7 +1555,7 @@ package
                if(effect.isPermanentEffect)
                {
                   text = getMappedEffectName(effect.text);
-                  textColor = effect.isDebuff ? getCustomColor(DATA_DEBUFF) : getCustomEffectColor(effect.text);
+                  textColor = uint(effect.isDebuff ? getCustomColor(DATA_DEBUFF) : effect.textColor);
                }
                else
                {
@@ -1580,13 +1583,13 @@ package
                      textColor = getCustomSubEffectColor(effect.SubEffects[0].text);
                      if(textColor == uint.MAX_VALUE)
                      {
-                        textColor = getCustomEffectColor(effect.text);
+                        textColor = uint(effect.textColor);
                      }
                   }
                   else
                   {
                      text = getMappedEffectName(effect.text);
-                     textColor = getCustomEffectColor(effect.text);
+                     textColor = uint(effect.textColor);
                   }
                   if(showItemCounts && this.isHudMenu && !effect.isDebuff && (COUNTABLE_EFFECT_TYPES[effect.type] || effect.type == "chems" && indexOfCaseSensitiveString(config.iconsWidget.itemCount.countChems,effect.text.toLowerCase()) != -1))
                   {
