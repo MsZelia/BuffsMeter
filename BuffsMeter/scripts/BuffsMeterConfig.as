@@ -75,6 +75,7 @@ package
          var icon:*;
          var item:*;
          var mode:*;
+         var duration:*;
          var config:* = jsonObject;
          config.x = Parser.parseNumber(config.x,0);
          config.y = Parser.parseNumber(config.y,0);
@@ -222,6 +223,8 @@ package
             config.durationBar.height = 4;
             config.durationBar.maxDuration = 600;
             config.durationBar.maxWidth = config.width;
+            config.durationBar.customDurations = {};
+            config.durationBar.customDurations.__KEYS__ = [];
          }
          else
          {
@@ -231,6 +234,28 @@ package
             config.durationBar.height = Parser.parseNumber(config.durationBar.height,4);
             config.durationBar.maxDuration = Parser.parseNumber(config.durationBar.maxDuration,600);
             config.durationBar.maxWidth = Parser.parseNumber(config.durationBar.maxWidth,config.width);
+            if(!config.durationBar.customDurations)
+            {
+               config.durationBar.customDurations = {};
+               config.durationBar.customDurations.__KEYS__ = [];
+            }
+            else
+            {
+               keys = [];
+               for(duration in config.durationBar.customDurations)
+               {
+                  if(!isNaN(duration) && config.durationBar.customDurations[duration] is Array)
+                  {
+                     group = config.durationBar.customDurations[duration];
+                     for(item in group)
+                     {
+                        group[item] = group[item].toLowerCase();
+                     }
+                     keys.push(duration);
+                  }
+               }
+               config.durationBar.customDurations.__KEYS__ = keys;
+            }
          }
          if(!config.xpBar)
          {

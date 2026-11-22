@@ -934,7 +934,7 @@ package
          this.effects_index = 0;
          this.yOffset = 0;
          this.graphics.clear();
-         for each(effect_tf in effects_tf)
+         for each(var effect_tf in effects_tf)
          {
             if(effect_tf != null)
             {
@@ -1211,6 +1211,24 @@ package
          return null;
       }
       
+      public function getMaxDuration(name:String) : int
+      {
+         if(!config.durationBar.enabled)
+         {
+            return 0;
+         }
+         var lowerCaseName:String = name.toLowerCase();
+         for each(var duration in config.durationBar.customDurations.__KEYS__)
+         {
+            var index:int = indexOfCaseSensitiveString(config.durationBar.customDurations[duration],lowerCaseName);
+            if(index != -1)
+            {
+               return int(duration);
+            }
+         }
+         return config.durationBar.maxDuration;
+      }
+      
       public function addSeparator(data:String) : void
       {
          var t1:Number = Number(getTimer());
@@ -1347,7 +1365,7 @@ package
                   errorCode = "type";
                   effect.type = String(effect.IconType.toLowerCase().replace("icon",""));
                   errorCode = "isDebuff";
-                  effect.isDebuff = effect.type == "disease" || indexOfCaseSensitiveString(config ? config.debuffs : [],effect.Name.toLowerCase()) != -1;
+                  effect.isDebuff = effect.type == "disease" || indexOfCaseSensitiveString(config ? config.debuffs : [],effect.text.toLowerCase()) != -1;
                   errorCode = "textDuration";
                   effect.textDuration = getTimeFromName(effect.TimeRemainingLabel);
                   errorCode = "isPermanentEffect";
@@ -1362,6 +1380,30 @@ package
                   }
                   errorCode = "isValid";
                   effect.isValid = this.isValidEffect(effect.type,effect.text);
+                  if(config && effect.isValid)
+                  {
+                     errorCode = "maxDuration";
+                     effect.maxDuration = effect.isPermanentEffect ? 0 : this.getMaxDuration(effect.text);
+                     errorCode = "icon";
+                     effect.icon = this.getCustomIcon(effect.text);
+                     if(effect.icon == null)
+                     {
+                        if(TYPE_ICONS[effect.type] != null)
+                        {
+                           effect.icon = TYPE_ICONS[effect.type];
+                        }
+                        else
+                        {
+                           effect.icon = ICON_UNKNOWN;
+                        }
+                     }
+                  }
+                  else
+                  {
+                     errorCode = "maxDuration&icon";
+                     effect.maxDuration = 0;
+                     effect.icon = ICON_UNKNOWN;
+                  }
                   errorCode = "isShowSubEffects";
                   effect.isShowSubEffects = !isHiddenSubEffectFor(effect.type,effect.text);
                   errorCode = "SubEffects";
@@ -1410,7 +1452,7 @@ package
          {
             return;
          }
-         for(c in this.topLevel.BGSCodeObj)
+         for(var c in this.topLevel.BGSCodeObj)
          {
             displayMessage(c + ":" + this.topLevel.BGSCodeObj[c]);
          }
@@ -1503,7 +1545,6 @@ package
                var text:String = "";
                var duration:String = "";
                var itemCountStr:String = "";
-               var image:String = "";
                var textColor:uint = 0;
                var durationColor:uint = 0;
                var itemCountColor:uint = 0;
@@ -1559,18 +1600,6 @@ package
                      }
                   }
                }
-               image = getCustomIcon(effect.text);
-               if(image == null)
-               {
-                  if(TYPE_ICONS[effect.type] != null)
-                  {
-                     image = TYPE_ICONS[effect.type];
-                  }
-                  else
-                  {
-                     image = ICON_UNKNOWN;
-                  }
-               }
                if(text.length > maxTextLength)
                {
                   text = text.substr(0,maxTextLength);
@@ -1592,7 +1621,7 @@ package
                   }
                }
                eicon.setData(text,duration,itemCountStr,textColor,durationColor,itemCountColor);
-               eicon.setImage(image);
+               eicon.setImage(effect.icon);
                iconId++;
             }
          }
@@ -1625,6 +1654,8 @@ package
          var subEffectLenAfter:int;
          var inlineTextFormats:Array;
          var add:String;
+         var checkName:*;
+         var format:*;
          var effectDurationBars:Array = [];
          var expiredBuffsIndex:* = 1;
          var t1:* = getTimer();
@@ -1772,7 +1803,7 @@ package
                                     effectDurationBars.push({
                                        "id":effects_index - 1,
                                        "duration":this.BuffData.activeEffects[i].durationRemaining,
-                                       "durationMax":config.durationBar.maxDuration
+                                       "durationMax":this.BuffData.activeEffects[i].maxDuration
                                     });
                                  }
                                  if(isEffectShown)
@@ -2206,7 +2237,7 @@ package
       {
          var allMatch:Boolean = false;
          var msg:String = message.toLowerCase();
-         for each(teamBonus in EFFECT_TEAM_BONUS_LOCALIZED)
+         for each(var teamBonus in EFFECT_TEAM_BONUS_LOCALIZED)
          {
             if(teamBonus is String)
             {
@@ -2218,7 +2249,7 @@ package
             else
             {
                allMatch = true;
-               for each(part in teamBonus)
+               for each(var part in teamBonus)
                {
                   if(msg.indexOf(part) == -1)
                   {
@@ -2241,7 +2272,7 @@ package
          {
             var accountName:String = Boolean(this.AccountInfoData.data) ? this.AccountInfoData.data.name : "-";
             var bondTime:Number = 300;
-            for each(member in this.PartyMenuList.data.members)
+            for each(var member in this.PartyMenuList.data.members)
             {
                if(member.isVisible && member.level > 0 && member.currentBondTime >= bondTime || accountName == member.name)
                {
@@ -2359,11 +2390,11 @@ package
             return -1;
          }
          var s_time:String = name.replace("<","").replace(" ","");
-         for each(minuteAbbr in ABBREVIATION_MINUTE_LOCALIZED)
+         for each(var minuteAbbr in ABBREVIATION_MINUTE_LOCALIZED)
          {
             s_time = s_time.replace(minuteAbbr,"");
          }
-         for each(hourAbbr in ABBREVIATION_HOUR_LOCALIZED)
+         for each(var hourAbbr in ABBREVIATION_HOUR_LOCALIZED)
          {
             parts = s_time.split(hourAbbr);
             if(parts.length > 1)
