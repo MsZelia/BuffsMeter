@@ -1,7 +1,7 @@
 {
 	// WIDGET SETTINGS
 	"x": 5,
-	"y": 100,
+	"y": 40,
 	"anchor": "top", // top, bottom
 	"ySpacing": -3,
 	"width": 300,
@@ -59,6 +59,72 @@
 	"toggleChecklistHotkey": "N+",
 	
 	
+	// ICONS WIDGET SETTINGS
+	"iconsWidget": {
+		"enabled": false,
+		"disableDefaultBuffList": true,
+		"x": 5,
+		"y": 150,
+		"scale": 0.85,
+		"offsetX": 0,
+		"offsetY": 35,
+		"splitInColumnsRows": 18,
+		"offsetColRowX": 200,
+		"offsetColRowY": 0,
+		"text": {
+			"x": 20,
+			"y": -5,
+			"size": 18,
+			"align": "left",
+			"font": "$MAIN_Font_Bold",
+			"maxLength": 20,
+		},
+		"duration": {
+			"x": 20,
+			"y": 12,
+			"size": 15,
+			"align": "left",
+			"font": "$MAIN_Font_Bold",
+		},
+		"itemCount": {
+			"enabled": true,
+			"x": 100,
+			"y": 13,
+			"size": 15,
+			"align": "right",
+			"font": "$MAIN_Font_Bold",
+			"lowCount": 3,
+			"lowCountColor": "0xffff00",
+			"noItemsColor": "0xff0000",
+			"countChems": [
+				"serum", "very well rested", "scout",
+				"bobblehead", "live & love", "guns and bullets", "tesla science",
+				"mentats", "overdrive", "buffout", "bufftats", "psycho", "fury",
+			],
+			"mapCountableEffectNames": {
+				"Very Well Rested": "Lunchbox",
+				"Â¢Scout's Call": "Scout's Banner",
+				"Â¢Scout's Code": "Scout's Banner",
+				"Â¢Scout's Courage": "Scout's Banner",
+			},
+		},
+		"customIcons": {
+			"team": ["team bonus"],
+			"lunchbox": ["very well rested"],
+			"banner": ["scout's call", "scout's code", "scout's courage"],
+			"sleep": ["rested", "well rested", "kindred spirit", "lover's embrace", "human/robot... \"interfacing\""],
+			"drink": ["carry weight booster"], // placed before "boost" camp buffs
+			"camp": ["well tuned", "rip's bounty", " boost"],
+			"serum": ["serum"],
+			"bobblehead": ["bobblehead"],
+			"book": ["wisdom of the mothman", "astoundingly awesome", "backwoodsman", "grognak", "guns and bullets", "live & love", "scouts' life", "tales from the west virginia", "tesla science", "u.s. covert", "unstoppables"],
+			"onslaught": ["on the hunt"],
+			"powerarmor": ["power armor"],
+			"candy": ["bubblegum", "candy"],
+		},
+	},
+	
+	
 	// EFFECT DISPLAY SETTINGS
 	"refresh": 1000,
 	
@@ -78,8 +144,9 @@
 	],
 	"hideSubEffectsFor": [
 		"MUTATION",
-		"hydrated",
-		"fed",
+		"HUNGER",
+		"THRIST",
+		"double xp",
 		"nerd rage",
 		"team bonus"
 	],
@@ -89,7 +156,8 @@
 	"hideTypes": [
 		"MUTATION",
 		"HUNGER",
-		"THRIST"
+		"THRIST",
+		"ENCUMBERED",
 	],
 	"showTypes": [
 		"ALCOHOL",
@@ -100,17 +168,9 @@
 	
 	"hideEffectsState": "hidden", // hidden, shown
 	"hideEffects": [
-		"overencumbered",
-		"team",
-		"scout",
-		"so much cake",
-		"gift bag",
-		"to-go punch",
-		"noisemaker",
-		"antacids",
-		"plastic animals",
-		"confetti mess",
-		"fingertrap",
+		//"team",
+		//"scout",
+		"so much cake", "gift bag", "to-go punch", "noisemaker", "antacids", "plastic animals", "confetti mess", "fingertrap",
 		"explosive damage",
 		"stealth move",
 		"stimpak",
@@ -124,8 +184,7 @@
 	],
 	
 	"debuffs": [
-		"radaway", "addiction",
-		"the blight", "blood worms", "bone worms", "buzz brain", "dysentery", "fever claw", "flap limb", "glowing pustules", "heat flashes", "jelly fingers", "lock joint", "needle spine", "parasites", "rad worms", "rattle hands", "shell shock", "sludge lung", "snot ear", "swamp gas", "swamp itch", "weeping sores", "the woopsies"
+		"radaway", "addiction", "hangover",
 	],
 	
 	"checklistHiddenByDefault": false, // 1.4.10
@@ -147,7 +206,23 @@
 		"alignHorizontal": "left", // left, center, right
 		"height": 3,
 		"maxWidth": 300,
-		"maxDuration": 1800
+		"maxDuration": 1800,
+		//"color": "0x007700",
+		//"warningColor": "0x990099",
+		"customDurations": {
+			"10800": ["pet rested", "lover's embrace"],
+			"7200": ["accuracy boost", "bobblehead"],
+			"5400": ["mirelurk fillets", "brain bombs", "broiled scorchbeast brain", "seared venison", "slice of birthday cake", "slice of pumpkin pie", "sweet roll", "carry weight booster"],
+			"3600": [
+				"cranberry relish", "company tea", "sweetwater special", "pumpkin pie", "tasty squirrel stew", "canned meat stew", "black-eyes susan", " puree",
+				"very well rested", "well tuned", "wisdom of the mothman", "serum",
+				"astoundingly awesome", "backwoodsman", "grognak", "guns and bullets", "live & love", "scouts' life", "tales from the west virginia", "tesla science", "u.s. covert", "unstoppables"],
+			"1800": ["boost", " cobbler", " soup", "mothman egg", "tato salad", "radaway"],
+			"1200": ["rad-x"],
+			"900": ["popcorn"],
+			"600": ["mentats", "buffout", "bufftats"],
+			"360": ["overdrive", "psycho", "fury"],
+		},
 	},
 	
 	"xpBar": {
@@ -157,7 +232,9 @@
 		"alignVertical": "bottom", // top, center, bottom
 		"alignHorizontal": "left", // left, center, right
 		"height": 4,
-		"maxWidth": 300
+		"maxWidth": 300,
+		//"barColor": "0x009900",
+		//"textColor": "0x99ff99",
 	},
 	
 	"petXpBar": {
@@ -167,7 +244,9 @@
 		"alignVertical": "bottom", // top, center, bottom
 		"alignHorizontal": "left", // left, center, right
 		"height": 4,
-		"maxWidth": 300
+		"maxWidth": 300,
+		//"barColor": "0xffffcb",
+		//"textColor": "0xffffcb",
 	},
 	
 	"scoreBar": {
@@ -177,7 +256,9 @@
 		"alignVertical": "bottom", // top, center, bottom
 		"alignHorizontal": "left", // left, center, right
 		"height": 4,
-		"maxWidth": 300
+		"maxWidth": 300,
+		//"barColor": "0x0066ff",
+		//"textColor": "0xffffff",
 	},
 	
 	
@@ -201,6 +282,8 @@
 	//	timeLong, accepts {d}, {h}, {m}, {s}
 	//	timeMid, accepts {h}, {m}, {s}
 	//	timeShort, accepts {m}, {s}
+	//	timeZero, for expiring effects
+	//	timeNone, for permanent effects
 	"format": "{duration} | {text}",
 	"formats": {
 		"subEffect": "   {text}",
@@ -220,7 +303,8 @@
 		"timeLong": "{d}d {h}:{m}:{s}",
 		"timeMid": "{h}:{m}:{s}",
 		"timeShort": "      {m}:{s}",
-		"timeNone": "\t ∞"
+		"timeZero": "      00:00",
+		"timeNone": "\t ∞",
 	},
 	
 	"sortBy": "property",
@@ -265,9 +349,9 @@
 		"showVersion",
 		"showHUDMode",
 		"showTime24",
-		//"showPetXPBar",
-		//"showXPBar",
-		//"showScoreBar",
+		"showPetXPBar",
+		"showXPBar",
+		"showScoreBar",
 		
 		"showBuffs",
 		
@@ -343,6 +427,16 @@
 		// example: "+5 INT": "0x99ff99",
 	},
 	
+	// supports both effect and subeffect names - 1.6.0
+	"mapEffectNames": {
+		// Examples:
+		//"Very Well Rested": "Lunchbox",
+		//"Berry Mentats": "Btats",
+		//"+5% XP in a team": "+5% XP",
+		//"+25% AP Regen": "+25% APR",
+		
+	},
+	
 	// HUD Modes:
 	//	"ActivateTypeMode", "All", "AutoVanity", "CampPlacement", "ContainerMode", "CrosshairAndActivateOnly",
 	//	"DeathRespawnMode", "DialogueMode", "EndOfMatch", "FurnitureEnterExit", "InsideMemory", "InspectMode",
@@ -353,7 +447,7 @@
 	//	"WorkshopNoCrosshairMode"
 	//	"DefaultScopeMenu", "CameraScopeMenu"
 	//	"ExamineConfirmMode"
-	//	"Loading", "MainMenu"
+	//	Overlay only modes: "Loading", "MainMenu", "SocialMenu"
 	
 	//"All" is default HUD mode (non-power armor), not all of them
 	"HUDModesState": "hidden", // hidden, shown
