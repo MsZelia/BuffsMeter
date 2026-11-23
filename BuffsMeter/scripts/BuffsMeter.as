@@ -1011,7 +1011,10 @@ package
          if(config.anchor == "bottom")
          {
             this.y = -(LastDisplayEffect.y + LastDisplayEffect.height - config.y);
-            this.EffectIconsHolder.y = config.iconsWidget.y - this.y;
+            if(config.iconsWidget.enabled)
+            {
+               this.EffectIconsHolder.y = config.iconsWidget.y - this.y;
+            }
          }
          else if(this.y != 0)
          {
@@ -1385,17 +1388,24 @@ package
                      errorCode = "maxDuration";
                      effect.maxDuration = effect.isPermanentEffect ? 0 : this.getMaxDuration(effect.text);
                      errorCode = "icon";
-                     effect.icon = this.getCustomIcon(effect.text);
-                     if(effect.icon == null)
+                     if(config.iconsWidget.enabled)
                      {
-                        if(TYPE_ICONS[effect.type] != null)
+                        effect.icon = this.getCustomIcon(effect.text);
+                        if(effect.icon == null)
                         {
-                           effect.icon = TYPE_ICONS[effect.type];
+                           if(TYPE_ICONS[effect.type] != null)
+                           {
+                              effect.icon = TYPE_ICONS[effect.type];
+                           }
+                           else
+                           {
+                              effect.icon = ICON_UNKNOWN;
+                           }
                         }
-                        else
-                        {
-                           effect.icon = ICON_UNKNOWN;
-                        }
+                     }
+                     else
+                     {
+                        effect.icon = ICON_UNKNOWN;
                      }
                      errorCode = "textColor";
                      effect.textColor = getCustomEffectColor(effect.text);
